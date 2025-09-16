@@ -30,6 +30,16 @@ class DoubleLinkedList:
     def __repr__(self):
         return str(list(self))
     
+    def index(self, node):
+        idx = 0
+        current = self.head
+        while current:
+            if current is node:
+                return idx
+            current = current.next
+            idx += 1
+        return -1  # Return -1 if node is not found
+    
 @cache
 def pgcd(a, b): return gcd(a, b)
 @cache
@@ -48,7 +58,8 @@ class App(AlgorithmVisualizer):
                 variables = {
                     "now": now,
                     "res": list(res)
-                }
+                },
+                highlight = [0]
             )
         while now and now.next:
             nxt = now.next
@@ -73,7 +84,8 @@ class App(AlgorithmVisualizer):
                 variables = {
                     "now": now,
                     "res": list(res)
-                }
+                },
+                highlight = [res.index(now)]
             )
             self.res = res
         

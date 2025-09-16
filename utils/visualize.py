@@ -832,6 +832,4 @@ if __name__ == "__main__":
     print("🎨 Enhanced Algorithm Visualizer")
     print("=" * 50)
     print("\n✨ Quick Examples:")
-    print("   BinarySearchExample([1,3,5,7,9], 5).show()")
-    print("   TwoSumExample([2,7,11,15], 9).show()")
     print("\n📚 Check the docstrings for full usage guide!")
