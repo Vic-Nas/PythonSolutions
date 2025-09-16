@@ -38,11 +38,12 @@ def replaceNonCoprimes(self, nums: list[int]) -> list[int]:
     def ppcm(a, b): return a * b // pgcd(a, b)
 
     now = res.head
-    while now and now.next:
+    while now != res.tail:
+        # If we got to the tail, we're done
         nxt = now.next
         if pgcd(now.val, nxt.val) > 1:
             new = Node(ppcm(now.val, nxt.val))
-            
+            # Update the links to replace old nodes by one
             if nxt != res.tail:
                 nxt.next.prev = new
                 new.next = nxt.next
