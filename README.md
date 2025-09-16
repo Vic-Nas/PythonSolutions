@@ -7,3 +7,4 @@ A collection of programming problem solutions from different online judges and c
 - **Well-commented code** to explain the approach and algorithm.  
 - **Python-focused solutions**, with clear and readable implementation.  
 - **Geometry problems** may include supporting images or diagrams.  
+- **Multistemps problems** may include an example page.
