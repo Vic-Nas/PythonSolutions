@@ -1,5 +1,4 @@
-# ProblemSolutions
-# PythonSolutions
+# [PythonSolutions](https://vic-nas.github.io/PythonSolutions/)
 
 A collection of programming problem solutions from different online judges and competitive programming platforms.
 
