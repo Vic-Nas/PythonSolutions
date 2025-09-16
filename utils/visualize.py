@@ -21,7 +21,10 @@ class AlgorithmVisualizer(ABC):
     Example:
         class BinarySearch(AlgorithmVisualizer):
             def __init__(self, arr, target):
-                super().__init__("Binary Search", f"Searching for {target}")
+                super().__init__(
+                    "Binary Search", 
+                    problem_link="https://leetcode.com/problems/binary-search/"
+                )
                 self.arr = arr
                 self.target = target
             
@@ -62,16 +65,18 @@ class AlgorithmVisualizer(ABC):
         BinarySearch([1,3,5,7,9], 5).show()
     """
     
-    def __init__(self, title: str, description: str = ""):
+    def __init__(self, title: str, description: str = "", problem_link: str = None):
         """
         Initialize the visualizer.
         
         Args:
             title: Name of your algorithm (e.g., "Binary Search")
             description: Brief explanation (e.g., "Finding target in sorted array")
+            problem_link: URL to the problem (e.g., LeetCode link)
         """
         self.title = title
         self.description = description
+        self.problem_link = problem_link
         self.steps = []
         
     @abstractmethod
@@ -277,6 +282,21 @@ class AlgorithmVisualizer(ABC):
         """Render primitive values (int, float, string, etc.)."""
         return f'<div class="variable primitive"><strong>{name}:</strong> <span class="value">{value}</span></div>'
     
+    def _generate_problem_link_html(self) -> str:
+        """Generate HTML for the problem link section."""
+        if self.problem_link:
+            return f'''
+                <div class="problem-link-container">
+                    <a href="{self.problem_link}" target="_blank" class="problem-link">
+                        🔗 View Original Problem
+                    </a>
+                </div>
+            '''
+        elif self.description:
+            return f'<p class="description">{self.description}</p>'
+        else:
+            return ''
+    
     def _generate_html(self) -> str:
         """Generate the complete HTML visualization."""
         complexity_info = self.get_complexity()
@@ -310,7 +330,7 @@ class AlgorithmVisualizer(ABC):
     <div class="container">
         <header>
             <h1>🎯 {self.title}</h1>
-            {f'<p class="description">{self.description}</p>' if self.description else ''}
+            {self._generate_problem_link_html()}
         </header>
 
         <div class="controls">
@@ -469,6 +489,33 @@ class AlgorithmVisualizer(ABC):
             max-width: 600px;
             margin: 0 auto;
             line-height: 1.6;
+        }
+
+        .problem-link-container {
+            margin-top: 16px;
+        }
+
+        .problem-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .problem-link:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #dbeafe;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
 
         .controls {
@@ -709,14 +756,14 @@ class AlgorithmVisualizer(ABC):
         '''
 
 
-# Example implementations to show users how to use it
+# Example implementations with clickable links
 class BinarySearchExample(AlgorithmVisualizer):
-    """Example: Binary Search visualization"""
+    """Example: Binary Search visualization with LeetCode link"""
     
     def __init__(self, arr: List[int], target: int):
         super().__init__(
             "Binary Search", 
-            f"Searching for {target} in sorted array"
+            problem_link="https://leetcode.com/problems/binary-search/"
         )
         self.arr = arr
         self.target = target
@@ -773,12 +820,12 @@ class BinarySearchExample(AlgorithmVisualizer):
 
 
 class TwoSumExample(AlgorithmVisualizer):
-    """Example: Two Sum with hash map approach"""
+    """Example: Two Sum with hash map approach and LeetCode link"""
     
     def __init__(self, nums: List[int], target: int):
         super().__init__(
             "Two Sum", 
-            f"Finding two numbers that add up to {target}"
+            problem_link="https://leetcode.com/problems/two-sum/"
         )
         self.nums = nums
         self.target = target
@@ -826,10 +873,3 @@ class TwoSumExample(AlgorithmVisualizer):
             "space": "O(n)",
             "explanation": "Single pass with hash map lookup"
         }
-
-
-if __name__ == "__main__":
-    print("🎨 Enhanced Algorithm Visualizer")
-    print("=" * 50)
-    print("\n✨ Quick Examples:")
-    print("\n📚 Check the docstrings for full usage guide!")

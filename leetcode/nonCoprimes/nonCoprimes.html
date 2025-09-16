@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0058)file:///C:/Users/nasci/AppData/Local/Temp/tmphar2_t94.html -->
+<!-- saved from url=(0058)file:///C:/Users/nasci/AppData/Local/Temp/tmpfod_hznj.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,6 +52,33 @@
             max-width: 600px;
             margin: 0 auto;
             line-height: 1.6;
+        }
+
+        .problem-link-container {
+            margin-top: 16px;
+        }
+
+        .problem-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .problem-link:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #dbeafe;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
 
         .controls {
@@ -296,36 +323,77 @@
     <div class="container">
         <header>
             <h1>🎯 Replace Non-Coprime Numbers in Array</h1>
-            <p class="description">https://leetcode.com/problems/replace-non-coprime-numbers-in-array/description/</p>
+            
+                <div class="problem-link-container">
+                    <a href="https://leetcode.com/problems/replace-non-coprime-numbers-in-array/description/" target="_blank" class="problem-link">
+                        🔗 View Original Problem
+                    </a>
+                </div>
+            
         </header>
 
         <div class="controls">
             <button onclick="reset()">🔄 Reset</button>
-            <button onclick="previousStep()" id="prevBtn">⬅️ Previous</button>
-            <button onclick="nextStep()" id="nextBtn" disabled="">▶️ Next</button>
-            <button onclick="autoPlay()" id="autoBtn" disabled="">⚡ Auto Play</button>
+            <button onclick="previousStep()" id="prevBtn" disabled="">⬅️ Previous</button>
+            <button onclick="nextStep()" id="nextBtn">▶️ Next</button>
+            <button onclick="autoPlay()" id="autoBtn">⚡ Auto Play</button>
         </div>
 
         <div class="main-content">
             <div class="visualization-area">
-                <div id="stateDisplay"><div class="variable primitive"><strong>now:</strong> <span class="value">20677&lt;-825-&gt;None</span></div>
+                <div id="stateDisplay"><div class="variable primitive"><strong>now:</strong> <span class="value">None&lt;-287-&gt;41</span></div>
 
             <div class="variable">
                 <strong>res:</strong>
                 <div class="array-container">
                     
-                <div class="array-item">
+                <div class="array-item highlight">
                     <div class="array-index">0</div>
-                    <div class="array-value">2009</div>
+                    <div class="array-value">287</div>
                 </div>
             
                 <div class="array-item">
                     <div class="array-index">1</div>
+                    <div class="array-value">41</div>
+                </div>
+            
+                <div class="array-item">
+                    <div class="array-index">2</div>
+                    <div class="array-value">49</div>
+                </div>
+            
+                <div class="array-item">
+                    <div class="array-index">3</div>
+                    <div class="array-value">287</div>
+                </div>
+            
+                <div class="array-item">
+                    <div class="array-index">4</div>
+                    <div class="array-value">899</div>
+                </div>
+            
+                <div class="array-item">
+                    <div class="array-index">5</div>
+                    <div class="array-value">23</div>
+                </div>
+            
+                <div class="array-item">
+                    <div class="array-index">6</div>
+                    <div class="array-value">23</div>
+                </div>
+            
+                <div class="array-item">
+                    <div class="array-index">7</div>
                     <div class="array-value">20677</div>
                 </div>
             
-                <div class="array-item highlight">
-                    <div class="array-index">2</div>
+                <div class="array-item">
+                    <div class="array-index">8</div>
+                    <div class="array-value">5</div>
+                </div>
+            
+                <div class="array-item">
+                    <div class="array-index">9</div>
                     <div class="array-value">825</div>
                 </div>
             
@@ -335,9 +403,9 @@
                 <div class="step-info" id="stepInfo"></div>
                 <div class="progress-container">
                     <div class="progress-bar">
-                        <div id="progressFill" style="width: 100%;"></div>
+                        <div id="progressFill" style="width: 0%;"></div>
                     </div>
-                    <div class="step-counter" id="stepCounter">Step 13 of 13</div>
+                    <div class="step-counter" id="stepCounter">Step 0 of 13</div>
                 </div>
             </div>
 
