@@ -22,8 +22,9 @@ class AlgorithmVisualizer(ABC):
         class BinarySearch(AlgorithmVisualizer):
             def __init__(self, arr, target):
                 super().__init__(
-                    "Binary Search", 
-                    problem_link="https://leetcode.com/problems/binary-search/"
+                    title="Binary Search", 
+                    problem_url="https://leetcode.com/problems/binary-search/",
+                    code_url="https://github.com/user/repo/blob/main/binary_search.py"
                 )
                 self.arr = arr
                 self.target = target
@@ -65,18 +66,20 @@ class AlgorithmVisualizer(ABC):
         BinarySearch([1,3,5,7,9], 5).show()
     """
     
-    def __init__(self, title: str, description: str = "", problem_link: str = None):
+    def __init__(self, title: str, description: str = "", problem_url: str = "", code_url: str = ""):
         """
         Initialize the visualizer.
         
         Args:
             title: Name of your algorithm (e.g., "Binary Search")
-            description: Brief explanation (e.g., "Finding target in sorted array")
-            problem_link: URL to the problem (e.g., LeetCode link)
+            description: Brief explanation (optional, will be shown as subtitle)
+            problem_url: Link to the problem (e.g., LeetCode URL)
+            code_url: Link to your code implementation (e.g., GitHub URL)
         """
         self.title = title
         self.description = description
-        self.problem_link = problem_link
+        self.problem_url = problem_url
+        self.code_url = code_url
         self.steps = []
         
     @abstractmethod
@@ -282,21 +285,6 @@ class AlgorithmVisualizer(ABC):
         """Render primitive values (int, float, string, etc.)."""
         return f'<div class="variable primitive"><strong>{name}:</strong> <span class="value">{value}</span></div>'
     
-    def _generate_problem_link_html(self) -> str:
-        """Generate HTML for the problem link section."""
-        if self.problem_link:
-            return f'''
-                <div class="problem-link-container">
-                    <a href="{self.problem_link}" target="_blank" class="problem-link">
-                        🔗 View Original Problem
-                    </a>
-                </div>
-            '''
-        elif self.description:
-            return f'<p class="description">{self.description}</p>'
-        else:
-            return ''
-    
     def _generate_html(self) -> str:
         """Generate the complete HTML visualization."""
         complexity_info = self.get_complexity()
@@ -316,6 +304,22 @@ class AlgorithmVisualizer(ABC):
                 'step_number': step['step_number']
             })
         
+        # Generate header with links
+        header_html = f'<h1>🎯 {self.title}</h1>'
+        
+        links_html = ""
+        if self.problem_url or self.code_url:
+            links = []
+            if self.problem_url:
+                links.append(f'<a href="{self.problem_url}" target="_blank" class="header-link">📝 View Problem</a>')
+            if self.code_url:
+                links.append(f'<a href="{self.code_url}" target="_blank" class="header-link">💻 View Code</a>')
+            links_html = f'<div class="header-links">{"".join(links)}</div>'
+        
+        description_html = ""
+        if self.description:
+            description_html = f'<p class="description">{self.description}</p>'
+        
         return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -329,8 +333,9 @@ class AlgorithmVisualizer(ABC):
 <body>
     <div class="container">
         <header>
-            <h1>🎯 {self.title}</h1>
-            {self._generate_problem_link_html()}
+            {header_html}
+            {links_html}
+            {description_html}
         </header>
 
         <div class="controls">
@@ -483,39 +488,48 @@ class AlgorithmVisualizer(ABC):
             background-clip: text;
         }
 
+        .header-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .header-link {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            color: white;
+        }
+
+        .header-link:active {
+            transform: translateY(0);
+        }
+
         .description {
             font-size: 1.2em;
             opacity: 0.9;
             max-width: 600px;
-            margin: 0 auto;
+            margin: 20px auto 0;
             line-height: 1.6;
-        }
-
-        .problem-link-container {
-            margin-top: 16px;
-        }
-
-        .problem-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(59, 130, 246, 0.2);
-            color: #93c5fd;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1.1em;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .problem-link:hover {
-            background: rgba(59, 130, 246, 0.3);
-            color: #dbeafe;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
 
         .controls {
@@ -743,6 +757,16 @@ class AlgorithmVisualizer(ABC):
             button {
                 width: 200px;
             }
+            
+            .header-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .header-link {
+                width: 200px;
+                justify-content: center;
+            }
         }
 
         @keyframes fadeIn {
@@ -756,14 +780,16 @@ class AlgorithmVisualizer(ABC):
         '''
 
 
-# Example implementations with clickable links
+# Updated example implementations
 class BinarySearchExample(AlgorithmVisualizer):
-    """Example: Binary Search visualization with LeetCode link"""
+    """Example: Binary Search visualization"""
     
     def __init__(self, arr: List[int], target: int):
         super().__init__(
-            "Binary Search", 
-            problem_link="https://leetcode.com/problems/binary-search/"
+            title="Binary Search",
+            description="Efficiently searching in a sorted array",
+            problem_url="https://leetcode.com/problems/binary-search/",
+            code_url="https://github.com/example/algorithms/blob/main/binary_search.py"
         )
         self.arr = arr
         self.target = target
@@ -819,57 +845,12 @@ class BinarySearchExample(AlgorithmVisualizer):
         }
 
 
-class TwoSumExample(AlgorithmVisualizer):
-    """Example: Two Sum with hash map approach and LeetCode link"""
+if __name__ == "__main__":
+    print("🎨 Enhanced Algorithm Visualizer with Links")
+    print("=" * 50)
+    print("\n✨ Quick Examples:")
+    print("\n📚 Check the docstrings for full usage guide!")
     
-    def __init__(self, nums: List[int], target: int):
-        super().__init__(
-            "Two Sum", 
-            problem_link="https://leetcode.com/problems/two-sum/"
-        )
-        self.nums = nums
-        self.target = target
-    
-    def run_algorithm(self) -> List[int]:
-        seen = {}
-        
-        self.add_step(
-            {'nums': self.nums, 'target': self.target, 'seen': seen},
-            "🚀 Starting two sum search with hash map"
-        )
-        
-        for i, num in enumerate(self.nums):
-            complement = self.target - num
-            
-            self.add_step(
-                {'nums': self.nums, 'i': i, 'target': self.target, 'seen': seen, 'complement': complement},
-                f"At index {i}: need {complement} to sum to {self.target}",
-                current=[i]
-            )
-            
-            if complement in seen:
-                self.add_step(
-                    {'nums': self.nums, 'i': i, 'target': self.target, 'seen': seen},
-                    f"🎯 Found pair! {num} + {complement} = {self.target}",
-                    highlight=[seen[complement], i]
-                )
-                return [seen[complement], i]
-            
-            seen[num] = i
-            self.add_step(
-                {'nums': self.nums, 'i': i, 'target': self.target, 'seen': seen},
-                f"Added {num} -> index {i} to hash map"
-            )
-        
-        self.add_step(
-            {'nums': self.nums, 'target': self.target, 'seen': seen},
-            "❌ No valid pair found"
-        )
-        return []
-    
-    def get_complexity(self) -> Dict[str, str]:
-        return {
-            "time": "O(n)",
-            "space": "O(n)",
-            "explanation": "Single pass with hash map lookup"
-        }
+    # Example usage
+    # visualizer = BinarySearchExample([1, 3, 5, 7, 9, 11, 13], 7)
+    # visualizer.show()

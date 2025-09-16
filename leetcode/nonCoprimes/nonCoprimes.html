@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0058)file:///C:/Users/nasci/AppData/Local/Temp/tmpfod_hznj.html -->
+<!-- saved from url=(0058)file:///C:/Users/nasci/AppData/Local/Temp/tmpyyf_t802.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,39 +46,48 @@
             background-clip: text;
         }
 
+        .header-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .header-link {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            color: white;
+        }
+
+        .header-link:active {
+            transform: translateY(0);
+        }
+
         .description {
             font-size: 1.2em;
             opacity: 0.9;
             max-width: 600px;
-            margin: 0 auto;
+            margin: 20px auto 0;
             line-height: 1.6;
-        }
-
-        .problem-link-container {
-            margin-top: 16px;
-        }
-
-        .problem-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(59, 130, 246, 0.2);
-            color: #93c5fd;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1.1em;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .problem-link:hover {
-            background: rgba(59, 130, 246, 0.3);
-            color: #dbeafe;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
 
         .controls {
@@ -306,6 +315,16 @@
             button {
                 width: 200px;
             }
+            
+            .header-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .header-link {
+                width: 200px;
+                justify-content: center;
+            }
         }
 
         @keyframes fadeIn {
@@ -323,12 +342,7 @@
     <div class="container">
         <header>
             <h1>🎯 Replace Non-Coprime Numbers in Array</h1>
-            
-                <div class="problem-link-container">
-                    <a href="https://leetcode.com/problems/replace-non-coprime-numbers-in-array/description/" target="_blank" class="problem-link">
-                        🔗 View Original Problem
-                    </a>
-                </div>
+            <div class="header-links"><a href="https://leetcode.com/problems/replace-non-coprime-numbers-in-array/description/" target="_blank" class="header-link">📝 View Problem</a><a href="https://github.com/Vic-Nas/PythonSolutions/blob/main/leetcode/nonCoprimes/nonCoprimes.vn.py" target="_blank" class="header-link">💻 View Code</a></div>
             
         </header>
 

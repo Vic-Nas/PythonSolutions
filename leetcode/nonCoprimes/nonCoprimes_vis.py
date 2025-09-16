@@ -48,10 +48,11 @@ def ppcm(a, b): return a * b // pgcd(a, b)
 class App(AlgorithmVisualizer):
     def __init__(self, title = "Replace Non-Coprime Numbers in Array", 
                  desc = "",
-                 problem_link = "https://leetcode.com/problems/replace-non-coprime-numbers-in-array/description/",
+                 problem_url = "https://leetcode.com/problems/replace-non-coprime-numbers-in-array/description/",
+                 code_url = "https://github.com/Vic-Nas/PythonSolutions/blob/main/leetcode/nonCoprimes/nonCoprimes.vn.py",
                  nums = []):
         self.res = DoubleLinkedList(nums)
-        super().__init__(title, problem_link = problem_link, description = desc)
+        super().__init__(title, problem_url = problem_url, description = desc, code_url = code_url)
     def run_algorithm(self):
         res = self.res
         now = res.head
