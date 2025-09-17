@@ -31,8 +31,9 @@ for _ in range(int(input())):
                 dp[j][mask] = min(
                     dist(
                         beepers[j], beepers[k]
-                    ) + dp[k][mask & ~(1 << j)] for k in range(len(beepers))
-                    if (mask & ~(1 << j)) & (1 << k)
+                    ) + 
+                    dp[k][mask & ~(1 << j)] 
+                    for k in range(len(beepers)) if (mask & ~(1 << j)) & (1 << k)
                 )
                 
     res = min(
@@ -41,5 +42,3 @@ for _ in range(int(input())):
                 
                 
     print(res)
-                
-                
