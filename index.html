@@ -363,9 +363,12 @@
         
         .images-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
             margin: 2rem 0;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .image-container {
@@ -382,8 +385,10 @@
         
         .image-container img {
             width: 100%;
+            max-width: 800px;
             height: auto;
             display: block;
+            margin: 0 auto;
         }
         
         .image-caption {
