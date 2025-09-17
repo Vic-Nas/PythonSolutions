@@ -13,7 +13,7 @@ def dist(A: tuple[float], B: tuple[float]) -> float:
     )
 
 for _ in range(int(input())):
-    X, Y = map(int, input().split())
+    input()
     start = tuple(map(int, input().split()))
     beepers = [
         (*map(int, input().split()), ) for _ in range(int(input()))
