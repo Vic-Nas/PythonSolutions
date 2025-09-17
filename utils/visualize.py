@@ -123,7 +123,8 @@ class AlgorithmVisualizer(ABC):
                  variables: Dict[str, Any], 
                  message: str = "",
                  highlight: List[int] = None,
-                 current: List[int] = None):
+                 current: List[int] = None,
+                 notToHighlight = []):
         """
         Save a step in your algorithm for visualization.
         
@@ -160,9 +161,10 @@ class AlgorithmVisualizer(ABC):
         step_data = {
             'variables': variables.copy(),
             'message': message,
-            'highlight': highlight.copy(),
+            'highlight': highlight,
             'current': current.copy(),
-            'step_number': len(self.steps)
+            'step_number': len(self.steps),
+            "notToHighlight": notToHighlight,
         }
         self.steps.append(step_data)
     
@@ -220,7 +222,7 @@ class AlgorithmVisualizer(ABC):
         print(f"💾 Visualization saved to {filename}")
         return filename
     
-    def _render_variable(self, name: str, value: Any, highlight: List[int] = None, current: List[int] = None) -> str:
+    def _render_variable(self, name: str, value: Any, highlight: List[int] = None, current: List[int] = None, notToHighlight = []) -> str:
         """Convert a variable to HTML representation."""
         if highlight is None:
             highlight = []
@@ -229,7 +231,7 @@ class AlgorithmVisualizer(ABC):
         
         # Handle different data types
         if isinstance(value, (list, tuple)):
-            return self._render_array(name, value, highlight, current)
+            return self._render_array(name, value, highlight if value not in notToHighlight else [], current)
         elif isinstance(value, dict):
             return self._render_dict(name, value)
         elif isinstance(value, (int, float, str, bool)):
@@ -295,7 +297,7 @@ class AlgorithmVisualizer(ABC):
             # Render all variables in this step
             variables_html = []
             for var_name, var_value in step['variables'].items():
-                var_html = self._render_variable(var_name, var_value, step['highlight'], step['current'])
+                var_html = self._render_variable(var_name, var_value, step['highlight'], step['current'], notToHighlight=step['notToHighlight'])
                 variables_html.append(var_html)
             
             js_steps.append({

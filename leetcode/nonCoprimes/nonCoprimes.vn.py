@@ -1,4 +1,8 @@
 
+# 2197. Replace Non-Coprime Numbers in Array
+# https://leetcode.com/problems/replace-non-coprime-numbers-in-array
+# Double-linked list
+# 16/09/2025
 
 def replaceNonCoprimes(self, nums: list[int]) -> list[int]:
     from functools import cache
