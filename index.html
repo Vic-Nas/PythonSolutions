@@ -546,7 +546,7 @@
                                     const files = await dirResponse.json();
                                     
                                     const hasHtml = files.some(file => file.name === `${dir.name}.html`);
-                                    const hasPng = files.some(file => file.name.match(new RegExp(`^${dir.name}\\.vn(\\.(\\d+))?\\.png$`)));
+                                    const hasPng = files.some(file => file.name.match(new RegExp(`^${dir.name}\\.vn(?:\\.(\\d+))?\\.png$`)));
                                     const hasPy = files.some(file => file.name === `${dir.name}.vn.py`);
                                     
                                     let type = 'code-only';
