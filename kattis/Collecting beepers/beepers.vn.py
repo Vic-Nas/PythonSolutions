@@ -1,3 +1,8 @@
+# Collecting beepers
+# https://open.kattis.com/problems
+# Dynamic programming
+# 17/09/2025
+
 
 from functools import cache
 
