@@ -1,5 +1,5 @@
 # Collecting beepers
-# https://open.kattis.com/problems
+# https://open.kattis.com/problems/beepers
 # Dynamic programming
 # 17/09/2025
 
