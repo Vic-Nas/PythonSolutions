@@ -9,7 +9,7 @@ class App(AlgorithmVisualizer):
                  arr = []
                  ):
         self.inp = arr
-        super().__init__(title, problem_url, code_url)
+        super().__init__(title,problem_url=problem_url, code_url=code_url)
         
     def run_algorithm(self):
         inp = self.inp
