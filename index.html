@@ -545,12 +545,26 @@
                                 if (dirResponse.ok) {
                                     const files = await dirResponse.json();
                                     
-                                    const hasHtml = files.some(file => file.name === `${dir.name}.html`);
-                                    const hasPng = files.some(file => file.name.match(new RegExp(`^${dir.name}\\.vn(?:\\.(\\d+))?\\.png$`)));
-                                    const hasPy = files.some(file => file.name === `${dir.name}.vn.py`);
+                                    // Look for any .html file that matches the directory name
+                                    const hasHtml = files.some(file => 
+                                        file.name.endsWith('.html') && 
+                                        file.name.toLowerCase().includes(dir.name.toLowerCase().replace(/\s+/g, ''))
+                                    );
+                                    
+                                    // Look for any .vn.png files (not tied to directory name)
+                                    const pngFiles = files.filter(file => 
+                                        file.name.endsWith('.vn.png') || 
+                                        file.name.match(/\.vn\.\d+\.png$/)
+                                    );
+                                    const hasPng = pngFiles.length > 0;
+                                    
+                                    // Look for any .vn.py files
+                                    const pyFiles = files.filter(file => file.name.endsWith('.vn.py'));
+                                    const hasPy = pyFiles.length > 0;
                                     
                                     let type = 'code-only';
                                     let hasPage = false;
+                                    let mainPyFile = null;
                                     
                                     if (hasHtml) {
                                         type = 'html';
@@ -563,6 +577,11 @@
                                         hasPage = true; // We'll generate a page for code-only too
                                     }
                                     
+                                    // Find the main .vn.py file (there should typically be one)
+                                    if (pyFiles.length > 0) {
+                                        mainPyFile = pyFiles[0]; // Take the first .vn.py file
+                                    }
+                                    
                                     if (hasHtml || hasPng || hasPy) {
                                         problems.push({
                                             name: dir.name,
@@ -572,13 +591,15 @@
                                             hasHtml: hasHtml,
                                             hasPng: hasPng,
                                             hasPy: hasPy,
-                                            pngFiles: files.filter(file => 
-                                                file.name.match(new RegExp(`^${dir.name}\\.vn(\\.(\\d+))?\\.png$`))
-                                            ).sort((a, b) => {
+                                            mainPyFile: mainPyFile,
+                                            htmlFiles: files.filter(file => file.name.endsWith('.html')),
+                                            pngFiles: pngFiles.sort((a, b) => {
+                                                // Sort PNG files by number if they have one
                                                 const aNum = a.name.match(/\.(\d+)\.png$/) ? parseInt(a.name.match(/\.(\d+)\.png$/)[1]) : 0;
                                                 const bNum = b.name.match(/\.(\d+)\.png$/) ? parseInt(b.name.match(/\.(\d+)\.png$/)[1]) : 0;
                                                 return aNum - bNum;
-                                            })
+                                            }),
+                                            pyFiles: pyFiles
                                         });
                                     }
                                 }
@@ -654,8 +675,8 @@
                     <div class="problem-path">${platform}/${problem.name}/</div>
                 `;
                 
-                if (problem.hasHtml) {
-                    item.onclick = () => window.location.href = `${platform}/${problem.name}/${problem.name}.html`;
+                if (problem.hasHtml && problem.htmlFiles.length > 0) {
+                    item.onclick = () => window.location.href = `${platform}/${problem.name}/${problem.htmlFiles[0].name}`;
                 } else {
                     item.onclick = () => generatePage(platform, problem);
                 }
@@ -678,9 +699,9 @@
             let pythonCode = '';
             
             // Try to get the problem URL from the .vn.py file
-            if (problem.hasPy) {
+            if (problem.hasPy && problem.mainPyFile) {
                 try {
-                    const pyResponse = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}/${problem.name}/${problem.name}.vn.py`);
+                    const pyResponse = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}/${problem.name}/${problem.mainPyFile.name}`);
                     if (pyResponse.ok) {
                         const pyData = await pyResponse.json();
                         const content = atob(pyData.content);
@@ -707,7 +728,7 @@
                         <a href="javascript:history.back()" class="nav-btn">← Back</a>
                         <a href="../../index.html" class="nav-btn">🏠 Home</a>
                         ${problemUrl ? `<a href="${problemUrl}" target="_blank" class="nav-btn">🔗 Problem</a>` : ''}
-                        ${problem.hasPy ? `<a href="${platform}/${problem.name}/${problem.name}.vn.py" target="_blank" class="nav-btn">💻 Code</a>` : ''}
+                        ${problem.mainPyFile ? `<a href="${platform}/${problem.name}/${problem.mainPyFile.name}" target="_blank" class="nav-btn">💻 Code</a>` : ''}
                     </div>
                     
                     <h1 class="page-title">${pageTitle}</h1>
