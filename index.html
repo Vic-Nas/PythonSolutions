@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Solutions - LeetCode & Kattis</title>
+    <link rel="icon" href="VN.ico">
     <style>
         * {
             margin: 0;
@@ -23,12 +24,47 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            position: relative;
+        }
+        
+        .portfolio-link {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .portfolio-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .portfolio-link::before {
+            content: '👨‍💻';
+            font-size: 1.1rem;
         }
         
         header {
             text-align: center;
             margin-bottom: 3rem;
             color: white;
+            margin-top: 1rem;
         }
         
         h1 {
@@ -248,6 +284,26 @@
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
+                padding-top: 5rem; /* Make room for portfolio link on mobile */
+            }
+            
+            .portfolio-link {
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                left: auto;
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+                border-radius: 20px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            }
+            
+            .portfolio-link::before {
+                font-size: 1rem;
+            }
+            
+            header {
+                margin-top: 0;
             }
             
             h1 {
@@ -266,6 +322,10 @@
 </head>
 <body>
     <div class="container">
+        <a href="https://vic-nas.github.io/portfolio" class="portfolio-link" target="_blank">
+            Portfolio
+        </a>
+        
         <header>
             <h1>PythonSolutions</h1>
             <p class="subtitle">LeetCode & Kattis Problem Solutions with Interactive Pages</p>
