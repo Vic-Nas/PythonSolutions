@@ -633,10 +633,8 @@
             for (const platform of ['leetcode', 'kattis']) {
                 const problems = problemsData[platform];
                 const totalProblems = problems.length;
-                const withPages = problems.filter(p => p.hasPage).length;
                 
-                document.getElementById(`${platform}-count`).textContent = 
-                    `${totalProblems} problems, ${withPages} with pages`;
+                document.getElementById(`${platform}-count`).textContent = `${totalProblems} problems`;
             }
         }
         
@@ -694,6 +692,21 @@
         }
         
         async function generatePage(platform, problem) {
+            // Instead of opening a new window, we'll create a URL hash-based system
+            // This allows for shareable links
+            const problemId = encodeURIComponent(`${platform}/${problem.name}`);
+            const newUrl = `${window.location.origin}${window.location.pathname}#view/${problemId}`;
+            window.location.href = newUrl;
+        }
+        
+        async function renderProblemPage(platform, problemName) {
+            // Find the problem data
+            const problem = problemsData[platform]?.find(p => p.name === problemName);
+            if (!problem) {
+                document.body.innerHTML = '<div class="error">Problem not found</div>';
+                return;
+            }
+            
             // Create a new page content
             let problemUrl = '';
             let pythonCode = '';
@@ -722,13 +735,19 @@
             const pageTitle = problem.displayName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             const platformTitle = platform.charAt(0).toUpperCase() + platform.slice(1);
             
+            // Get GitHub repo URL for the folder
+            const repoUrl = `https://github.com/${getRepoPath()}/tree/main/${platform}/${problem.name}`;
+            
             let pageContent = `
                 <div class="generated-page">
                     <div class="nav-buttons">
                         <a href="javascript:history.back()" class="nav-btn">← Back</a>
-                        <a href="../../index.html" class="nav-btn">🏠 Home</a>
+                        <a href="${window.location.pathname}" class="nav-btn">🏠 Home</a>
                         ${problemUrl ? `<a href="${problemUrl}" target="_blank" class="nav-btn">🔗 Problem</a>` : ''}
-                        ${problem.mainPyFile ? `<a href="${platform}/${problem.name}/${problem.mainPyFile.name}" target="_blank" class="nav-btn">💻 Code</a>` : ''}
+                        <a href="${repoUrl}" target="_blank" class="nav-btn">
+                            <img src="VN.ico" alt="GitHub" style="width: 16px; height: 16px; margin-right: 4px;">
+                            Code
+                        </a>
                     </div>
                     
                     <h1 class="page-title">${pageTitle}</h1>
@@ -756,8 +775,8 @@
                 pageContent += `</div>`;
             }
             
-            // Add code section if no images
-            if (!problem.hasPng && pythonCode) {
+            // Add code section (always show if available, even with images)
+            if (pythonCode) {
                 pageContent += `
                     <div class="code-section">
                         <h3>Python Solution</h3>
@@ -768,23 +787,19 @@
             
             pageContent += `</div>`;
             
-            // Create a new document and write the content
-            const newWindow = window.open('', '_blank');
-            newWindow.document.write(`
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>${pageTitle} - ${platformTitle}</title>
-                    <style>${document.querySelector('style').innerHTML}</style>
-                </head>
-                <body>
-                    ${pageContent}
-                </body>
-                </html>
-            `);
-            newWindow.document.close();
+            // Replace the body content with the generated page
+            document.body.innerHTML = pageContent;
+            
+            // Update page title and favicon
+            document.title = `${pageTitle} - ${platformTitle}`;
+            
+            // Add favicon if not already present
+            if (!document.querySelector('link[rel="icon"]')) {
+                const link = document.createElement('link');
+                link.rel = 'icon';
+                link.href = 'VN.ico';
+                document.head.appendChild(link);
+            }
         }
         
         function escapeHtml(text) {
@@ -855,16 +870,41 @@
         if (window.location.pathname.endsWith('index.html') || 
             window.location.pathname.endsWith('/') || 
             window.location.pathname.split('/').pop() === '') {
-            scanForProblems();
+            
+            // Handle hash navigation for problem views
+            const hash = window.location.hash;
+            if (hash.startsWith('#view/')) {
+                const problemPath = decodeURIComponent(hash.substring(6));
+                const [platform, problemName] = problemPath.split('/');
+                
+                // Load problems data first, then render the problem page
+                scanForProblems().then(() => {
+                    renderProblemPage(platform, problemName);
+                });
+            } else {
+                scanForProblems();
+                
+                // Handle platform navigation
+                window.addEventListener('load', () => {
+                    const simpleHash = window.location.hash.substring(1);
+                    if (simpleHash === 'leetcode' || simpleHash === 'kattis') {
+                        setTimeout(() => showProblems(simpleHash), 1000);
+                    }
+                });
+            }
         } else {
             addNavigationToCurrentPage();
         }
         
-        // Handle hash navigation for direct links
-        window.addEventListener('load', () => {
-            const hash = window.location.hash.substring(1);
-            if (hash === 'leetcode' || hash === 'kattis') {
-                setTimeout(() => showProblems(hash), 1000);
+        // Handle browser back/forward navigation
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash;
+            if (hash.startsWith('#view/')) {
+                const problemPath = decodeURIComponent(hash.substring(6));
+                const [platform, problemName] = problemPath.split('/');
+                renderProblemPage(platform, problemName);
+            } else if (hash === '') {
+                location.reload(); // Reload to show main page
             }
         });
     </script>
