@@ -10,22 +10,68 @@ class BinaryNode:
     """
     Represents a node in a binary tree.
     
+    Args:
+        val: The value stored in the node, or a list to build a tree from.
+             If a list is provided, builds tree level by level from left to right.
+             Use None in the list for missing nodes.
+        left: Reference to the left child node (only used when val is not a list)
+        right: Reference to the right child node (only used when val is not a list)
+    
     Attributes:
         val: The value stored in the node
         left: Reference to the left child node
         right: Reference to the right child node
+        
+    Example:
+        >>> # Create a single node
+        >>> node = BinaryNode(5)
+        >>> 
+        >>> # Create a tree from a list
+        >>> root = BinaryNode([1, 2, 3, 4, 5, None, 7])
+        >>> # Creates:
+        >>> #       1
+        >>> #      / \
+        >>> #     2   3
+        >>> #    / \   \
+        >>> #   4   5   7
     """
     def __init__(self, val=0, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
+        # If val is a list, build tree from it
+        if isinstance(val, list):
+            if not val or val[0] is None:
+                raise ValueError("Cannot create tree from empty list or list starting with None")
+            
+            self.val = val[0]
+            self.left = None
+            self.right = None
+            
+            queue = [self]
+            i = 1
+            
+            while queue and i < len(val):
+                node = queue.pop(0)
+                
+                # Add left child
+                if i < len(val) and val[i] is not None:
+                    node.left = BinaryNode(val[i])
+                    queue.append(node.left)
+                i += 1
+                
+                # Add right child
+                if i < len(val) and val[i] is not None:
+                    node.right = BinaryNode(val[i])
+                    queue.append(node.right)
+                i += 1
+        else:
+            self.val = val
+            self.left = left
+            self.right = right
     
     def __str__(self):
         return str(self.val)
     
     def __repr__(self):
         return str(self)
-
 
 def center(val, unitSize=None, fillChar=None):
     """
