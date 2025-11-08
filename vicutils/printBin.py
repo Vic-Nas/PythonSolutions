@@ -2,7 +2,7 @@ from itertools import product
 
 # Default configuration constants
 DEFAULT_UNIT_SIZE = 3
-DEFAULT_VALUE_FILL_CHAR = "_"  # Character used to pad node values (e.g., "_5_")
+DEFAULT_VALUE_FILL_CHAR = " "
 DEFAULT_CONNECTOR_FILL_CHAR = "_"  # Character used to fill horizontal gaps between node pairs
 
 
