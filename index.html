@@ -768,8 +768,8 @@
             const platformTitle = platform === 'vicutils' ? 'VicUtils' : platform.charAt(0).toUpperCase() + platform.slice(1);
             
             const repoUrl = platform === 'vicutils' 
-                ? `https://github.com/${getRepoPath()}/blob/main/${platform}/${problem.name}`
-                : `https://github.com/${getRepoPath()}/tree/main/${platform}/${problem.name}`;
+                ? `https://github.com/${getRepoPath()}/blob/main/${platform}`
+                : `https://github.com/${getRepoPath()}/tree/main/${platform}`;
             
             let pageContent = `
                 <div class="generated-page">
