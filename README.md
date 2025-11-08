@@ -11,5 +11,6 @@ A collection of programming problem solutions from different online judges and c
   
 ## Install vicutils
 ```bash
-git+https://github.com/Vic-Nas/PythonSolutions.git#egg=vicutils
+pip install git+https://github.com/Vic-Nas/PythonSolutions.git#egg=vicutils
 ```
+
