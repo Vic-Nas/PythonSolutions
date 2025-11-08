@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Solutions - LeetCode & Kattis</title>
+    <title>Python Solutions - LeetCode, Kattis & VicUtils</title>
     <link rel="icon" href="VN.ico">
     <style>
         * {
@@ -80,7 +80,7 @@
         
         .platforms {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
@@ -134,6 +134,7 @@
         
         .leetcode-icon { background: #ffa116; }
         .kattis-icon { background: #1e40af; }
+        .vicutils-icon { background: #10b981; }
         
         .platform-card p {
             color: #666;
@@ -229,7 +230,7 @@
         }
         
         .problem-item.html-page::before {
-            background: #10b981; /* Green for full HTML pages */
+            background: #10b981;
         }
         
         .problem-item.png-page {
@@ -238,7 +239,7 @@
         }
         
         .problem-item.png-page::before {
-            background: #f59e0b; /* Orange for PNG pages */
+            background: #f59e0b;
         }
         
         .problem-item.code-only {
@@ -247,7 +248,11 @@
         }
         
         .problem-item.code-only::before {
-            background: #6b7280; /* Gray for code-only pages */
+            background: #6b7280;
+        }
+        
+        .problem-item.util-script::before {
+            background: #10b981;
         }
         
         .problem-name {
@@ -310,7 +315,6 @@
             font-style: italic;
         }
         
-        /* Generated page styles */
         .generated-page {
             background: white;
             min-height: 100vh;
@@ -483,12 +487,12 @@
         
         <header>
             <h1>PythonSolutions</h1>
-            <p class="subtitle">LeetCode & Kattis Problem Solutions with Interactive Pages</p>
+            <p class="subtitle">LeetCode & Kattis Solutions + Utility Scripts</p>
         </header>
         
         <div id="loading" class="loading">
             <div class="spinner"></div>
-            <span>Scanning repository for solutions...</span>
+            <span>Scanning repository...</span>
         </div>
         
         <div id="main-view" class="platforms" style="display: none;">
@@ -509,6 +513,15 @@
                 <p>Competitive programming solutions with detailed walkthroughs</p>
                 <div class="problem-count" id="kattis-count">Loading...</div>
             </div>
+            
+            <div class="platform-card" onclick="showProblems('vicutils')">
+                <h2>
+                    <div class="platform-icon vicutils-icon">🛠️</div>
+                    VicUtils
+                </h2>
+                <p>Useful utility scripts and helper functions</p>
+                <div class="problem-count" id="vicutils-count">Loading...</div>
+            </div>
         </div>
         
         <div id="problems-view" class="problems-view">
@@ -525,11 +538,12 @@
     <script>
         let problemsData = {
             leetcode: [],
-            kattis: []
+            kattis: [],
+            vicutils: []
         };
         
         async function scanForProblems() {
-            const platforms = ['leetcode', 'kattis'];
+            const platforms = ['leetcode', 'kattis', 'vicutils'];
             
             for (const platform of platforms) {
                 try {
@@ -540,30 +554,49 @@
                         continue;
                     }
                     
-                    const directories = await response.json();
+                    const items = await response.json();
                     const problems = [];
                     
-                    for (const dir of directories) {
-                        if (dir.type === 'dir') {
+                    if (platform === 'vicutils') {
+                        // For vicutils, treat .py files directly (not directories)
+                        for (const item of items) {
+                            if (item.type === 'file' && item.name.endsWith('.py') && item.name !== '__init__.py') {
+                                problems.push({
+                                    name: item.name,
+                                    displayName: item.name.replace('.py', '').replace(/_/g, ' '),
+                                    type: 'util-script',
+                                    hasPage: true,
+                                    hasHtml: false,
+                                    hasPng: false,
+                                    hasPy: true,
+                                    mainPyFile: item,
+                                    htmlFiles: [],
+                                    pngFiles: [],
+                                    pyFiles: [item]
+                                });
+                            }
+                        }
+                    } else {
+                        // For leetcode and kattis, process directories
+                        const directories = items.filter(item => item.type === 'dir');
+                        
+                        for (const dir of directories) {
                             try {
                                 const dirResponse = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}/${dir.name}`);
                                 if (dirResponse.ok) {
                                     const files = await dirResponse.json();
                                     
-                                    // Look for any .html file that matches the directory name
                                     const hasHtml = files.some(file => 
                                         file.name.endsWith('.html') && 
                                         file.name.toLowerCase().includes(dir.name.toLowerCase().replace(/\s+/g, ''))
                                     );
                                     
-                                    // Look for any .vn.png files (not tied to directory name)
                                     const pngFiles = files.filter(file => 
                                         file.name.endsWith('.vn.png') || 
                                         file.name.match(/\.vn\.\d+\.png$/)
                                     );
                                     const hasPng = pngFiles.length > 0;
                                     
-                                    // Look for any .vn.py files
                                     const pyFiles = files.filter(file => file.name.endsWith('.vn.py'));
                                     const hasPy = pyFiles.length > 0;
                                     
@@ -579,12 +612,11 @@
                                         hasPage = true;
                                     } else if (hasPy) {
                                         type = 'code-only';
-                                        hasPage = true; // We'll generate a page for code-only too
+                                        hasPage = true;
                                     }
                                     
-                                    // Find the main .vn.py file (there should typically be one)
                                     if (pyFiles.length > 0) {
-                                        mainPyFile = pyFiles[0]; // Take the first .vn.py file
+                                        mainPyFile = pyFiles[0];
                                     }
                                     
                                     if (hasHtml || hasPng || hasPy) {
@@ -599,7 +631,6 @@
                                             mainPyFile: mainPyFile,
                                             htmlFiles: files.filter(file => file.name.endsWith('.html')),
                                             pngFiles: pngFiles.sort((a, b) => {
-                                                // Sort PNG files by number if they have one
                                                 const aNum = a.name.match(/\.(\d+)\.png$/) ? parseInt(a.name.match(/\.(\d+)\.png$/)[1]) : 0;
                                                 const bNum = b.name.match(/\.(\d+)\.png$/) ? parseInt(b.name.match(/\.(\d+)\.png$/)[1]) : 0;
                                                 return aNum - bNum;
@@ -635,26 +666,27 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('main-view').style.display = 'grid';
             
-            for (const platform of ['leetcode', 'kattis']) {
+            for (const platform of ['leetcode', 'kattis', 'vicutils']) {
                 const problems = problemsData[platform];
                 const totalProblems = problems.length;
+                const label = platform === 'vicutils' ? 'scripts' : 'problems';
                 
-                document.getElementById(`${platform}-count`).textContent = `${totalProblems} problems`;
+                document.getElementById(`${platform}-count`).textContent = `${totalProblems} ${label}`;
             }
         }
         
         function showProblems(platform) {
             const problems = problemsData[platform];
-            const title = platform.charAt(0).toUpperCase() + platform.slice(1);
+            const title = platform === 'vicutils' ? 'VicUtils' : platform.charAt(0).toUpperCase() + platform.slice(1);
             
             document.getElementById('main-view').style.display = 'none';
             document.getElementById('problems-view').style.display = 'block';
-            document.getElementById('problems-title').textContent = `${title} Problems`;
+            document.getElementById('problems-title').textContent = platform === 'vicutils' ? 'Utility Scripts' : `${title} Problems`;
             
             const container = document.getElementById('problems-container');
             
             if (problems.length === 0) {
-                container.innerHTML = '<div class="no-problems">No problems found for this platform yet.</div>';
+                container.innerHTML = '<div class="no-problems">No items found for this section yet.</div>';
                 return;
             }
             
@@ -668,6 +700,7 @@
                 let icon = '';
                 if (problem.type === 'html') icon = '🌐';
                 else if (problem.type === 'png') icon = '🖼️';
+                else if (problem.type === 'util-script') icon = '🛠️';
                 else icon = '💻';
                 
                 item.innerHTML = `
@@ -675,7 +708,7 @@
                         <span class="problem-type-icon">${icon}</span>
                         ${problem.displayName}
                     </div>
-                    <div class="problem-path">${platform}/${problem.name}/</div>
+                    <div class="problem-path">${platform}/${problem.name}</div>
                 `;
                 
                 if (problem.hasHtml && problem.htmlFiles.length > 0) {
@@ -697,35 +730,29 @@
         }
         
         async function generatePage(platform, problem) {
-            // Instead of opening a new window, we'll create a URL hash-based system
-            // This allows for shareable links
             const problemId = encodeURIComponent(`${platform}/${problem.name}`);
             const newUrl = `${window.location.origin}${window.location.pathname}#view/${problemId}`;
             window.location.href = newUrl;
         }
         
         async function renderProblemPage(platform, problemName) {
-            // Find the problem data
             const problem = problemsData[platform]?.find(p => p.name === problemName);
             if (!problem) {
-                document.body.innerHTML = '<div class="error">Problem not found</div>';
+                document.body.innerHTML = '<div class="error">Item not found</div>';
                 return;
             }
             
-            // Create a new page content
             let problemUrl = '';
             let pythonCode = '';
             
-            // Try to get the problem URL from the .vn.py file
             if (problem.hasPy && problem.mainPyFile) {
                 try {
-                    const pyResponse = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}/${problem.name}/${problem.mainPyFile.name}`);
+                    const pyResponse = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform === 'vicutils' ? platform : `${platform}/${problem.name}`}/${problem.mainPyFile.name}`);
                     if (pyResponse.ok) {
                         const pyData = await pyResponse.json();
                         const content = atob(pyData.content);
                         pythonCode = content;
                         
-                        // Extract URL from first comment
                         const urlMatch = content.match(/^#.*?(https:\/\/[^\s]+)/m);
                         if (urlMatch) {
                             problemUrl = urlMatch[1];
@@ -736,12 +763,12 @@
                 }
             }
             
-            // Generate the page HTML
             const pageTitle = problem.displayName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            const platformTitle = platform.charAt(0).toUpperCase() + platform.slice(1);
+            const platformTitle = platform === 'vicutils' ? 'VicUtils' : platform.charAt(0).toUpperCase() + platform.slice(1);
             
-            // Get GitHub repo URL for the folder
-            const repoUrl = `https://github.com/${getRepoPath()}/tree/main/${platform}/${problem.name}`;
+            const repoUrl = platform === 'vicutils' 
+                ? `https://github.com/${getRepoPath()}/blob/main/${platform}/${problem.name}`
+                : `https://github.com/${getRepoPath()}/tree/main/${platform}/${problem.name}`;
             
             let pageContent = `
                 <div class="generated-page">
@@ -756,14 +783,11 @@
                     </div>
                     
                     <h1 class="page-title">${pageTitle}</h1>
-                    <p class="page-subtitle">${platformTitle} Problem Solution</p>
+                    <p class="page-subtitle">${platformTitle}${platform === 'vicutils' ? ' Script' : ' Problem Solution'}</p>
             `;
             
-            // Add images if available
             if (problem.hasPng && problem.pngFiles.length > 0) {
-                pageContent += `
-                    <div class="images-grid">
-                `;
+                pageContent += `<div class="images-grid">`;
                 
                 problem.pngFiles.forEach((pngFile, index) => {
                     const imageUrl = `${platform}/${problem.name}/${pngFile.name}`;
@@ -780,11 +804,10 @@
                 pageContent += `</div>`;
             }
             
-            // Add code section (always show if available, even with images)
             if (pythonCode) {
                 pageContent += `
                     <div class="code-section">
-                        <h3>Python Solution</h3>
+                        <h3>Python ${platform === 'vicutils' ? 'Script' : 'Solution'}</h3>
                         <div class="code-content">${escapeHtml(pythonCode)}</div>
                     </div>
                 `;
@@ -792,13 +815,9 @@
             
             pageContent += `</div>`;
             
-            // Replace the body content with the generated page
             document.body.innerHTML = pageContent;
-            
-            // Update page title and favicon
             document.title = `${pageTitle} - ${platformTitle}`;
             
-            // Add favicon if not already present
             if (!document.querySelector('link[rel="icon"]')) {
                 const link = document.createElement('link');
                 link.rel = 'icon';
@@ -813,7 +832,6 @@
             return div.innerHTML;
         }
         
-        // Add navigation enhancement to problem pages
         function addNavigationToCurrentPage() {
             const path = window.location.pathname;
             const isLeetCodeProblem = path.includes('/leetcode/') && path.endsWith('.html');
@@ -892,7 +910,7 @@
                 // Handle platform navigation
                 window.addEventListener('load', () => {
                     const simpleHash = window.location.hash.substring(1);
-                    if (simpleHash === 'leetcode' || simpleHash === 'kattis') {
+                    if (simpleHash === 'leetcode' || simpleHash === 'kattis' || simpleHash === 'vicutils') {
                         setTimeout(() => showProblems(simpleHash), 1000);
                     }
                 });
