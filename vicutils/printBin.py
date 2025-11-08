@@ -1,5 +1,4 @@
 from itertools import product
-from pprint import pprint
 
 # Default configuration constants
 DEFAULT_UNIT_SIZE = 3
@@ -225,26 +224,3 @@ def nodeToString(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, remov
     """
     mat = nodeToMat(node, depth=depth, fillChar=fillChar, unitSize=unitSize, removeEmpty=removeEmpty)
     return "\n".join("".join(row) for row in mat)
-
-
-# Example usage
-if __name__ == "__main__":
-    myNode = BinaryNode(1)
-    # myNode.left = Node(2)
-    myNode.right = BinaryNode(3)
-    # myNode.left.left = Node(4)
-    # myNode.left.right = Node(5)
-    myNode.right.left = BinaryNode(6)
-    myNode.right.right = BinaryNode(7)
-
-    mat = nodeToMat(myNode)
-    pprint(mat)
-    for row in mat:
-        print(*row)
-    
-    print("\n--- Using nodeToString ---")
-    print(nodeToString(myNode))
-    
-    print("\n--- Custom unit size ---")
-    print(nodeToString(myNode, unitSize=1))
-

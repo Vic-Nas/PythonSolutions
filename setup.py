@@ -18,7 +18,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Vic-Nas/PythonSolutions",  # Your repo
     project_urls={
-        "Documentation": "https://github.com/Vic-Nas/PythonSolutions/tree/main/vicutils",
+        "Documentation": "https://vic-nas.github.io/PythonSolutions/vicutils/printBin.html",
         "Source": "https://github.com/Vic-Nas/PythonSolutions",
     },
     classifiers=[
