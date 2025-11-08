@@ -2,8 +2,8 @@ from itertools import product
 
 # Default configuration constants
 DEFAULT_UNIT_SIZE = 3
-DEFAULT_VALUE_FILL_CHAR = "_"
-DEFAULT_GAP_FILL_CHAR = "_"
+DEFAULT_VALUE_FILL_CHAR = "_"  # Character used to pad node values (e.g., "_5_")
+DEFAULT_CONNECTOR_FILL_CHAR = "_"  # Character used to fill horizontal gaps between node pairs
 
 
 class BinaryNode:
@@ -17,11 +17,6 @@ class BinaryNode:
         left: Reference to the left child node (only used when val is not a list)
         right: Reference to the right child node (only used when val is not a list)
     
-    Attributes:
-        val: The value stored in the node
-        left: Reference to the left child node
-        right: Reference to the right child node
-        
     Example:
         >>> # Create a single node
         >>> node = BinaryNode(5)
@@ -73,18 +68,9 @@ class BinaryNode:
     def __repr__(self):
         return str(self)
 
+
 def center(val, unitSize=None, fillChar=None):
-    """
-    Centers a value within a fixed width string.
-    
-    Args:
-        val: The value to center
-        unitSize: The total width of the output string (uses DEFAULT_UNIT_SIZE if None)
-        fillChar: The character to use for padding (uses DEFAULT_VALUE_FILL_CHAR "_" if None)
-        
-    Returns:
-        A centered string representation of val
-    """
+    """Centers a value within a fixed width string."""
     if unitSize is None:
         unitSize = DEFAULT_UNIT_SIZE
     if fillChar is None:
@@ -93,46 +79,34 @@ def center(val, unitSize=None, fillChar=None):
 
 
 def getDepth(node: BinaryNode):
-    """
-    Calculates the depth (height) of a binary tree.
-    
-    Args:
-        node: The root node of the tree
-        
-    Returns:
-        The depth of the tree (number of levels from root to deepest leaf)
-    """
-    if node == None:
+    """Calculates the depth (height) of a binary tree."""
+    if node is None:
         return 0
     return 1 + max(getDepth(node.left), getDepth(node.right))
 
 
-def register(node: BinaryNode, valueFillChar=None, unitSize=None, code="", mem=None):
+def mapNodesToCodes(node: BinaryNode, valueFillChar, unitSize, code="", memo=None):
     """
-    Recursively registers all nodes in a tree with their binary path codes.
+    Recursively maps all nodes to their binary path codes.
     
     Each node is assigned a binary code representing its position:
     - Empty string "" for root
     - "0" appended for left child
     - "1" appended for right child
     
-    Args:
-        node: The current node being processed
-        valueFillChar: Character used for padding node values (uses DEFAULT_VALUE_FILL_CHAR "_" if None)
-        unitSize: Size for centering values (uses DEFAULT_UNIT_SIZE if None)
-        code: The binary path code for the current node
-        mem: Dictionary mapping binary codes to centered node values
+    Returns:
+        Dictionary mapping binary codes to centered node values
     """
-    if mem is None:
-        mem = {}
+    if memo is None:
+        memo = {}
     if node:
-        mem[code] = center(node.val, unitSize=unitSize, fillChar=valueFillChar)
-        register(node.left, valueFillChar=valueFillChar, unitSize=unitSize, code=code + "0", mem=mem)
-        register(node.right, valueFillChar=valueFillChar, unitSize=unitSize, code=code + "1", mem=mem)
-    return mem
+        memo[code] = center(node.val, unitSize=unitSize, fillChar=valueFillChar)
+        mapNodesToCodes(node.left, valueFillChar, unitSize, code + "0", memo)
+        mapNodesToCodes(node.right, valueFillChar, unitSize, code + "1", memo)
+    return memo
 
 
-def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, gapFillChar=None, unitSize=None, removeEmpty=True):
+def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True):
     """
     Converts a binary tree into a 2D matrix representation for visualization.
     
@@ -143,47 +117,48 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, gapFillChar=None, 
     Args:
         node: The root node of the tree to visualize
         depth: The depth of the tree (-1 for auto-calculation)
-        valueFillChar: Character for padding node values (uses DEFAULT_VALUE_FILL_CHAR "_" if None)
-        gapFillChar: Character for filling gaps between pairs (uses DEFAULT_GAP_FILL_CHAR "_" if None)
-        unitSize: Size for centering (uses DEFAULT_UNIT_SIZE if None)
+        valueFillChar: Character for padding node values (e.g., "_5_")
+        connectorFillChar: Character for filling horizontal gaps between node pairs
+        unitSize: Size for centering values
         removeEmpty: Whether to remove empty leading columns
-        
-    Returns:
-        A 2D list (matrix) representing the tree structure
     """
     if unitSize is None:
         unitSize = DEFAULT_UNIT_SIZE
     if valueFillChar is None:
         valueFillChar = DEFAULT_VALUE_FILL_CHAR
-    if gapFillChar is None:
-        gapFillChar = DEFAULT_GAP_FILL_CHAR
+    if connectorFillChar is None:
+        connectorFillChar = DEFAULT_CONNECTOR_FILL_CHAR
     
     if depth == -1:
         depth = getDepth(node)
     
-    # Register all nodes with their binary path codes
-    tree = register(node, valueFillChar=valueFillChar, unitSize=unitSize, code="", mem={})
+    # Map all nodes to their binary path codes
+    tree = mapNodesToCodes(node, valueFillChar, unitSize)
     
-    # Create matrix: (2*depth - 1) rows x (2^depth - 1) columns
-    # Initialize with space-centered empty cells
-    mat = [[center("", unitSize=unitSize, fillChar=" ") for _ in range(2 ** depth - 1)] for _ in range(2 * depth - 1)]
+    # Cache frequently used values
+    numCols = 2 ** depth - 1  # Number of leaf positions (columns)
+    numRows = 2 * depth - 1   # Total rows (values + connectors)
+    
+    # Initialize matrix with space-centered empty cells
+    mat = [[center("", unitSize=unitSize, fillChar=" ") for _ in range(numCols)] for _ in range(numRows)]
     
     # Start with all even column indices (where values can be placed)
-    valueIndexes = [i for i in range(2 ** depth - 1) if i % 2 == 0]
-    prev = None
+    valueIndexes = [i for i in range(numCols) if i % 2 == 0]
+    prevValueIndexes = None
     
     # Build matrix from bottom to top
-    for level in range(2 * (depth - 1), -1, -1):
+    for level in range(numRows - 1, -1, -1):
         # Odd levels: place connection characters (/ and \)
         if level % 2 != 0:
             for i, index in enumerate(valueIndexes):
-                mat[level][index] = [center("/", unitSize=unitSize, fillChar=" "), center("\\", unitSize=unitSize, fillChar=" ")][i % 2]
+                mat[level][index] = [center("/", unitSize=unitSize, fillChar=" "), 
+                                    center("\\", unitSize=unitSize, fillChar=" ")][i % 2]
             
             # Calculate parent positions (midpoints between child pairs)
-            next = []
+            nextValueIndexes = []
             for i in range(0, len(valueIndexes) - 1, 2):
-                next.append((valueIndexes[i] + valueIndexes[i + 1]) // 2)
-            valueIndexes = next
+                nextValueIndexes.append((valueIndexes[i] + valueIndexes[i + 1]) // 2)
+            valueIndexes = nextValueIndexes
             continue
         
         # Even levels: place node values
@@ -195,19 +170,19 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, gapFillChar=None, 
             if codes[i] in tree:
                 mat[level][index] = tree[codes[i]]
         
-        # Fill gaps between pairs using prev (previous even level's valueIndexes)
-        if prev is not None:
-            for i in range(0, len(prev), 2):
-                if i + 1 < len(prev):
+        # Fill horizontal gaps between node pairs using connectorFillChar
+        if prevValueIndexes is not None:
+            for i in range(0, len(prevValueIndexes), 2):
+                if i + 1 < len(prevValueIndexes):
                     # Calculate parent position (should not be overwritten)
-                    parent_col = (prev[i] + prev[i + 1]) // 2
-                    # Fill columns between prev[i] and prev[i+1], except parent
-                    for col in range(prev[i] + 1, prev[i + 1]):
-                        if col != parent_col:
-                            mat[level][col] = center("", unitSize=unitSize, fillChar=gapFillChar)
+                    parentCol = (prevValueIndexes[i] + prevValueIndexes[i + 1]) // 2
+                    # Fill columns between children, except parent position
+                    for col in range(prevValueIndexes[i] + 1, prevValueIndexes[i + 1]):
+                        if col != parentCol:
+                            mat[level][col] = center("", unitSize=unitSize, fillChar=connectorFillChar)
         
         # Save current valueIndexes for next even level
-        prev = valueIndexes
+        prevValueIndexes = valueIndexes
     
     # Remove empty leading columns if requested
     if removeEmpty:
@@ -215,35 +190,31 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, gapFillChar=None, 
         centeredSlash = center("/", unitSize=unitSize, fillChar=" ")
         centeredBackslash = center("\\", unitSize=unitSize, fillChar=" ")
         
-        for i in range(2 ** depth - 1):
-            remove = False
-            if all(
+        for i in range(numCols):
+            remove = all(
                 mat[j][i] in [centeredSpace, centeredSlash, centeredBackslash]
-                for j in range(2 * depth - 1)
-            ):
-                remove = True
+                for j in range(numRows)
+            )
             if not remove:
                 break
-            for j in range(2 * depth - 1):
+            for j in range(numRows):
                 mat[j][i] = ""
     
     return mat
 
 
-def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, gapFillChar=None, unitSize=None, removeEmpty=True):
+def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True):
     """
     Converts a binary tree into a string representation for visualization.
     
     Args:
         node: The root node of the tree to visualize
         depth: The depth of the tree (-1 for auto-calculation)
-        valueFillChar: Character for padding node values (uses DEFAULT_VALUE_FILL_CHAR "_" if None)
-        gapFillChar: Character for filling gaps between pairs (uses DEFAULT_GAP_FILL_CHAR "_" if None)
-        unitSize: Size for centering (uses DEFAULT_UNIT_SIZE if None)
+        valueFillChar: Character for padding node values (e.g., "_5_")
+        connectorFillChar: Character for filling horizontal gaps between node pairs
+        unitSize: Size for centering values
         removeEmpty: Whether to remove empty leading columns
-        
-    Returns:
-        A string representation of the tree with each row on a new line
     """
-    mat = nodeToMat(node, depth=depth, valueFillChar=valueFillChar, gapFillChar=gapFillChar, unitSize=unitSize, removeEmpty=removeEmpty)
+    mat = nodeToMat(node, depth=depth, valueFillChar=valueFillChar, 
+                    connectorFillChar=connectorFillChar, unitSize=unitSize, removeEmpty=removeEmpty)
     return "\n".join("".join(row) for row in mat)
