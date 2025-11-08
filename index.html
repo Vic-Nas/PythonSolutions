@@ -558,21 +558,22 @@
                     const problems = [];
                     
                     if (platform === 'vicutils') {
-                        // For vicutils, treat .py files directly (not directories)
+                        // For vicutils, look for generated .html files
                         for (const item of items) {
-                            if (item.type === 'file' && item.name.endsWith('.py') && item.name !== '__init__.py') {
+                            if (item.type === 'file' && item.name.endsWith('.html')) {
+                                const baseName = item.name.replace('.html', '');
                                 problems.push({
-                                    name: item.name,
-                                    displayName: item.name.replace('.py', '').replace(/_/g, ' '),
-                                    type: 'util-script',
+                                    name: baseName,
+                                    displayName: baseName.replace(/_/g, ' '),
+                                    type: 'html',
                                     hasPage: true,
-                                    hasHtml: false,
+                                    hasHtml: true,
                                     hasPng: false,
-                                    hasPy: true,
-                                    mainPyFile: item,
-                                    htmlFiles: [],
+                                    hasPy: false,
+                                    mainPyFile: null,
+                                    htmlFiles: [item],
                                     pngFiles: [],
-                                    pyFiles: [item]
+                                    pyFiles: []
                                 });
                             }
                         }
