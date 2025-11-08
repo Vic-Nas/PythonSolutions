@@ -703,20 +703,22 @@
                 else if (problem.type === 'util-script') icon = '🛠️';
                 else icon = '💻';
                 
+                const displayPath = platform === 'vicutils' ? problem.name : `${platform}/${problem.name}`;
+                
                 item.innerHTML = `
                     <div class="problem-name">
                         <span class="problem-type-icon">${icon}</span>
                         ${problem.displayName}
                     </div>
-                    <div class="problem-path">${platform}/${problem.name}</div>
+                    <div class="problem-path">${displayPath}</div>
                 `;
                 
-                if (problem.hasHtml && problem.htmlFiles.length > 0) {
-                    if (platform === 'vicutils') {
-                        item.onclick = () => window.location.href = `${platform}/${problem.name}`;
-                    } else {
-                        item.onclick = () => window.location.href = `${platform}/${problem.name}/${problem.htmlFiles[0].name}`;
-                    }
+                if (platform === 'vicutils') {
+                    // For vicutils, link directly to the HTML file
+                    item.onclick = () => window.location.href = `${platform}/${problem.name}`;
+                } else if (problem.hasHtml && problem.htmlFiles.length > 0) {
+                    // For leetcode and kattis, maintain the subfolder structure
+                    item.onclick = () => window.location.href = `${platform}/${problem.name}/${problem.htmlFiles[0].name}`;
                 } else {
                     item.onclick = () => generatePage(platform, problem);
                 }
