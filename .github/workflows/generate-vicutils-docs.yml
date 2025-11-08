@@ -7,13 +7,20 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   generate-docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       
-      - uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
       
@@ -25,16 +32,26 @@ jobs:
           cd vicutils
           for file in *.py; do
             if [ "$file" != "__init__.py" ]; then
+              echo "Generating docs for $file"
               pdoc --html --force --output-dir . "${file%.py}"
               # Move generated HTML to parent directory name
-              mv "${file%.py}"/index.html "${file%.py}.html" 2>/dev/null || true
-              rm -rf "${file%.py}"
+              if [ -d "${file%.py}" ]; then
+                mv "${file%.py}"/index.html "${file%.py}.html" 2>/dev/null || true
+                rm -rf "${file%.py}"
+              fi
             fi
           done
+          cd ..
+          ls -la vicutils/
       
       - name: Commit and push if changes
         run: |
-          git config user.name "Vic-Nas"
-          git config user.email "github-actions@github.com"
+          git config --local user.name "Vic-Nas"
+          git config --local user.email "github-actions@github.com"
           git add vicutils/*.html
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-generate VicUtils documentation" && git push)
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-generate VicUtils documentation [skip ci]"
+            git push
+          fi
