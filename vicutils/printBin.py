@@ -2,7 +2,7 @@ from itertools import product
 
 # Default configuration constants
 DEFAULT_UNIT_SIZE = 3
-DEFAULT_VALUE_FILL_CHAR = " "
+DEFAULT_VALUE_FILL_CHAR = " "  # Character used to pad node values (e.g., "_5_")
 DEFAULT_CONNECTOR_FILL_CHAR = "_"  # Character used to fill horizontal gaps between node pairs
 
 
@@ -176,7 +176,7 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=
                 if i + 1 < len(prevValueIndexes):
                     # Calculate parent position (should not be overwritten)
                     parentCol = (prevValueIndexes[i] + prevValueIndexes[i + 1]) // 2
-                    # Fill columns between children (inclusive), except parent position
+                    # Fill columns between children, except parent position
                     for col in range(prevValueIndexes[i] + 1, prevValueIndexes[i + 1]):
                         if col != parentCol:
                             mat[level][col] = center("", unitSize=unitSize, fillChar=connectorFillChar)
