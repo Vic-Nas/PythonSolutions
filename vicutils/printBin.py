@@ -5,6 +5,7 @@ from pprint import pprint
 DEFAULT_UNIT_SIZE = 3
 DEFAULT_FILL_CHAR = " "
 
+
 class BinaryNode:
     """
     Represents a node in a binary tree.
