@@ -59,7 +59,7 @@ el.replaceWith(d);
     Args:
         val: The value to center
         unitSize: The total width of the output string (uses DEFAULT_UNIT_SIZE if None)
-        fillChar: The character to use for padding (uses DEFAULT_FILL_CHAR if None)
+        fillChar: The character to use for padding (uses DEFAULT_FILL_CHAR &#34;_&#34; if None)
         
     Returns:
         A centered string representation of val
@@ -78,7 +78,7 @@ el.replaceWith(d);
 <dt><strong><code>unitSize</code></strong></dt>
 <dd>The total width of the output string (uses DEFAULT_UNIT_SIZE if None)</dd>
 <dt><strong><code>fillChar</code></strong></dt>
-<dd>The character to use for padding (uses DEFAULT_FILL_CHAR if None)</dd>
+<dd>The character to use for padding (uses DEFAULT_FILL_CHAR "_" if None)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>A centered string representation of val</p></div>
@@ -115,14 +115,14 @@ el.replaceWith(d);
 <p>The depth of the tree (number of levels from root to deepest leaf)</p></div>
 </dd>
 <dt id="printBin.nodeToMat"><code class="name flex">
-<span>def <span class="ident">nodeToMat</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>fillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
+<span>def <span class="ident">nodeToMat</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>fillChar=None,<br>emptyFillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
+<pre><code class="python">def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, emptyFillChar=None, unitSize=None, removeEmpty=True):
     &#34;&#34;&#34;
     Converts a binary tree into a 2D matrix representation for visualization.
     
@@ -133,7 +133,8 @@ el.replaceWith(d);
     Args:
         node: The root node of the tree to visualize
         depth: The depth of the tree (-1 for auto-calculation)
-        fillChar: Character for padding (uses DEFAULT_FILL_CHAR if None)
+        fillChar: Character for padding node values (uses DEFAULT_FILL_CHAR &#34;_&#34; if None)
+        emptyFillChar: Character for empty cells within valueIndexes (uses DEFAULT_EMPTY_FILL_CHAR &#34;_&#34; if None)
         unitSize: Size for centering (uses DEFAULT_UNIT_SIZE if None)
         removeEmpty: Whether to remove empty leading columns
         
@@ -144,6 +145,8 @@ el.replaceWith(d);
         unitSize = DEFAULT_UNIT_SIZE
     if fillChar is None:
         fillChar = DEFAULT_FILL_CHAR
+    if emptyFillChar is None:
+        emptyFillChar = DEFAULT_EMPTY_FILL_CHAR
     
     if depth == -1:
         depth = getDepth(node)
@@ -152,7 +155,8 @@ el.replaceWith(d);
     tree = register(node, fillChar=fillChar, unitSize=unitSize, code=&#34;&#34;, mem={})
     
     # Create matrix: (2*depth - 1) rows x (2^depth - 1) columns
-    mat = [[center(&#34;&#34;, unitSize=unitSize, fillChar=fillChar) for _ in range(2 ** depth - 1)] for _ in range(2 * depth - 1)]
+    # Initialize with space-centered empty cells
+    mat = [[center(&#34;&#34;, unitSize=unitSize, fillChar=&#34; &#34;) for _ in range(2 ** depth - 1)] for _ in range(2 * depth - 1)]
     
     # Start with all even column indices (where values can be placed)
     valueIndexes = [i for i in range(2 ** depth - 1) if i % 2 == 0]
@@ -162,7 +166,7 @@ el.replaceWith(d);
         # Odd levels: place connection characters (/ and \)
         if level % 2 != 0:
             for i, index in enumerate(valueIndexes):
-                mat[level][index] = [center(&#34;/&#34;, unitSize=unitSize, fillChar=fillChar), center(&#34;\\&#34;, unitSize=unitSize, fillChar=fillChar)][i % 2]
+                mat[level][index] = [center(&#34;/&#34;, unitSize=unitSize, fillChar=&#34; &#34;), center(&#34;\\&#34;, unitSize=unitSize, fillChar=&#34; &#34;)][i % 2]
             
             # Calculate parent positions (midpoints between child pairs)
             newIndexes = []
@@ -177,18 +181,19 @@ el.replaceWith(d);
         codes = [&#34;&#34;.join(code) for code in codes]
         
         for i, index in enumerate(valueIndexes):
-            mat[level][index] = tree.get(codes[i], center(&#34;&#34;, unitSize=unitSize, fillChar=fillChar))
+            mat[level][index] = tree.get(codes[i], center(&#34;&#34;, unitSize=unitSize, fillChar=emptyFillChar))
     
     # Remove empty leading columns if requested
     if removeEmpty:
+        centeredSpace = center(&#34;&#34;, unitSize=unitSize, fillChar=&#34; &#34;)
+        centeredSlash = center(&#34;/&#34;, unitSize=unitSize, fillChar=&#34; &#34;)
+        centeredBackslash = center(&#34;\\&#34;, unitSize=unitSize, fillChar=&#34; &#34;)
+        
         for i in range(2 ** depth - 1):
             remove = False
             if all(
-                mat[j][i] in [
-                    center(&#34;&#34;, unitSize=unitSize, fillChar=fillChar),
-                    center(&#34;/&#34;, unitSize=unitSize, fillChar=fillChar),
-                    center(&#34;\\&#34;, unitSize=unitSize, fillChar=fillChar)
-                ] for j in range(2 * depth - 1)
+                mat[j][i] in [centeredSpace, centeredSlash, centeredBackslash]
+                for j in range(2 * depth - 1)
             ):
                 remove = True
             if not remove:
@@ -209,7 +214,9 @@ el.replaceWith(d);
 <dt><strong><code>depth</code></strong></dt>
 <dd>The depth of the tree (-1 for auto-calculation)</dd>
 <dt><strong><code>fillChar</code></strong></dt>
-<dd>Character for padding (uses DEFAULT_FILL_CHAR if None)</dd>
+<dd>Character for padding node values (uses DEFAULT_FILL_CHAR "_" if None)</dd>
+<dt><strong><code>emptyFillChar</code></strong></dt>
+<dd>Character for empty cells within valueIndexes (uses DEFAULT_EMPTY_FILL_CHAR "_" if None)</dd>
 <dt><strong><code>unitSize</code></strong></dt>
 <dd>Size for centering (uses DEFAULT_UNIT_SIZE if None)</dd>
 <dt><strong><code>removeEmpty</code></strong></dt>
@@ -219,28 +226,29 @@ el.replaceWith(d);
 <p>A 2D list (matrix) representing the tree structure</p></div>
 </dd>
 <dt id="printBin.nodeToString"><code class="name flex">
-<span>def <span class="ident">nodeToString</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>fillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
+<span>def <span class="ident">nodeToString</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>fillChar=None,<br>emptyFillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def nodeToString(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
+<pre><code class="python">def nodeToString(node: BinaryNode, depth=-1, fillChar=None, emptyFillChar=None, unitSize=None, removeEmpty=True):
     &#34;&#34;&#34;
     Converts a binary tree into a string representation for visualization.
     
     Args:
         node: The root node of the tree to visualize
         depth: The depth of the tree (-1 for auto-calculation)
-        fillChar: Character for padding (uses DEFAULT_FILL_CHAR if None)
+        fillChar: Character for padding node values (uses DEFAULT_FILL_CHAR if None)
+        emptyFillChar: Character for empty cells within valueIndexes (uses DEFAULT_EMPTY_FILL_CHAR if None)
         unitSize: Size for centering (uses DEFAULT_UNIT_SIZE if None)
         removeEmpty: Whether to remove empty leading columns
         
     Returns:
         A string representation of the tree with each row on a new line
     &#34;&#34;&#34;
-    mat = nodeToMat(node, depth=depth, fillChar=fillChar, unitSize=unitSize, removeEmpty=removeEmpty)
+    mat = nodeToMat(node, depth=depth, fillChar=fillChar, emptyFillChar=emptyFillChar, unitSize=unitSize, removeEmpty=removeEmpty)
     return &#34;\n&#34;.join(&#34;&#34;.join(row) for row in mat)</code></pre>
 </details>
 <div class="desc"><p>Converts a binary tree into a string representation for visualization.</p>
@@ -251,7 +259,9 @@ el.replaceWith(d);
 <dt><strong><code>depth</code></strong></dt>
 <dd>The depth of the tree (-1 for auto-calculation)</dd>
 <dt><strong><code>fillChar</code></strong></dt>
-<dd>Character for padding (uses DEFAULT_FILL_CHAR if None)</dd>
+<dd>Character for padding node values (uses DEFAULT_FILL_CHAR if None)</dd>
+<dt><strong><code>emptyFillChar</code></strong></dt>
+<dd>Character for empty cells within valueIndexes (uses DEFAULT_EMPTY_FILL_CHAR if None)</dd>
 <dt><strong><code>unitSize</code></strong></dt>
 <dd>Size for centering (uses DEFAULT_UNIT_SIZE if None)</dd>
 <dt><strong><code>removeEmpty</code></strong></dt>
@@ -279,7 +289,7 @@ el.replaceWith(d);
     
     Args:
         node: The current node being processed
-        fillChar: Character used for padding (uses DEFAULT_FILL_CHAR if None)
+        fillChar: Character used for padding node values (uses DEFAULT_FILL_CHAR &#34;_&#34; if None)
         unitSize: Size for centering values (uses DEFAULT_UNIT_SIZE if None)
         code: The binary path code for the current node
         mem: Dictionary mapping binary codes to centered node values
@@ -302,7 +312,7 @@ el.replaceWith(d);
 <dt><strong><code>node</code></strong></dt>
 <dd>The current node being processed</dd>
 <dt><strong><code>fillChar</code></strong></dt>
-<dd>Character used for padding (uses DEFAULT_FILL_CHAR if None)</dd>
+<dd>Character used for padding node values (uses DEFAULT_FILL_CHAR "_" if None)</dd>
 <dt><strong><code>unitSize</code></strong></dt>
 <dd>Size for centering values (uses DEFAULT_UNIT_SIZE if None)</dd>
 <dt><strong><code>code</code></strong></dt>
