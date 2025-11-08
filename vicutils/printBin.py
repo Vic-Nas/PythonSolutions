@@ -85,7 +85,7 @@ def getDepth(node: BinaryNode):
     return 1 + max(getDepth(node.left), getDepth(node.right))
 
 
-def mapNodesToCodes(node: BinaryNode, valueFillChar, unitSize, code="", memo=None):
+def mapNodesToCodes(node, valueFillChar, unitSize, code="", memo=None):
     """
     Recursively maps all nodes to their binary path codes.
     
