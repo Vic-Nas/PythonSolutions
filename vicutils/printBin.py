@@ -201,3 +201,4 @@ if __name__ == "__main__":
     
     print("\n--- Custom unit size ---")
     print(nodeToString(myNode, unitSize=1))
+
