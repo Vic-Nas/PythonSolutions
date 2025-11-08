@@ -176,8 +176,8 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=
                 if i + 1 < len(prevValueIndexes):
                     # Calculate parent position (should not be overwritten)
                     parentCol = (prevValueIndexes[i] + prevValueIndexes[i + 1]) // 2
-                    # Fill columns between children, except parent position
-                    for col in range(prevValueIndexes[i] + 1, prevValueIndexes[i + 1]):
+                    # Fill columns between children (inclusive), except parent position
+                    for col in range(prevValueIndexes[i], prevValueIndexes[i + 1] + 1):
                         if col != parentCol:
                             mat[level][col] = center("", unitSize=unitSize, fillChar=connectorFillChar)
         
