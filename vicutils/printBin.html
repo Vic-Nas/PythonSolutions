@@ -154,9 +154,6 @@ el.replaceWith(d);
     # Create matrix: (2*depth - 1) rows x (2^depth - 1) columns
     mat = [[center(&#34;&#34;, unitSize=unitSize, fillChar=fillChar) for _ in range(2 ** depth - 1)] for _ in range(2 * depth - 1)]
     
-    side = &#34;left&#34;
-    leftBound, rightBound = 0, 2 ** depth - 2
-    
     # Start with all even column indices (where values can be placed)
     valueIndexes = [i for i in range(2 ** depth - 1) if i % 2 == 0]
     
