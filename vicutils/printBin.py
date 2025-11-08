@@ -6,6 +6,7 @@ DEFAULT_UNIT_SIZE = 3
 DEFAULT_FILL_CHAR = " "
 
 
+
 class Node:
     """
     Represents a node in a binary tree.
