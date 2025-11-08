@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
       
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -29,6 +30,37 @@ jobs:
           pip install pdoc3
           echo "pdoc3 version:"
           pdoc --version
+      
+      - name: Increment version
+        run: |
+          # Create .version file if it doesn't exist
+          if [ ! -f .version ]; then
+            echo "0.1" > .version
+            echo "Created .version file with initial version 0.1"
+          fi
+          
+          # Read current version
+          current_version=$(cat .version)
+          echo "Current version: $current_version"
+          
+          # Increment version (major.minor format)
+          IFS='.' read -r major minor <<< "$current_version"
+          new_minor=$((minor + 1))
+          new_version="${major}.${new_minor}"
+          
+          echo "New version: $new_version"
+          
+          # Save new version
+          echo "$new_version" > .version
+          
+          # Update setup.py
+          sed -i "s/version=\"[^\"]*\"/version=\"$new_version\"/" setup.py
+          
+          echo "=== Updated files ==="
+          echo "Version file:"
+          cat .version
+          echo "setup.py:"
+          grep 'version=' setup.py
       
       - name: Check vicutils directory
         run: |
@@ -63,11 +95,16 @@ jobs:
         run: |
           git config --local user.name "Vic-Nas"
           git config --local user.email "github-actions@github.com"
+          
+          # Add all changes
+          git add .version setup.py
           git add vicutils/*.html || echo "No HTML files to add"
+          
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            echo "Committing changes"
-            git commit -m "Auto-generate VicUtils documentation [skip ci]"
+            new_version=$(cat .version)
+            echo "Committing changes for version $new_version"
+            git commit -m "Auto-generate docs and bump version to $new_version [skip ci]"
             git push
           fi
