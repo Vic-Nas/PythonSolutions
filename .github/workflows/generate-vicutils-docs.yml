@@ -1,4 +1,4 @@
-name: Generate VicUtils Docs
+name: Generate VicUtils Docs and Publish
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write  # Required for trusted publishing
 
 jobs:
   generate-docs:
@@ -25,9 +26,9 @@ jobs:
         with:
           python-version: '3.x'
       
-      - name: Install pdoc
+      - name: Install dependencies
         run: |
-          pip install pdoc3
+          pip install pdoc3 build twine
           echo "pdoc3 version:"
           pdoc --version
       
@@ -61,6 +62,9 @@ jobs:
           cat .version
           echo "setup.py:"
           grep 'version=' setup.py
+          
+          # Export for later steps
+          echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
       
       - name: Check vicutils directory
         run: |
@@ -91,6 +95,20 @@ jobs:
           echo "=== Final vicutils contents ==="
           ls -la vicutils/
       
+      - name: Build package
+        run: |
+          echo "=== Building package ==="
+          python -m build
+          echo "=== Build artifacts ==="
+          ls -la dist/
+      
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          python -m twine upload dist/* --skip-existing
+      
       - name: Commit and push if changes
         run: |
           git config --local user.name "Vic-Nas"
@@ -103,8 +121,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            new_version=$(cat .version)
-            echo "Committing changes for version $new_version"
-            git commit -m "Auto-generate docs and bump version to $new_version [skip ci]"
+            echo "Committing changes for version $NEW_VERSION"
+            git commit -m "Auto-generate docs and bump version to $NEW_VERSION [skip ci]"
             git push
           fi
