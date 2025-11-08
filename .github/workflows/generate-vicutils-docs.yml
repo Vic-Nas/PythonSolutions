@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       
@@ -25,33 +25,49 @@ jobs:
           python-version: '3.x'
       
       - name: Install pdoc
-        run: pip install pdoc3
+        run: |
+          pip install pdoc3
+          echo "pdoc3 version:"
+          pdoc --version
+      
+      - name: Check vicutils directory
+        run: |
+          echo "=== Contents of vicutils directory ==="
+          ls -la vicutils/
+          echo "=== Python files found ==="
+          find vicutils/ -name "*.py" -not -name "__init__.py"
       
       - name: Generate documentation
         run: |
           cd vicutils
+          echo "=== Generating documentation ==="
           for file in *.py; do
-            if [ "$file" != "__init__.py" ]; then
-              echo "Generating docs for $file"
-              pdoc --html --force --output-dir . "${file%.py}"
-              # Move generated HTML to parent directory name
+            if [ "$file" != "__init__.py" ] && [ -f "$file" ]; then
+              echo "Processing: $file"
+              python -m pdoc --html --force --output-dir . "${file%.py}"
+              echo "Contents after pdoc:"
+              ls -la
+              # Move generated HTML
               if [ -d "${file%.py}" ]; then
-                mv "${file%.py}"/index.html "${file%.py}.html" 2>/dev/null || true
+                echo "Moving ${file%.py}/index.html to ${file%.py}.html"
+                mv "${file%.py}"/index.html "${file%.py}.html"
                 rm -rf "${file%.py}"
               fi
             fi
           done
           cd ..
+          echo "=== Final vicutils contents ==="
           ls -la vicutils/
       
       - name: Commit and push if changes
         run: |
           git config --local user.name "Vic-Nas"
           git config --local user.email "github-actions@github.com"
-          git add vicutils/*.html
+          git add vicutils/*.html || echo "No HTML files to add"
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
+            echo "Committing changes"
             git commit -m "Auto-generate VicUtils documentation [skip ci]"
             git push
           fi
