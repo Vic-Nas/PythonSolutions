@@ -6,7 +6,6 @@ DEFAULT_UNIT_SIZE = 3
 DEFAULT_FILL_CHAR = " "
 
 
-
 class Node:
     """
     Represents a node in a binary tree.
@@ -118,9 +117,6 @@ def nodeToMat(node: Node, depth=-1, fillChar=None, unitSize=None, removeEmpty=Tr
     
     # Create matrix: (2*depth - 1) rows x (2^depth - 1) columns
     mat = [[center("", unitSize=unitSize, fillChar=fillChar) for _ in range(2 ** depth - 1)] for _ in range(2 * depth - 1)]
-    
-    side = "left"
-    leftBound, rightBound = 0, 2 ** depth - 2
     
     # Start with all even column indices (where values can be placed)
     valueIndexes = [i for i in range(2 ** depth - 1) if i % 2 == 0]
