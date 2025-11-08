@@ -2,3 +2,13 @@
 __pycache__
 temp.py
 input.txt
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/

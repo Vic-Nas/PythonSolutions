@@ -1,6 +1,6 @@
 # [PythonSolutions](https://vic-nas.github.io/PythonSolutions/)
 
-A collection of programming problem solutions from different online judges and competitive programming platforms.
+A collection of programming problem solutions and python package
 
 ## ✍️ Solution Style
 
