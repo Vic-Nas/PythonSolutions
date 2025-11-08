@@ -1,5 +1,7 @@
 # [PythonSolutions](https://vic-nas.github.io/PythonSolutions/)
 
+## [Documentation](https://vic-nas.github.io/PythonSolutions/vicutils/printBin.html)
+
 A collection of programming problem solutions and python package
 
 ## ✍️ Solution Style
