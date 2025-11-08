@@ -169,11 +169,17 @@ el.replaceWith(d);
             for i, index in enumerate(valueIndexes):
                 mat[level][index] = [center(&#34;/&#34;, unitSize=unitSize, fillChar=&#34; &#34;), center(&#34;\\&#34;, unitSize=unitSize, fillChar=&#34; &#34;)][i % 2]
             
+            # Fill gaps between each pair with gapFillChar
+            for i in range(0, len(valueIndexes), 2):
+                if i + 1 &lt; len(valueIndexes):
+                    # Fill columns between valueIndexes[i] and valueIndexes[i+1]
+                    for col in range(valueIndexes[i] + 1, valueIndexes[i + 1]):
+                        mat[level][col] = center(&#34;&#34;, unitSize=unitSize, fillChar=gapFillChar)
+            
             # Calculate parent positions (midpoints between child pairs)
             next = []
             for i in range(0, len(valueIndexes) - 1, 2):
                 next.append((valueIndexes[i] + valueIndexes[i + 1]) // 2)
-            prev = valueIndexes
             valueIndexes = next
             continue
         
@@ -185,14 +191,6 @@ el.replaceWith(d);
         for i, index in enumerate(valueIndexes):
             if codes[i] in tree:
                 mat[level][index] = tree[codes[i]]
-        
-        # Fill gaps between pairs for this level
-        if len(valueIndexes) &gt; 1:
-            for i in range(0, len(valueIndexes), 2):
-                if i + 1 &lt; len(valueIndexes):
-                    # Fill columns between valueIndexes[i] and valueIndexes[i+1]
-                    for col in range(valueIndexes[i] + 1, valueIndexes[i + 1]):
-                        mat[level][col] = center(&#34;&#34;, unitSize=unitSize, fillChar=gapFillChar)
     
     # Remove empty leading columns if requested
     if removeEmpty:
