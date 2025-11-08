@@ -203,7 +203,7 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=
     return mat
 
 
-def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True):
+def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True, showConnectors=True):
     """
     Converts a binary tree into a string representation for visualization.
     
@@ -214,7 +214,13 @@ def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillCh
         connectorFillChar: Character for filling horizontal gaps between node pairs
         unitSize: Size for centering values
         removeEmpty: Whether to remove empty leading columns
+        showConnectors: Whether to show connector lines (/ and \) between nodes
     """
     mat = nodeToMat(node, depth=depth, valueFillChar=valueFillChar, 
                     connectorFillChar=connectorFillChar, unitSize=unitSize, removeEmpty=removeEmpty)
-    return "\n".join("".join(row) for row in mat)
+    
+    if showConnectors:
+        return "\n".join("".join(row) for row in mat)
+    else:
+        # Only include even rows (node values, skip odd rows with connectors)
+        return "\n".join("".join(mat[i]) for i in range(0, len(mat), 2))
