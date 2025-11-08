@@ -713,7 +713,11 @@
                 `;
                 
                 if (problem.hasHtml && problem.htmlFiles.length > 0) {
-                    item.onclick = () => window.location.href = `${platform}/${problem.name}/${problem.htmlFiles[0].name}`;
+                    if (platform === 'vicutils') {
+                        item.onclick = () => window.location.href = `${platform}/${problem.htmlFiles[0].name}`;
+                    } else {
+                        item.onclick = () => window.location.href = `${platform}/${problem.name}/${problem.htmlFiles[0].name}`;
+                    }
                 } else {
                     item.onclick = () => generatePage(platform, problem);
                 }
@@ -768,8 +772,8 @@
             const platformTitle = platform === 'vicutils' ? 'VicUtils' : platform.charAt(0).toUpperCase() + platform.slice(1);
             
             const repoUrl = platform === 'vicutils' 
-                ? `https://github.com/${getRepoPath()}/blob/main/${platform}`
-                : `https://github.com/${getRepoPath()}/tree/main/${platform}`;
+                ? `https://github.com/${getRepoPath()}/blob/main/${platform}/${problem.name}`
+                : `https://github.com/${getRepoPath()}/tree/main/${platform}/${problem.name}`;
             
             let pageContent = `
                 <div class="generated-page">
