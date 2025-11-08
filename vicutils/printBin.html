@@ -79,14 +79,14 @@ el.replaceWith(d);
 <div class="desc"><p>Calculates the depth (height) of a binary tree.</p></div>
 </dd>
 <dt id="printBin.mapNodesToCodes"><code class="name flex">
-<span>def <span class="ident">mapNodesToCodes</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>valueFillChar,<br>unitSize,<br>code='',<br>memo=None)</span>
+<span>def <span class="ident">mapNodesToCodes</span></span>(<span>node, valueFillChar, unitSize, code='', memo=None)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def mapNodesToCodes(node: BinaryNode, valueFillChar, unitSize, code=&#34;&#34;, memo=None):
+<pre><code class="python">def mapNodesToCodes(node, valueFillChar, unitSize, code=&#34;&#34;, memo=None):
     &#34;&#34;&#34;
     Recursively maps all nodes to their binary path codes.
     
@@ -239,14 +239,14 @@ el.replaceWith(d);
 </dl></div>
 </dd>
 <dt id="printBin.nodeToString"><code class="name flex">
-<span>def <span class="ident">nodeToString</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>valueFillChar=None,<br>connectorFillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
+<span>def <span class="ident">nodeToString</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>valueFillChar=None,<br>connectorFillChar=None,<br>unitSize=None,<br>removeEmpty=True,<br>showConnectors=True)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True):
+<pre><code class="python">def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True, showConnectors=True):
     &#34;&#34;&#34;
     Converts a binary tree into a string representation for visualization.
     
@@ -257,10 +257,16 @@ el.replaceWith(d);
         connectorFillChar: Character for filling horizontal gaps between node pairs
         unitSize: Size for centering values
         removeEmpty: Whether to remove empty leading columns
+        showConnectors: Whether to show connector lines (/ and \) between nodes
     &#34;&#34;&#34;
     mat = nodeToMat(node, depth=depth, valueFillChar=valueFillChar, 
                     connectorFillChar=connectorFillChar, unitSize=unitSize, removeEmpty=removeEmpty)
-    return &#34;\n&#34;.join(&#34;&#34;.join(row) for row in mat)</code></pre>
+    
+    if showConnectors:
+        return &#34;\n&#34;.join(&#34;&#34;.join(row) for row in mat)
+    else:
+        # Only include even rows (node values, skip odd rows with connectors)
+        return &#34;\n&#34;.join(&#34;&#34;.join(mat[i]) for i in range(0, len(mat), 2))</code></pre>
 </details>
 <div class="desc"><p>Converts a binary tree into a string representation for visualization.</p>
 <h2 id="args">Args</h2>
@@ -277,6 +283,8 @@ el.replaceWith(d);
 <dd>Size for centering values</dd>
 <dt><strong><code>removeEmpty</code></strong></dt>
 <dd>Whether to remove empty leading columns</dd>
+<dt><strong><code>showConnectors</code></strong></dt>
+<dd>Whether to show connector lines (/ and ) between nodes</dd>
 </dl></div>
 </dd>
 </dl>
