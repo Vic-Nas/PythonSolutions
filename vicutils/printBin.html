@@ -192,7 +192,7 @@ el.replaceWith(d);
                 if i + 1 &lt; len(prevValueIndexes):
                     # Calculate parent position (should not be overwritten)
                     parentCol = (prevValueIndexes[i] + prevValueIndexes[i + 1]) // 2
-                    # Fill columns between children (inclusive), except parent position
+                    # Fill columns between children, except parent position
                     for col in range(prevValueIndexes[i] + 1, prevValueIndexes[i + 1]):
                         if col != parentCol:
                             mat[level][col] = center(&#34;&#34;, unitSize=unitSize, fillChar=connectorFillChar)
