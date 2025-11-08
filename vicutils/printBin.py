@@ -2,7 +2,8 @@ from itertools import product
 
 # Default configuration constants
 DEFAULT_UNIT_SIZE = 3
-DEFAULT_FILL_CHAR = " "
+DEFAULT_FILL_CHAR = "_"
+DEFAULT_EMPTY_FILL_CHAR = "_"
 
 
 class BinaryNode:
@@ -79,7 +80,7 @@ def center(val, unitSize=None, fillChar=None):
     Args:
         val: The value to center
         unitSize: The total width of the output string (uses DEFAULT_UNIT_SIZE if None)
-        fillChar: The character to use for padding (uses DEFAULT_FILL_CHAR if None)
+        fillChar: The character to use for padding (uses DEFAULT_FILL_CHAR "_" if None)
         
     Returns:
         A centered string representation of val
@@ -117,7 +118,7 @@ def register(node: BinaryNode, fillChar=None, unitSize=None, code="", mem=None):
     
     Args:
         node: The current node being processed
-        fillChar: Character used for padding (uses DEFAULT_FILL_CHAR if None)
+        fillChar: Character used for padding node values (uses DEFAULT_FILL_CHAR "_" if None)
         unitSize: Size for centering values (uses DEFAULT_UNIT_SIZE if None)
         code: The binary path code for the current node
         mem: Dictionary mapping binary codes to centered node values
@@ -131,7 +132,7 @@ def register(node: BinaryNode, fillChar=None, unitSize=None, code="", mem=None):
     return mem
 
 
-def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
+def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, emptyFillChar=None, unitSize=None, removeEmpty=True):
     """
     Converts a binary tree into a 2D matrix representation for visualization.
     
@@ -142,7 +143,8 @@ def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEm
     Args:
         node: The root node of the tree to visualize
         depth: The depth of the tree (-1 for auto-calculation)
-        fillChar: Character for padding (uses DEFAULT_FILL_CHAR if None)
+        fillChar: Character for padding node values (uses DEFAULT_FILL_CHAR "_" if None)
+        emptyFillChar: Character for empty cells within valueIndexes (uses DEFAULT_EMPTY_FILL_CHAR "_" if None)
         unitSize: Size for centering (uses DEFAULT_UNIT_SIZE if None)
         removeEmpty: Whether to remove empty leading columns
         
@@ -153,6 +155,8 @@ def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEm
         unitSize = DEFAULT_UNIT_SIZE
     if fillChar is None:
         fillChar = DEFAULT_FILL_CHAR
+    if emptyFillChar is None:
+        emptyFillChar = DEFAULT_EMPTY_FILL_CHAR
     
     if depth == -1:
         depth = getDepth(node)
@@ -161,7 +165,8 @@ def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEm
     tree = register(node, fillChar=fillChar, unitSize=unitSize, code="", mem={})
     
     # Create matrix: (2*depth - 1) rows x (2^depth - 1) columns
-    mat = [[center("", unitSize=unitSize, fillChar=fillChar) for _ in range(2 ** depth - 1)] for _ in range(2 * depth - 1)]
+    # Initialize with space-centered empty cells
+    mat = [[center("", unitSize=unitSize, fillChar=" ") for _ in range(2 ** depth - 1)] for _ in range(2 * depth - 1)]
     
     # Start with all even column indices (where values can be placed)
     valueIndexes = [i for i in range(2 ** depth - 1) if i % 2 == 0]
@@ -171,7 +176,7 @@ def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEm
         # Odd levels: place connection characters (/ and \)
         if level % 2 != 0:
             for i, index in enumerate(valueIndexes):
-                mat[level][index] = [center("/", unitSize=unitSize, fillChar=fillChar), center("\\", unitSize=unitSize, fillChar=fillChar)][i % 2]
+                mat[level][index] = [center("/", unitSize=unitSize, fillChar=" "), center("\\", unitSize=unitSize, fillChar=" ")][i % 2]
             
             # Calculate parent positions (midpoints between child pairs)
             newIndexes = []
@@ -186,18 +191,19 @@ def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEm
         codes = ["".join(code) for code in codes]
         
         for i, index in enumerate(valueIndexes):
-            mat[level][index] = tree.get(codes[i], center("", unitSize=unitSize, fillChar=fillChar))
+            mat[level][index] = tree.get(codes[i], center("", unitSize=unitSize, fillChar=emptyFillChar))
     
     # Remove empty leading columns if requested
     if removeEmpty:
+        centeredSpace = center("", unitSize=unitSize, fillChar=" ")
+        centeredSlash = center("/", unitSize=unitSize, fillChar=" ")
+        centeredBackslash = center("\\", unitSize=unitSize, fillChar=" ")
+        
         for i in range(2 ** depth - 1):
             remove = False
             if all(
-                mat[j][i] in [
-                    center("", unitSize=unitSize, fillChar=fillChar),
-                    center("/", unitSize=unitSize, fillChar=fillChar),
-                    center("\\", unitSize=unitSize, fillChar=fillChar)
-                ] for j in range(2 * depth - 1)
+                mat[j][i] in [centeredSpace, centeredSlash, centeredBackslash]
+                for j in range(2 * depth - 1)
             ):
                 remove = True
             if not remove:
@@ -208,19 +214,20 @@ def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEm
     return mat
 
 
-def nodeToString(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
+def nodeToString(node: BinaryNode, depth=-1, fillChar=None, emptyFillChar=None, unitSize=None, removeEmpty=True):
     """
     Converts a binary tree into a string representation for visualization.
     
     Args:
         node: The root node of the tree to visualize
         depth: The depth of the tree (-1 for auto-calculation)
-        fillChar: Character for padding (uses DEFAULT_FILL_CHAR if None)
+        fillChar: Character for padding node values (uses DEFAULT_FILL_CHAR if None)
+        emptyFillChar: Character for empty cells within valueIndexes (uses DEFAULT_EMPTY_FILL_CHAR if None)
         unitSize: Size for centering (uses DEFAULT_UNIT_SIZE if None)
         removeEmpty: Whether to remove empty leading columns
         
     Returns:
         A string representation of the tree with each row on a new line
     """
-    mat = nodeToMat(node, depth=depth, fillChar=fillChar, unitSize=unitSize, removeEmpty=removeEmpty)
+    mat = nodeToMat(node, depth=depth, fillChar=fillChar, emptyFillChar=emptyFillChar, unitSize=unitSize, removeEmpty=removeEmpty)
     return "\n".join("".join(row) for row in mat)
