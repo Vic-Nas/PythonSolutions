@@ -561,10 +561,9 @@
                         // For vicutils, look for generated .html files
                         for (const item of items) {
                             if (item.type === 'file' && item.name.endsWith('.html')) {
-                                const baseName = item.name.replace('.html', '');
                                 problems.push({
-                                    name: baseName,
-                                    displayName: baseName.replace(/_/g, ' '),
+                                    name: item.name,  // Keep the full filename
+                                    displayName: item.name.replace('.html', '').replace(/_/g, ' '),
                                     type: 'html',
                                     hasPage: true,
                                     hasHtml: true,
@@ -714,7 +713,7 @@
                 
                 if (problem.hasHtml && problem.htmlFiles.length > 0) {
                     if (platform === 'vicutils') {
-                        item.onclick = () => window.location.href = `${platform}/${problem.htmlFiles[0].name}`;
+                        item.onclick = () => window.location.href = `${platform}/${problem.name}`;
                     } else {
                         item.onclick = () => window.location.href = `${platform}/${problem.name}/${problem.htmlFiles[0].name}`;
                     }
