@@ -6,7 +6,7 @@ DEFAULT_UNIT_SIZE = 3
 DEFAULT_FILL_CHAR = " "
 
 
-class Node:
+class BinaryNode:
     """
     Represents a node in a binary tree.
     
@@ -46,7 +46,7 @@ def center(val, unitSize=None, fillChar=None):
     return str(val).center(unitSize, fillChar)
 
 
-def getDepth(node: Node):
+def getDepth(node: BinaryNode):
     """
     Calculates the depth (height) of a binary tree.
     
@@ -61,7 +61,7 @@ def getDepth(node: Node):
     return 1 + max(getDepth(node.left), getDepth(node.right))
 
 
-def register(node: Node, fillChar=None, unitSize=None, code="", mem=None):
+def register(node: BinaryNode, fillChar=None, unitSize=None, code="", mem=None):
     """
     Recursively registers all nodes in a tree with their binary path codes.
     
@@ -86,7 +86,7 @@ def register(node: Node, fillChar=None, unitSize=None, code="", mem=None):
     return mem
 
 
-def nodeToMat(node: Node, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
+def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
     """
     Converts a binary tree into a 2D matrix representation for visualization.
     
@@ -163,7 +163,7 @@ def nodeToMat(node: Node, depth=-1, fillChar=None, unitSize=None, removeEmpty=Tr
     return mat
 
 
-def nodeToString(node: Node, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
+def nodeToString(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
     """
     Converts a binary tree into a string representation for visualization.
     
@@ -183,13 +183,13 @@ def nodeToString(node: Node, depth=-1, fillChar=None, unitSize=None, removeEmpty
 
 # Example usage
 if __name__ == "__main__":
-    myNode = Node(1)
+    myNode = BinaryNode(1)
     # myNode.left = Node(2)
-    myNode.right = Node(3)
+    myNode.right = BinaryNode(3)
     # myNode.left.left = Node(4)
     # myNode.left.right = Node(5)
-    myNode.right.left = Node(6)
-    myNode.right.right = Node(7)
+    myNode.right.left = BinaryNode(6)
+    myNode.right.right = BinaryNode(7)
 
     mat = nodeToMat(myNode)
     pprint(mat)
