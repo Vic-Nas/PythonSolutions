@@ -200,9 +200,12 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, gapFillChar=None, 
         if prev is not None:
             for i in range(0, len(prev), 2):
                 if i + 1 < len(prev):
-                    # Fill columns between prev[i] and prev[i+1]
+                    # Calculate parent position (should not be overwritten)
+                    parent_col = (prev[i] + prev[i + 1]) // 2
+                    # Fill columns between prev[i] and prev[i+1], except parent
                     for col in range(prev[i] + 1, prev[i + 1]):
-                        mat[level][col] = center("", unitSize=unitSize, fillChar=gapFillChar)
+                        if col != parent_col:
+                            mat[level][col] = center("", unitSize=unitSize, fillChar=gapFillChar)
     
     # Remove empty leading columns if requested
     if removeEmpty:
