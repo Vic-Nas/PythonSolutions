@@ -8,3 +8,9 @@ A collection of programming problem solutions from different online judges and c
 - **Python-focused solutions**, with clear and readable implementation.  
 - **Geometry problems** may include supporting images or diagrams.  
 - **Multistemps problems** may include an example page.
+  
+## Install vicutils
+```bash
+pip install git+https://github.com/Vic-Nas/PythonSolutions.git#egg=vicutils
+```
+
