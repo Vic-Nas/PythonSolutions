@@ -84,14 +84,14 @@ el.replaceWith(d);
 <p>A centered string representation of val</p></div>
 </dd>
 <dt id="printBin.getDepth"><code class="name flex">
-<span>def <span class="ident">getDepth</span></span>(<span>node: <a title="printBin.Node" href="#printBin.Node">Node</a>)</span>
+<span>def <span class="ident">getDepth</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getDepth(node: Node):
+<pre><code class="python">def getDepth(node: BinaryNode):
     &#34;&#34;&#34;
     Calculates the depth (height) of a binary tree.
     
@@ -115,14 +115,14 @@ el.replaceWith(d);
 <p>The depth of the tree (number of levels from root to deepest leaf)</p></div>
 </dd>
 <dt id="printBin.nodeToMat"><code class="name flex">
-<span>def <span class="ident">nodeToMat</span></span>(<span>node: <a title="printBin.Node" href="#printBin.Node">Node</a>,<br>depth=-1,<br>fillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
+<span>def <span class="ident">nodeToMat</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>fillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def nodeToMat(node: Node, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
+<pre><code class="python">def nodeToMat(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
     &#34;&#34;&#34;
     Converts a binary tree into a 2D matrix representation for visualization.
     
@@ -219,14 +219,14 @@ el.replaceWith(d);
 <p>A 2D list (matrix) representing the tree structure</p></div>
 </dd>
 <dt id="printBin.nodeToString"><code class="name flex">
-<span>def <span class="ident">nodeToString</span></span>(<span>node: <a title="printBin.Node" href="#printBin.Node">Node</a>,<br>depth=-1,<br>fillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
+<span>def <span class="ident">nodeToString</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>fillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def nodeToString(node: Node, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
+<pre><code class="python">def nodeToString(node: BinaryNode, depth=-1, fillChar=None, unitSize=None, removeEmpty=True):
     &#34;&#34;&#34;
     Converts a binary tree into a string representation for visualization.
     
@@ -261,14 +261,14 @@ el.replaceWith(d);
 <p>A string representation of the tree with each row on a new line</p></div>
 </dd>
 <dt id="printBin.register"><code class="name flex">
-<span>def <span class="ident">register</span></span>(<span>node: <a title="printBin.Node" href="#printBin.Node">Node</a>,<br>fillChar=None,<br>unitSize=None,<br>code='',<br>mem=None)</span>
+<span>def <span class="ident">register</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>fillChar=None,<br>unitSize=None,<br>code='',<br>mem=None)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def register(node: Node, fillChar=None, unitSize=None, code=&#34;&#34;, mem=None):
+<pre><code class="python">def register(node: BinaryNode, fillChar=None, unitSize=None, code=&#34;&#34;, mem=None):
     &#34;&#34;&#34;
     Recursively registers all nodes in a tree with their binary path codes.
     
@@ -316,8 +316,8 @@ el.replaceWith(d);
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="printBin.Node"><code class="flex name class">
-<span>class <span class="ident">Node</span></span>
+<dt id="printBin.BinaryNode"><code class="flex name class">
+<span>class <span class="ident">BinaryNode</span></span>
 <span>(</span><span>val=0, left=None, right=None)</span>
 </code></dt>
 <dd>
@@ -325,7 +325,7 @@ el.replaceWith(d);
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Node:
+<pre><code class="python">class BinaryNode:
     &#34;&#34;&#34;
     Represents a node in a binary tree.
     
@@ -376,7 +376,7 @@ el.replaceWith(d);
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="printBin.Node" href="#printBin.Node">Node</a></code></h4>
+<h4><code><a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a></code></h4>
 </li>
 </ul>
 </li>
