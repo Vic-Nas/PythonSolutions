@@ -329,15 +329,62 @@ el.replaceWith(d);
     &#34;&#34;&#34;
     Represents a node in a binary tree.
     
+    Args:
+        val: The value stored in the node, or a list to build a tree from.
+             If a list is provided, builds tree level by level from left to right.
+             Use None in the list for missing nodes.
+        left: Reference to the left child node (only used when val is not a list)
+        right: Reference to the right child node (only used when val is not a list)
+    
     Attributes:
         val: The value stored in the node
         left: Reference to the left child node
         right: Reference to the right child node
+        
+    Example:
+        &gt;&gt;&gt; # Create a single node
+        &gt;&gt;&gt; node = BinaryNode(5)
+        &gt;&gt;&gt; 
+        &gt;&gt;&gt; # Create a tree from a list
+        &gt;&gt;&gt; root = BinaryNode([1, 2, 3, 4, 5, None, 7])
+        &gt;&gt;&gt; # Creates:
+        &gt;&gt;&gt; #       1
+        &gt;&gt;&gt; #      / \
+        &gt;&gt;&gt; #     2   3
+        &gt;&gt;&gt; #    / \   \
+        &gt;&gt;&gt; #   4   5   7
     &#34;&#34;&#34;
     def __init__(self, val=0, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
+        # If val is a list, build tree from it
+        if isinstance(val, list):
+            if not val or val[0] is None:
+                raise ValueError(&#34;Cannot create tree from empty list or list starting with None&#34;)
+            
+            self.val = val[0]
+            self.left = None
+            self.right = None
+            
+            queue = [self]
+            i = 1
+            
+            while queue and i &lt; len(val):
+                node = queue.pop(0)
+                
+                # Add left child
+                if i &lt; len(val) and val[i] is not None:
+                    node.left = BinaryNode(val[i])
+                    queue.append(node.left)
+                i += 1
+                
+                # Add right child
+                if i &lt; len(val) and val[i] is not None:
+                    node.right = BinaryNode(val[i])
+                    queue.append(node.right)
+                i += 1
+        else:
+            self.val = val
+            self.left = left
+            self.right = right
     
     def __str__(self):
         return str(self.val)
@@ -346,6 +393,17 @@ el.replaceWith(d);
         return str(self)</code></pre>
 </details>
 <div class="desc"><p>Represents a node in a binary tree.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>val</code></strong></dt>
+<dd>The value stored in the node, or a list to build a tree from.
+If a list is provided, builds tree level by level from left to right.
+Use None in the list for missing nodes.</dd>
+<dt><strong><code>left</code></strong></dt>
+<dd>Reference to the left child node (only used when val is not a list)</dd>
+<dt><strong><code>right</code></strong></dt>
+<dd>Reference to the right child node (only used when val is not a list)</dd>
+</dl>
 <h2 id="attributes">Attributes</h2>
 <dl>
 <dt><strong><code>val</code></strong></dt>
@@ -354,7 +412,18 @@ el.replaceWith(d);
 <dd>Reference to the left child node</dd>
 <dt><strong><code>right</code></strong></dt>
 <dd>Reference to the right child node</dd>
-</dl></div>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; # Create a single node
+&gt;&gt;&gt; node = BinaryNode(5)
+&gt;&gt;&gt; 
+&gt;&gt;&gt; # Create a tree from a list
+&gt;&gt;&gt; root = BinaryNode([1, 2, 3, 4, 5, None, 7])
+&gt;&gt;&gt; # Creates:
+&gt;&gt;&gt; #       1
+&gt;&gt;&gt; #      /         &gt;&gt;&gt; #     2   3
+&gt;&gt;&gt; #    / \           &gt;&gt;&gt; #   4   5   7
+</code></pre></div>
 </dd>
 </dl>
 </section>
