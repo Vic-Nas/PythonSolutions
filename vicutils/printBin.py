@@ -179,11 +179,17 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, gapFillChar=None, 
             for i, index in enumerate(valueIndexes):
                 mat[level][index] = [center("/", unitSize=unitSize, fillChar=" "), center("\\", unitSize=unitSize, fillChar=" ")][i % 2]
             
+            # Fill gaps between each pair with gapFillChar
+            for i in range(0, len(valueIndexes), 2):
+                if i + 1 < len(valueIndexes):
+                    # Fill columns between valueIndexes[i] and valueIndexes[i+1]
+                    for col in range(valueIndexes[i] + 1, valueIndexes[i + 1]):
+                        mat[level][col] = center("", unitSize=unitSize, fillChar=gapFillChar)
+            
             # Calculate parent positions (midpoints between child pairs)
             next = []
             for i in range(0, len(valueIndexes) - 1, 2):
                 next.append((valueIndexes[i] + valueIndexes[i + 1]) // 2)
-            prev = valueIndexes
             valueIndexes = next
             continue
         
@@ -195,14 +201,6 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, gapFillChar=None, 
         for i, index in enumerate(valueIndexes):
             if codes[i] in tree:
                 mat[level][index] = tree[codes[i]]
-        
-        # Fill gaps between pairs for this level
-        if len(valueIndexes) > 1:
-            for i in range(0, len(valueIndexes), 2):
-                if i + 1 < len(valueIndexes):
-                    # Fill columns between valueIndexes[i] and valueIndexes[i+1]
-                    for col in range(valueIndexes[i] + 1, valueIndexes[i + 1]):
-                        mat[level][col] = center("", unitSize=unitSize, fillChar=gapFillChar)
     
     # Remove empty leading columns if requested
     if removeEmpty:
