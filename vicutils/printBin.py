@@ -180,16 +180,19 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=
                     
                     # Special handling for child positions if unitSize > 1
                     if unitSize > 1 and connectors is not None:
-                        # Left child: fill chars positioned to the right of where / appears
-                        # The connector / is centered, so it appears at position unitSize // 2
-                        # We want fill chars after it
-                        leftFill = " " * (unitSize // 2 + 1) + connectorFillChar * (unitSize - unitSize // 2 - 1)
+                        # Find where the connector characters appear when centered
+                        leftConnectorCentered = center(connectors[0], unitSize=unitSize, fillChar=" ")
+                        rightConnectorCentered = center(connectors[1], unitSize=unitSize, fillChar=" ")
+                        
+                        leftConnectorPos = leftConnectorCentered.index(connectors[0])
+                        rightConnectorPos = rightConnectorCentered.index(connectors[1])
+                        
+                        # Left child: spaces up to and including connector position, then fill chars
+                        leftFill = " " * (leftConnectorPos + 1) + connectorFillChar * (unitSize - leftConnectorPos - 1)
                         mat[level][leftChildCol] = leftFill
                         
-                        # Right child: fill chars positioned to the left of where \ appears
-                        # The connector \ is centered, so it appears at position unitSize // 2
-                        # We want fill chars before it
-                        rightFill = connectorFillChar * (unitSize // 2) + " " * (unitSize - unitSize // 2)
+                        # Right child: fill chars up to connector position, then spaces
+                        rightFill = connectorFillChar * rightConnectorPos + " " * (unitSize - rightConnectorPos)
                         mat[level][rightChildCol] = rightFill
         
         prevValueIndexes = valueIndexes
