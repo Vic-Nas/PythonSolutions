@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vicutils",
-    version="0.26",
+    version="0.27",
     packages=find_packages(),
     install_requires=[],
     
