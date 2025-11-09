@@ -2,7 +2,7 @@ from itertools import product
 
 # Default configuration constants
 DEFAULT_UNIT_SIZE = 3
-DEFAULT_VALUE_FILL_CHAR = " "  # Character used to pad node values (e.g., "_5_")
+DEFAULT_VALUE_FILL_CHAR = "_"  # Character used to pad node values (e.g., "_5_")
 DEFAULT_CONNECTOR_FILL_CHAR = "_"  # Character used to fill horizontal gaps between node pairs
 
 
@@ -31,7 +31,6 @@ class BinaryNode:
         >>> #   4   5   7
     """
     def __init__(self, val=0, left=None, right=None):
-        # If val is a list, build tree from it
         if isinstance(val, list):
             if not val or val[0] is None:
                 raise ValueError("Cannot create tree from empty list or list starting with None")
@@ -46,13 +45,11 @@ class BinaryNode:
             while queue and i < len(val):
                 node = queue.pop(0)
                 
-                # Add left child
                 if i < len(val) and val[i] is not None:
                     node.left = BinaryNode(val[i])
                     queue.append(node.left)
                 i += 1
                 
-                # Add right child
                 if i < len(val) and val[i] is not None:
                     node.right = BinaryNode(val[i])
                     queue.append(node.right)
@@ -106,13 +103,13 @@ def mapNodesToCodes(node, valueFillChar, unitSize, code="", memo=None):
     return memo
 
 
-def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True):
+def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True, connectors="/\\"):
     """
     Converts a binary tree into a 2D matrix representation for visualization.
     
     The matrix includes:
     - Even rows (0, 2, 4...): Node values
-    - Odd rows (1, 3, 5...): Connection lines (/ and \\)
+    - Odd rows (1, 3, 5...): Connection lines (using connectors)
     
     Args:
         node: The root node of the tree to visualize
@@ -121,6 +118,7 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=
         connectorFillChar: Character for filling horizontal gaps between node pairs
         unitSize: Size for centering values
         removeEmpty: Whether to remove empty leading columns
+        connectors: Two-character string for connectors (e.g., "/\\" or "||"), None to skip connector rows
     """
     if unitSize is None:
         unitSize = DEFAULT_UNIT_SIZE
@@ -129,40 +127,35 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=
     if connectorFillChar is None:
         connectorFillChar = DEFAULT_CONNECTOR_FILL_CHAR
     
+    if connectors is not None and len(connectors) != 2:
+        connectors = "/\\"
+    
     if depth == -1:
         depth = getDepth(node)
     
-    # Map all nodes to their binary path codes
     tree = mapNodesToCodes(node, valueFillChar, unitSize)
     
-    # Cache frequently used values
-    numCols = 2 ** depth - 1  # Number of leaf positions (columns)
-    numRows = 2 * depth - 1   # Total rows (values + connectors)
+    numCols = 2 ** depth - 1
+    numRows = 2 * depth - 1
     
-    # Initialize matrix with space-centered empty cells
     mat = [[center("", unitSize=unitSize, fillChar=" ") for _ in range(numCols)] for _ in range(numRows)]
     
-    # Start with all even column indices (where values can be placed)
     valueIndexes = [i for i in range(numCols) if i % 2 == 0]
     prevValueIndexes = None
     
-    # Build matrix from bottom to top
     for level in range(numRows - 1, -1, -1):
-        # Odd levels: place connection characters (/ and \)
         if level % 2 != 0:
-            for i, index in enumerate(valueIndexes):
-                mat[level][index] = [center("/", unitSize=unitSize, fillChar=" "), 
-                                    center("\\", unitSize=unitSize, fillChar=" ")][i % 2]
+            if connectors is not None:
+                for i, index in enumerate(valueIndexes):
+                    mat[level][index] = [center(connectors[0], unitSize=unitSize, fillChar=" "), 
+                                        center(connectors[1], unitSize=unitSize, fillChar=" ")][i % 2]
             
-            # Calculate parent positions (midpoints between child pairs)
             nextValueIndexes = []
             for i in range(0, len(valueIndexes) - 1, 2):
                 nextValueIndexes.append((valueIndexes[i] + valueIndexes[i + 1]) // 2)
             valueIndexes = nextValueIndexes
             continue
         
-        # Even levels: place node values
-        # Generate all binary codes for current level
         codes = list(product(*["01" for _ in range(level // 2)]))
         codes = ["".join(code) for code in codes]
         
@@ -170,25 +163,20 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=
             if codes[i] in tree:
                 mat[level][index] = tree[codes[i]]
         
-        # Fill horizontal gaps between node pairs using connectorFillChar
         if prevValueIndexes is not None:
             for i in range(0, len(prevValueIndexes), 2):
                 if i + 1 < len(prevValueIndexes):
-                    # Calculate parent position (should not be overwritten)
                     parentCol = (prevValueIndexes[i] + prevValueIndexes[i + 1]) // 2
-                    # Fill columns between children, except parent position
                     for col in range(prevValueIndexes[i] + 1, prevValueIndexes[i + 1]):
                         if col != parentCol:
                             mat[level][col] = center("", unitSize=unitSize, fillChar=connectorFillChar)
         
-        # Save current valueIndexes for next even level
         prevValueIndexes = valueIndexes
     
-    # Remove empty leading columns if requested
     if removeEmpty:
         centeredSpace = center("", unitSize=unitSize, fillChar=" ")
-        centeredSlash = center("/", unitSize=unitSize, fillChar=" ")
-        centeredBackslash = center("\\", unitSize=unitSize, fillChar=" ")
+        centeredSlash = center(connectors[0] if connectors else "/", unitSize=unitSize, fillChar=" ")
+        centeredBackslash = center(connectors[1] if connectors else "\\", unitSize=unitSize, fillChar=" ")
         
         for i in range(numCols):
             remove = all(
@@ -203,7 +191,7 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=
     return mat
 
 
-def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True, showConnectors=True):
+def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True, connectors="/\\"):
     """
     Converts a binary tree into a string representation for visualization.
     
@@ -214,13 +202,13 @@ def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillCh
         connectorFillChar: Character for filling horizontal gaps between node pairs
         unitSize: Size for centering values
         removeEmpty: Whether to remove empty leading columns
-        showConnectors: Whether to show connector lines (/ and \) between nodes
+        connectors: Two-character string for connectors (e.g., "/\\" or "||"), None to skip connector rows
     """
     mat = nodeToMat(node, depth=depth, valueFillChar=valueFillChar, 
-                    connectorFillChar=connectorFillChar, unitSize=unitSize, removeEmpty=removeEmpty)
+                    connectorFillChar=connectorFillChar, unitSize=unitSize, 
+                    removeEmpty=removeEmpty, connectors=connectors)
     
-    if showConnectors:
+    if connectors is not None:
         return "\n".join("".join(row) for row in mat)
     else:
-        # Only include even rows (node values, skip odd rows with connectors)
         return "\n".join("".join(mat[i]) for i in range(0, len(mat), 2))
