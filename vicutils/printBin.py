@@ -2,7 +2,7 @@ from itertools import product
 
 # Default configuration constants
 DEFAULT_UNIT_SIZE = 3
-DEFAULT_VALUE_FILL_CHAR = " "  # Character used to pad node values (e.g., "_5_")
+DEFAULT_VALUE_FILL_CHAR = "_"  # Character used to pad node values (e.g., "_5_")
 DEFAULT_CONNECTOR_FILL_CHAR = "_"  # Character used to fill horizontal gaps between node pairs
 
 
@@ -82,7 +82,7 @@ def getDepth(node: BinaryNode):
     return 1 + max(getDepth(node.left), getDepth(node.right))
 
 
-def mapNodesToCodes(node, valueFillChar, unitSize, code="", memo=None):
+def mapNodesToCodes(node, valueFillChar, unitSize, code=""):
     """
     Recursively maps all nodes to their binary path codes.
     
@@ -94,12 +94,15 @@ def mapNodesToCodes(node, valueFillChar, unitSize, code="", memo=None):
     Returns:
         Dictionary mapping binary codes to centered node values
     """
-    if memo is None:
-        memo = {}
-    if node:
-        memo[code] = center(node.val, unitSize=unitSize, fillChar=valueFillChar)
-        mapNodesToCodes(node.left, valueFillChar, unitSize, code + "0", memo)
-        mapNodesToCodes(node.right, valueFillChar, unitSize, code + "1", memo)
+    memo = {}
+    
+    def recurse(node, code):
+        if node:
+            memo[code] = center(node.val, unitSize=unitSize, fillChar=valueFillChar)
+            recurse(node.left, code + "0")
+            recurse(node.right, code + "1")
+    
+    recurse(node, code)
     return memo
 
 
@@ -166,10 +169,28 @@ def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=
         if prevValueIndexes is not None:
             for i in range(0, len(prevValueIndexes), 2):
                 if i + 1 < len(prevValueIndexes):
-                    parentCol = (prevValueIndexes[i] + prevValueIndexes[i + 1]) // 2
-                    for col in range(prevValueIndexes[i] + 1, prevValueIndexes[i + 1]):
+                    leftChildCol = prevValueIndexes[i]
+                    rightChildCol = prevValueIndexes[i + 1]
+                    parentCol = (leftChildCol + rightChildCol) // 2
+                    
+                    # Fill columns between children, except parent position
+                    for col in range(leftChildCol + 1, rightChildCol):
                         if col != parentCol:
                             mat[level][col] = center("", unitSize=unitSize, fillChar=connectorFillChar)
+                    
+                    # Special handling for child positions if unitSize > 1
+                    if unitSize > 1 and connectors is not None:
+                        # Left child: fill chars positioned to the right of where / appears
+                        # The connector / is centered, so it appears at position unitSize // 2
+                        # We want fill chars after it
+                        leftFill = " " * (unitSize // 2 + 1) + connectorFillChar * (unitSize - unitSize // 2 - 1)
+                        mat[level][leftChildCol] = leftFill
+                        
+                        # Right child: fill chars positioned to the left of where \ appears
+                        # The connector \ is centered, so it appears at position unitSize // 2
+                        # We want fill chars before it
+                        rightFill = connectorFillChar * (unitSize // 2) + " " * (unitSize - unitSize // 2)
+                        mat[level][rightChildCol] = rightFill
         
         prevValueIndexes = valueIndexes
     
@@ -195,7 +216,7 @@ def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillCh
     """
     Converts a binary tree into a string representation for visualization.
     
-    Args:Y
+    Args:
         node: The root node of the tree to visualize
         depth: The depth of the tree (-1 for auto-calculation)
         valueFillChar: Character for padding node values (e.g., "_5_")
