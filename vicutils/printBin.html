@@ -79,14 +79,14 @@ el.replaceWith(d);
 <div class="desc"><p>Calculates the depth (height) of a binary tree.</p></div>
 </dd>
 <dt id="printBin.mapNodesToCodes"><code class="name flex">
-<span>def <span class="ident">mapNodesToCodes</span></span>(<span>node, valueFillChar, unitSize, code='', memo=None)</span>
+<span>def <span class="ident">mapNodesToCodes</span></span>(<span>node, valueFillChar, unitSize, code='')</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def mapNodesToCodes(node, valueFillChar, unitSize, code=&#34;&#34;, memo=None):
+<pre><code class="python">def mapNodesToCodes(node, valueFillChar, unitSize, code=&#34;&#34;):
     &#34;&#34;&#34;
     Recursively maps all nodes to their binary path codes.
     
@@ -98,12 +98,15 @@ el.replaceWith(d);
     Returns:
         Dictionary mapping binary codes to centered node values
     &#34;&#34;&#34;
-    if memo is None:
-        memo = {}
-    if node:
-        memo[code] = center(node.val, unitSize=unitSize, fillChar=valueFillChar)
-        mapNodesToCodes(node.left, valueFillChar, unitSize, code + &#34;0&#34;, memo)
-        mapNodesToCodes(node.right, valueFillChar, unitSize, code + &#34;1&#34;, memo)
+    memo = {}
+    
+    def recurse(node, code):
+        if node:
+            memo[code] = center(node.val, unitSize=unitSize, fillChar=valueFillChar)
+            recurse(node.left, code + &#34;0&#34;)
+            recurse(node.right, code + &#34;1&#34;)
+    
+    recurse(node, code)
     return memo</code></pre>
 </details>
 <div class="desc"><p>Recursively maps all nodes to their binary path codes.</p>
@@ -185,10 +188,28 @@ el.replaceWith(d);
         if prevValueIndexes is not None:
             for i in range(0, len(prevValueIndexes), 2):
                 if i + 1 &lt; len(prevValueIndexes):
-                    parentCol = (prevValueIndexes[i] + prevValueIndexes[i + 1]) // 2
-                    for col in range(prevValueIndexes[i] + 1, prevValueIndexes[i + 1]):
+                    leftChildCol = prevValueIndexes[i]
+                    rightChildCol = prevValueIndexes[i + 1]
+                    parentCol = (leftChildCol + rightChildCol) // 2
+                    
+                    # Fill columns between children, except parent position
+                    for col in range(leftChildCol + 1, rightChildCol):
                         if col != parentCol:
                             mat[level][col] = center(&#34;&#34;, unitSize=unitSize, fillChar=connectorFillChar)
+                    
+                    # Special handling for child positions if unitSize &gt; 1
+                    if unitSize &gt; 1 and connectors is not None:
+                        # Left child: fill chars positioned to the right of where / appears
+                        # The connector / is centered, so it appears at position unitSize // 2
+                        # We want fill chars after it
+                        leftFill = &#34; &#34; * (unitSize // 2 + 1) + connectorFillChar * (unitSize - unitSize // 2 - 1)
+                        mat[level][leftChildCol] = leftFill
+                        
+                        # Right child: fill chars positioned to the left of where \ appears
+                        # The connector \ is centered, so it appears at position unitSize // 2
+                        # We want fill chars before it
+                        rightFill = connectorFillChar * (unitSize // 2) + &#34; &#34; * (unitSize - unitSize // 2)
+                        mat[level][rightChildCol] = rightFill
         
         prevValueIndexes = valueIndexes
     
@@ -243,7 +264,7 @@ el.replaceWith(d);
     &#34;&#34;&#34;
     Converts a binary tree into a string representation for visualization.
     
-    Args:Y
+    Args:
         node: The root node of the tree to visualize
         depth: The depth of the tree (-1 for auto-calculation)
         valueFillChar: Character for padding node values (e.g., &#34;_5_&#34;)
@@ -262,14 +283,23 @@ el.replaceWith(d);
         return &#34;\n&#34;.join(&#34;&#34;.join(mat[i]) for i in range(0, len(mat), 2))</code></pre>
 </details>
 <div class="desc"><p>Converts a binary tree into a string representation for visualization.</p>
-<p>Args:Y
-node: The root node of the tree to visualize
-depth: The depth of the tree (-1 for auto-calculation)
-valueFillChar: Character for padding node values (e.g., "<em>5</em>")
-connectorFillChar: Character for filling horizontal gaps between node pairs
-unitSize: Size for centering values
-removeEmpty: Whether to remove empty leading columns
-connectors: Two-character string for connectors (e.g., "/" or "||"), None to skip connector rows</p></div>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>node</code></strong></dt>
+<dd>The root node of the tree to visualize</dd>
+<dt><strong><code>depth</code></strong></dt>
+<dd>The depth of the tree (-1 for auto-calculation)</dd>
+<dt><strong><code>valueFillChar</code></strong></dt>
+<dd>Character for padding node values (e.g., "<em>5</em>")</dd>
+<dt><strong><code>connectorFillChar</code></strong></dt>
+<dd>Character for filling horizontal gaps between node pairs</dd>
+<dt><strong><code>unitSize</code></strong></dt>
+<dd>Size for centering values</dd>
+<dt><strong><code>removeEmpty</code></strong></dt>
+<dd>Whether to remove empty leading columns</dd>
+<dt><strong><code>connectors</code></strong></dt>
+<dd>Two-character string for connectors (e.g., "/" or "||"), None to skip connector rows</dd>
+</dl></div>
 </dd>
 </dl>
 </section>
