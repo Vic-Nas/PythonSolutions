@@ -3,7 +3,7 @@ from itertools import product
 # Default configuration constants
 DEFAULT_UNIT_SIZE = 3
 DEFAULT_VALUE_FILL_CHAR = "_"  # Character used to pad node values (e.g., "_5_")
-DEFAULT_CONNECTOR_FILL_CHAR = "_"  # Character used to fill horizontal gaps between node pairs
+DEFAULT_CONNECTOR_FILL_CHAR = " "  # Character used to fill horizontal gaps between node pairs
 
 
 class BinaryNode:
@@ -195,7 +195,7 @@ def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillCh
     """
     Converts a binary tree into a string representation for visualization.
     
-    Args:
+    Args:Y
         node: The root node of the tree to visualize
         depth: The depth of the tree (-1 for auto-calculation)
         valueFillChar: Character for padding node values (e.g., "_5_")
