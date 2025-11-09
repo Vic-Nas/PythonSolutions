@@ -115,20 +115,20 @@ el.replaceWith(d);
 <p>Dictionary mapping binary codes to centered node values</p></div>
 </dd>
 <dt id="printBin.nodeToMat"><code class="name flex">
-<span>def <span class="ident">nodeToMat</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>valueFillChar=None,<br>connectorFillChar=None,<br>unitSize=None,<br>removeEmpty=True)</span>
+<span>def <span class="ident">nodeToMat</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>valueFillChar=None,<br>connectorFillChar=None,<br>unitSize=None,<br>removeEmpty=True,<br>connectors='/\\')</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True):
+<pre><code class="python">def nodeToMat(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True, connectors=&#34;/\\&#34;):
     &#34;&#34;&#34;
     Converts a binary tree into a 2D matrix representation for visualization.
     
     The matrix includes:
     - Even rows (0, 2, 4...): Node values
-    - Odd rows (1, 3, 5...): Connection lines (/ and \\)
+    - Odd rows (1, 3, 5...): Connection lines (using connectors)
     
     Args:
         node: The root node of the tree to visualize
@@ -137,6 +137,7 @@ el.replaceWith(d);
         connectorFillChar: Character for filling horizontal gaps between node pairs
         unitSize: Size for centering values
         removeEmpty: Whether to remove empty leading columns
+        connectors: Two-character string for connectors (e.g., &#34;/\\&#34; or &#34;||&#34;), None to skip connector rows
     &#34;&#34;&#34;
     if unitSize is None:
         unitSize = DEFAULT_UNIT_SIZE
@@ -145,40 +146,35 @@ el.replaceWith(d);
     if connectorFillChar is None:
         connectorFillChar = DEFAULT_CONNECTOR_FILL_CHAR
     
+    if connectors is not None and len(connectors) != 2:
+        connectors = &#34;/\\&#34;
+    
     if depth == -1:
         depth = getDepth(node)
     
-    # Map all nodes to their binary path codes
     tree = mapNodesToCodes(node, valueFillChar, unitSize)
     
-    # Cache frequently used values
-    numCols = 2 ** depth - 1  # Number of leaf positions (columns)
-    numRows = 2 * depth - 1   # Total rows (values + connectors)
+    numCols = 2 ** depth - 1
+    numRows = 2 * depth - 1
     
-    # Initialize matrix with space-centered empty cells
     mat = [[center(&#34;&#34;, unitSize=unitSize, fillChar=&#34; &#34;) for _ in range(numCols)] for _ in range(numRows)]
     
-    # Start with all even column indices (where values can be placed)
     valueIndexes = [i for i in range(numCols) if i % 2 == 0]
     prevValueIndexes = None
     
-    # Build matrix from bottom to top
     for level in range(numRows - 1, -1, -1):
-        # Odd levels: place connection characters (/ and \)
         if level % 2 != 0:
-            for i, index in enumerate(valueIndexes):
-                mat[level][index] = [center(&#34;/&#34;, unitSize=unitSize, fillChar=&#34; &#34;), 
-                                    center(&#34;\\&#34;, unitSize=unitSize, fillChar=&#34; &#34;)][i % 2]
+            if connectors is not None:
+                for i, index in enumerate(valueIndexes):
+                    mat[level][index] = [center(connectors[0], unitSize=unitSize, fillChar=&#34; &#34;), 
+                                        center(connectors[1], unitSize=unitSize, fillChar=&#34; &#34;)][i % 2]
             
-            # Calculate parent positions (midpoints between child pairs)
             nextValueIndexes = []
             for i in range(0, len(valueIndexes) - 1, 2):
                 nextValueIndexes.append((valueIndexes[i] + valueIndexes[i + 1]) // 2)
             valueIndexes = nextValueIndexes
             continue
         
-        # Even levels: place node values
-        # Generate all binary codes for current level
         codes = list(product(*[&#34;01&#34; for _ in range(level // 2)]))
         codes = [&#34;&#34;.join(code) for code in codes]
         
@@ -186,25 +182,20 @@ el.replaceWith(d);
             if codes[i] in tree:
                 mat[level][index] = tree[codes[i]]
         
-        # Fill horizontal gaps between node pairs using connectorFillChar
         if prevValueIndexes is not None:
             for i in range(0, len(prevValueIndexes), 2):
                 if i + 1 &lt; len(prevValueIndexes):
-                    # Calculate parent position (should not be overwritten)
                     parentCol = (prevValueIndexes[i] + prevValueIndexes[i + 1]) // 2
-                    # Fill columns between children, except parent position
                     for col in range(prevValueIndexes[i] + 1, prevValueIndexes[i + 1]):
                         if col != parentCol:
                             mat[level][col] = center(&#34;&#34;, unitSize=unitSize, fillChar=connectorFillChar)
         
-        # Save current valueIndexes for next even level
         prevValueIndexes = valueIndexes
     
-    # Remove empty leading columns if requested
     if removeEmpty:
         centeredSpace = center(&#34;&#34;, unitSize=unitSize, fillChar=&#34; &#34;)
-        centeredSlash = center(&#34;/&#34;, unitSize=unitSize, fillChar=&#34; &#34;)
-        centeredBackslash = center(&#34;\\&#34;, unitSize=unitSize, fillChar=&#34; &#34;)
+        centeredSlash = center(connectors[0] if connectors else &#34;/&#34;, unitSize=unitSize, fillChar=&#34; &#34;)
+        centeredBackslash = center(connectors[1] if connectors else &#34;\\&#34;, unitSize=unitSize, fillChar=&#34; &#34;)
         
         for i in range(numCols):
             remove = all(
@@ -221,7 +212,7 @@ el.replaceWith(d);
 <div class="desc"><p>Converts a binary tree into a 2D matrix representation for visualization.</p>
 <p>The matrix includes:
 - Even rows (0, 2, 4&hellip;): Node values
-- Odd rows (1, 3, 5&hellip;): Connection lines (/ and )</p>
+- Odd rows (1, 3, 5&hellip;): Connection lines (using connectors)</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>node</code></strong></dt>
@@ -236,17 +227,19 @@ el.replaceWith(d);
 <dd>Size for centering values</dd>
 <dt><strong><code>removeEmpty</code></strong></dt>
 <dd>Whether to remove empty leading columns</dd>
+<dt><strong><code>connectors</code></strong></dt>
+<dd>Two-character string for connectors (e.g., "/" or "||"), None to skip connector rows</dd>
 </dl></div>
 </dd>
 <dt id="printBin.nodeToString"><code class="name flex">
-<span>def <span class="ident">nodeToString</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>valueFillChar=None,<br>connectorFillChar=None,<br>unitSize=None,<br>removeEmpty=True,<br>showConnectors=True)</span>
+<span>def <span class="ident">nodeToString</span></span>(<span>node: <a title="printBin.BinaryNode" href="#printBin.BinaryNode">BinaryNode</a>,<br>depth=-1,<br>valueFillChar=None,<br>connectorFillChar=None,<br>unitSize=None,<br>removeEmpty=True,<br>connectors='/\\')</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True, showConnectors=True):
+<pre><code class="python">def nodeToString(node: BinaryNode, depth=-1, valueFillChar=None, connectorFillChar=None, unitSize=None, removeEmpty=True, connectors=&#34;/\\&#34;):
     &#34;&#34;&#34;
     Converts a binary tree into a string representation for visualization.
     
@@ -257,15 +250,15 @@ el.replaceWith(d);
         connectorFillChar: Character for filling horizontal gaps between node pairs
         unitSize: Size for centering values
         removeEmpty: Whether to remove empty leading columns
-        showConnectors: Whether to show connector lines (/ and \) between nodes
+        connectors: Two-character string for connectors (e.g., &#34;/\\&#34; or &#34;||&#34;), None to skip connector rows
     &#34;&#34;&#34;
     mat = nodeToMat(node, depth=depth, valueFillChar=valueFillChar, 
-                    connectorFillChar=connectorFillChar, unitSize=unitSize, removeEmpty=removeEmpty)
+                    connectorFillChar=connectorFillChar, unitSize=unitSize, 
+                    removeEmpty=removeEmpty, connectors=connectors)
     
-    if showConnectors:
+    if connectors is not None:
         return &#34;\n&#34;.join(&#34;&#34;.join(row) for row in mat)
     else:
-        # Only include even rows (node values, skip odd rows with connectors)
         return &#34;\n&#34;.join(&#34;&#34;.join(mat[i]) for i in range(0, len(mat), 2))</code></pre>
 </details>
 <div class="desc"><p>Converts a binary tree into a string representation for visualization.</p>
@@ -283,8 +276,8 @@ el.replaceWith(d);
 <dd>Size for centering values</dd>
 <dt><strong><code>removeEmpty</code></strong></dt>
 <dd>Whether to remove empty leading columns</dd>
-<dt><strong><code>showConnectors</code></strong></dt>
-<dd>Whether to show connector lines (/ and ) between nodes</dd>
+<dt><strong><code>connectors</code></strong></dt>
+<dd>Two-character string for connectors (e.g., "/" or "||"), None to skip connector rows</dd>
 </dl></div>
 </dd>
 </dl>
@@ -326,7 +319,6 @@ el.replaceWith(d);
         &gt;&gt;&gt; #   4   5   7
     &#34;&#34;&#34;
     def __init__(self, val=0, left=None, right=None):
-        # If val is a list, build tree from it
         if isinstance(val, list):
             if not val or val[0] is None:
                 raise ValueError(&#34;Cannot create tree from empty list or list starting with None&#34;)
@@ -341,13 +333,11 @@ el.replaceWith(d);
             while queue and i &lt; len(val):
                 node = queue.pop(0)
                 
-                # Add left child
                 if i &lt; len(val) and val[i] is not None:
                     node.left = BinaryNode(val[i])
                     queue.append(node.left)
                 i += 1
                 
-                # Add right child
                 if i &lt; len(val) and val[i] is not None:
                     node.right = BinaryNode(val[i])
                     queue.append(node.right)
