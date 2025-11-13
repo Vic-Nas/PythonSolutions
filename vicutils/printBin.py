@@ -1,4 +1,5 @@
 from itertools import product
+from functools import total_ordering
 
 # Default configuration constants
 DEFAULT_UNIT_SIZE = 3
@@ -6,6 +7,7 @@ DEFAULT_VALUE_FILL_CHAR = " "  # Character used to pad node values (e.g., "_5_")
 DEFAULT_CONNECTOR_FILL_CHAR = "_"  # Character used to fill horizontal gaps between node pairs
 
 
+@total_ordering
 class BinaryNode:
     """
     Represents a node in a binary tree.
@@ -64,6 +66,12 @@ class BinaryNode:
     
     def __repr__(self):
         return str(self)
+    
+    def __eq__(self, value):
+        return self.val == value
+
+    def __lt__(self, value):
+        return self.val < value
 
 
 def center(val, unitSize=None, fillChar=None):
