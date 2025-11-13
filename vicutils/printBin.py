@@ -68,9 +68,13 @@ class BinaryNode:
         return str(self)
     
     def __eq__(self, value):
+        if isinstance(value, BinaryNode):
+            return self.val == value.val
         return self.val == value
 
     def __lt__(self, value):
+        if isinstance(value, BinaryNode):
+            return self.val < value.val
         return self.val < value
 
 
