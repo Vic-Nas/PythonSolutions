@@ -318,7 +318,8 @@ el.replaceWith(d);
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class BinaryNode:
+<pre><code class="python">@total_ordering
+class BinaryNode:
     &#34;&#34;&#34;
     Represents a node in a binary tree.
     
@@ -375,7 +376,13 @@ el.replaceWith(d);
         return str(self.val)
     
     def __repr__(self):
-        return str(self)</code></pre>
+        return str(self)
+    
+    def __eq__(self, value):
+        return self.val == value
+
+    def __lt__(self, value):
+        return self.val &lt; value</code></pre>
 </details>
 <div class="desc"><p>Represents a node in a binary tree.</p>
 <h2 id="args">Args</h2>
