@@ -257,38 +257,68 @@ async function renderProblemPage(platform, problemName) {
                 </a>
             </div>
             
-            <h1 class="page-title">${pageTitle}</h1>
-            <p class="page-subtitle">${platformTitle}${platform === 'vicutils' ? ' Script' : ' Problem Solution'}</p>
+            <div class="content-wrapper">
+                <h1 class="page-title">${pageTitle}</h1>
+                <p class="page-subtitle">${platformTitle}${platform === 'vicutils' ? ' Script' : ' Problem Solution'}</p>
     `;
     
-    if (problem.hasPng && problem.pngFiles.length > 0) {
-        pageContent += `<div class="images-grid">`;
-        
-        problem.pngFiles.forEach((pngFile, index) => {
-            const imageUrl = `${platform}/${problem.name}/${pngFile.name}`;
-            const caption = problem.pngFiles.length > 1 ? `Solution Step ${index + 1}` : 'Solution Visualization';
-            
-            pageContent += `
-                <div class="image-container">
-                    <img src="${imageUrl}" alt="${caption}" loading="lazy">
-                    <div class="image-caption">${caption}</div>
-                </div>
-            `;
-        });
-        
-        pageContent += `</div>`;
-    }
+    // Use side-by-side layout if there's exactly 1 image and code
+    const useSideBySide = problem.hasPng && problem.pngFiles.length === 1 && pythonCode;
     
-    if (pythonCode) {
+    if (useSideBySide) {
+        pageContent += `<div class="side-by-side-layout">`;
+        
+        // Image side
+        const pngFile = problem.pngFiles[0];
+        const imageUrl = `${platform}/${problem.name}/${pngFile.name}`;
+        pageContent += `
+            <div class="image-container">
+                <img src="${imageUrl}" alt="Solution Visualization" loading="lazy">
+                <div class="image-caption">Solution Visualization</div>
+            </div>
+        `;
+        
+        // Code side
         pageContent += `
             <div class="code-section">
                 <h3>Python ${platform === 'vicutils' ? 'Script' : 'Solution'}</h3>
                 <div class="code-content"><pre>${escapeHtml(pythonCode)}</pre></div>
             </div>
         `;
+        
+        pageContent += `</div>`;
+    } else {
+        // Regular stacked layout for multiple images or no code
+        if (problem.hasPng && problem.pngFiles.length > 0) {
+            const gridClass = problem.pngFiles.length === 1 ? 'images-grid single-image' : 'images-grid';
+            pageContent += `<div class="${gridClass}">`;
+            
+            problem.pngFiles.forEach((pngFile, index) => {
+                const imageUrl = `${platform}/${problem.name}/${pngFile.name}`;
+                const caption = problem.pngFiles.length > 1 ? `Solution Step ${index + 1}` : 'Solution Visualization';
+                
+                pageContent += `
+                    <div class="image-container">
+                        <img src="${imageUrl}" alt="${caption}" loading="lazy">
+                        <div class="image-caption">${caption}</div>
+                    </div>
+                `;
+            });
+            
+            pageContent += `</div>`;
+        }
+        
+        if (pythonCode) {
+            pageContent += `
+                <div class="code-section">
+                    <h3>Python ${platform === 'vicutils' ? 'Script' : 'Solution'}</h3>
+                    <div class="code-content"><pre>${escapeHtml(pythonCode)}</pre></div>
+                </div>
+            `;
+        }
     }
     
-    pageContent += `</div>`;
+    pageContent += `</div></div>`;
     
     main.innerHTML = pageContent;
     hljs.highlightAll();
