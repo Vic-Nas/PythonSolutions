@@ -316,12 +316,19 @@ window.addEventListener('hashchange', () => {
     if (!hash) {
         navigateToHome();
     } else if (hash.startsWith('view/')) {
-        const [, platform, problemName] = hash.split('/');
+        const parts = hash.split('/');
+        const platform = parts[1];
+        const problemName = decodeURIComponent(parts.slice(2).join('/'));
         const problem = state.data[platform]?.find(p => p.name === problemName);
         if (problem) {
             state.currentView = 'problem';
             state.currentPlatform = platform;
             state.currentProblem = problem;
+            render();
+        } else {
+            // Problem not found, go to platform list
+            state.currentView = 'list';
+            state.currentPlatform = platform;
             render();
         }
     } else if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
@@ -349,12 +356,15 @@ window.addEventListener('hashchange', () => {
         const parts = hash.split('/');
         const platform = parts[1];
         const problemName = decodeURIComponent(parts.slice(2).join('/'));
+        console.log('Looking for problem:', problemName, 'in platform:', platform);
+        console.log('Available problems:', state.data[platform]?.map(p => p.name));
         const problem = state.data[platform]?.find(p => p.name === problemName);
         if (problem) {
             state.currentView = 'problem';
             state.currentPlatform = platform;
             state.currentProblem = problem;
         } else {
+            console.warn('Problem not found:', problemName);
             state.currentView = 'platforms';
         }
     } else if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
