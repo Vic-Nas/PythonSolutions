@@ -80,8 +80,12 @@ async function fetchRepoData() {
 
 // Parse hash to get view state
 function parseHash() {
-    const hash = window.location.hash.slice(1);
+    let hash = window.location.hash.slice(1);
     console.log('Parsing hash:', hash);
+    
+    // Decode the entire hash first to handle encoded slashes
+    hash = decodeURIComponent(hash);
+    console.log('Decoded hash:', hash);
     
     if (!hash) {
         return { view: 'platforms', platform: null, problem: null };
@@ -96,7 +100,7 @@ function parseHash() {
         }
         
         const platform = remainder.slice(0, slashIndex);
-        const problemName = decodeURIComponent(remainder.slice(slashIndex + 1));
+        const problemName = remainder.slice(slashIndex + 1);
         
         console.log('Parsed view - platform:', platform, 'problem:', problemName);
         
