@@ -368,6 +368,8 @@ h1 {
 .content-wrapper {
     max-width: 1600px;
     margin: 0 auto;
+    width: 100%;
+    padding: 0 2rem;
 }
 
 .images-grid {
@@ -429,9 +431,6 @@ h1 {
     gap: 2rem;
     margin: 2rem 0;
     align-items: start;
-    max-width: 1600px;
-    margin-left: auto;
-    margin-right: auto;
     width: 100%;
 }
 
@@ -444,6 +443,7 @@ h1 {
 
 .side-by-side-layout .image-container img {
     max-height: none;
+    width: 100%;
 }
 
 .side-by-side-layout .code-section {
@@ -477,12 +477,14 @@ h1 {
     font-weight: normal;
     scrollbar-width: thin;
     scrollbar-color: #475569 #1e293b;
-}
-
-/* Only add max-height when NOT in side-by-side layout */
-.code-section:not(.side-by-side-layout .code-section) .code-content {
     max-height: 700px;
     overflow-y: auto;
+}
+
+/* Remove max-height when IN side-by-side layout */
+.side-by-side-layout .code-content {
+    max-height: none;
+    overflow-y: visible;
 }
 
 .code-content::-webkit-scrollbar {
