@@ -5,65 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Solutions - LeetCode, Kattis & VicUtils</title>
     <link rel="icon" href="VN.ico">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container" id="main">
-        <a href="https://vic-nas.github.io/portfolio" class="portfolio-link" target="_blank">
-            Portfolio
-        </a>
-        
-        <header>
-            <h1>PythonSolutions</h1>
-            <p class="subtitle">LeetCode & Kattis Solutions + Utility Scripts</p>
-        </header>
-        
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <span>Scanning repository...</span>
+    <nav class="top-nav">
+        <div class="nav-brand">PythonSolutions</div>
+        <a href="https://vic-nas.github.io/portfolio" class="portfolio-btn" target="_blank">Portfolio →</a>
+    </nav>
+
+    <main id="app-root">
+        <div id="loading-screen">
+            <div class="loader"></div>
+            <p>Loading repository data...</p>
         </div>
-        
-        <div id="main-view" class="platforms" style="display: none;">
-            <div class="platform-card" onclick="showProblems('leetcode')">
-                <h2>
-                    <div class="platform-icon leetcode-icon">LC</div>
-                    LeetCode
-                </h2>
-                <p>Interactive solutions and explanations for LeetCode problems</p>
-                <div class="problem-count" id="leetcode-count">Loading...</div>
-            </div>
-            
-            <div class="platform-card" onclick="showProblems('kattis')">
-                <h2>
-                    <div class="platform-icon kattis-icon">K</div>
-                    Kattis
-                </h2>
-                <p>Competitive programming solutions with detailed walkthroughs</p>
-                <div class="problem-count" id="kattis-count">Loading...</div>
-            </div>
-            
-            <div class="platform-card" onclick="showProblems('vicutils')">
-                <h2>
-                    <div class="platform-icon vicutils-icon">🛠️</div>
-                    VicUtils
-                </h2>
-                <p>Useful utility scripts and helper functions</p>
-                <div class="problem-count" id="vicutils-count">Loading...</div>
-            </div>
-        </div>
-        
-        <div id="problems-view" class="problems-view">
-            <div class="problems-header">
-                <button class="back-btn" onclick="showMainView()">
-                    ← Back to Platforms
+
+        <div id="platform-selector" style="display: none;">
+            <h1>Choose a Platform</h1>
+            <div class="platform-grid">
+                <button class="platform-box" data-platform="leetcode">
+                    <span class="platform-emoji">💡</span>
+                    <h2>LeetCode</h2>
+                    <p id="leetcode-count">— problems</p>
                 </button>
-                <h2 id="problems-title"></h2>
+                <button class="platform-box" data-platform="kattis">
+                    <span class="platform-emoji">🎯</span>
+                    <h2>Kattis</h2>
+                    <p id="kattis-count">— problems</p>
+                </button>
+                <button class="platform-box" data-platform="vicutils">
+                    <span class="platform-emoji">🔧</span>
+                    <h2>VicUtils</h2>
+                    <p id="vicutils-count">— scripts</p>
+                </button>
             </div>
-            <div id="problems-container"></div>
         </div>
-    </div>
-    
+
+        <div id="problem-list" style="display: none;">
+            <button class="back-button" id="back-to-platforms">← Back</button>
+            <h1 id="list-title"></h1>
+            <div id="problem-cards"></div>
+        </div>
+
+        <div id="problem-view" style="display: none;"></div>
+    </main>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="script.js"></script>
 </body>

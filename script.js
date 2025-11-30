@@ -1,442 +1,355 @@
-let problemsData = {
-    leetcode: [],
-    kattis: [],
-    vicutils: []
+// State
+const state = {
+    data: { leetcode: [], kattis: [], vicutils: [] },
+    currentView: 'loading',
+    currentPlatform: null,
+    currentProblem: null
 };
 
-const main = document.getElementById("main")
+// Utility
+function getRepoPath() {
+    const parts = window.location.pathname.split('/');
+    return parts[1] && parts[2] ? `${parts[1]}/${parts[2]}` : 'Vic-Nas/PythonSolutions';
+}
 
-
-async function scanForProblems() {
+// Fetch repository data
+async function fetchRepoData() {
     const platforms = ['leetcode', 'kattis', 'vicutils'];
     
     for (const platform of platforms) {
         try {
-            const response = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}`);
+            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}`);
+            if (!res.ok) continue;
             
-            if (!response.ok) {
-                console.warn(`Could not access ${platform} directory`);
-                continue;
-            }
-            
-            const items = await response.json();
+            const items = await res.json();
             const problems = [];
             
             if (platform === 'vicutils') {
-                // For vicutils, ONLY look for .html files (ignore Python files)
+                // VicUtils: scan for HTML files only
                 for (const item of items) {
                     if (item.type === 'file' && item.name.endsWith('.html')) {
                         problems.push({
-                            name: item.name,
-                            displayName: item.name.replace('.html', '').replace(/_/g, ' '),
+                            name: item.name.replace('.html', ''),
+                            fullName: item.name,
                             type: 'html',
-                            hasPage: true,
-                            hasHtml: true,
-                            hasPng: false,
-                            hasPy: false,
-                            mainPyFile: null,
-                            htmlFiles: [item],
-                            pngFiles: [],
-                            pyFiles: []
+                            files: { html: [item], png: [], py: [] }
                         });
                     }
                 }
             } else {
-                // For leetcode and kattis, process directories
-                const directories = items.filter(item => item.type === 'dir');
+                // LeetCode/Kattis: scan directories
+                const dirs = items.filter(i => i.type === 'dir');
                 
-                for (const dir of directories) {
-                    try {
-                        const dirResponse = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}/${dir.name}`);
-                        if (dirResponse.ok) {
-                            const files = await dirResponse.json();
-                            
-                            const hasHtml = files.some(file => 
-                                file.name.endsWith('.html') && 
-                                file.name.toLowerCase().includes(dir.name.toLowerCase().replace(/\s+/g, ''))
-                            );
-                            
-                            const pngFiles = files.filter(file => 
-                                file.name.endsWith('.vn.png') || 
-                                file.name.match(/\.vn\.\d+\.png$/)
-                            );
-                            const hasPng = pngFiles.length > 0;
-                            
-                            // FIXED: Only select .vn.py files that do NOT contain .shortest.
-                            const pyFiles = files.filter(file => 
-                                file.name.endsWith('.vn.py') && 
-                                !file.name.includes('.shortest.')
-                            );
-                            const hasPy = pyFiles.length > 0;
-                            
-                            let type = 'code-only';
-                            let hasPage = false;
-                            let mainPyFile = null;
-                            
-                            if (hasHtml) {
-                                type = 'html';
-                                hasPage = true;
-                            } else if (hasPng) {
-                                type = 'png';
-                                hasPage = true;
-                            } else if (hasPy) {
-                                type = 'code-only';
-                                hasPage = true;
-                            }
-                            
-                            if (pyFiles.length > 0) {
-                                mainPyFile = pyFiles[0];
-                            }
-                            
-                            if (hasHtml || hasPng || hasPy) {
-                                problems.push({
-                                    name: dir.name,
-                                    displayName: dir.name,
-                                    type: type,
-                                    hasPage: hasPage,
-                                    hasHtml: hasHtml,
-                                    hasPng: hasPng,
-                                    hasPy: hasPy,
-                                    mainPyFile: mainPyFile,
-                                    htmlFiles: files.filter(file => file.name.endsWith('.html')),
-                                    pngFiles: pngFiles.sort((a, b) => {
-                                        const aNum = a.name.match(/\.(\d+)\.png$/) ? parseInt(a.name.match(/\.(\d+)\.png$/)[1]) : 0;
-                                        const bNum = b.name.match(/\.(\d+)\.png$/) ? parseInt(b.name.match(/\.(\d+)\.png$/)[1]) : 0;
-                                        return aNum - bNum;
-                                    }),
-                                    pyFiles: pyFiles
-                                });
-                            }
-                        }
-                    } catch (error) {
-                        console.warn(`Could not scan directory ${dir.name}:`, error);
+                for (const dir of dirs) {
+                    const dirRes = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}/${dir.name}`);
+                    if (!dirRes.ok) continue;
+                    
+                    const files = await dirRes.json();
+                    
+                    const htmlFiles = files.filter(f => f.name.endsWith('.html'));
+                    const pngFiles = files.filter(f => f.name.endsWith('.vn.png') || f.name.match(/\.vn\.\d+\.png$/))
+                        .sort((a, b) => {
+                            const numA = a.name.match(/\.(\d+)\.png$/)?.[1] || 0;
+                            const numB = b.name.match(/\.(\d+)\.png$/)?.[1] || 0;
+                            return parseInt(numA) - parseInt(numB);
+                        });
+                    const pyFiles = files.filter(f => f.name.endsWith('.vn.py') && !f.name.includes('.shortest.'));
+                    
+                    if (htmlFiles.length || pngFiles.length || pyFiles.length) {
+                        let type = 'code';
+                        if (htmlFiles.length) type = 'html';
+                        else if (pngFiles.length) type = 'png';
+                        
+                        problems.push({
+                            name: dir.name,
+                            type,
+                            files: { html: htmlFiles, png: pngFiles, py: pyFiles }
+                        });
                     }
                 }
             }
             
-            problemsData[platform] = problems.sort((a, b) => a.name.localeCompare(b.name));
-        } catch (error) {
-            console.error(`Error scanning ${platform}:`, error);
+            state.data[platform] = problems.sort((a, b) => a.name.localeCompare(b.name));
+        } catch (err) {
+            console.error(`Error loading ${platform}:`, err);
         }
     }
-    
-    updateUI();
 }
 
-function getRepoPath() {
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts[1] && pathParts[2]) {
-        return `${pathParts[1]}/${pathParts[2]}`;
-    }
-    return 'Vic-Nas/PythonSolutions';
-}
-
-function updateUI() {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main-view').style.display = 'grid';
+// Render views
+function render() {
+    const views = ['loading-screen', 'platform-selector', 'problem-list', 'problem-view'];
+    views.forEach(v => document.getElementById(v).style.display = 'none');
     
-    for (const platform of ['leetcode', 'kattis', 'vicutils']) {
-        const problems = problemsData[platform];
-        const totalProblems = problems.length;
-        const label = platform === 'vicutils' ? 'scripts' : 'problems';
-        
-        document.getElementById(`${platform}-count`).textContent = `${totalProblems} ${label}`;
+    if (state.currentView === 'loading') {
+        document.getElementById('loading-screen').style.display = 'flex';
+    } else if (state.currentView === 'platforms') {
+        renderPlatforms();
+    } else if (state.currentView === 'list') {
+        renderProblemList();
+    } else if (state.currentView === 'problem') {
+        renderProblemView();
     }
 }
 
-function showProblems(platform) {
-    const problems = problemsData[platform];
-    const title = platform === 'vicutils' ? 'VicUtils' : platform.charAt(0).toUpperCase() + platform.slice(1);
+function renderPlatforms() {
+    document.getElementById('platform-selector').style.display = 'block';
+    document.getElementById('leetcode-count').textContent = `${state.data.leetcode.length} problems`;
+    document.getElementById('kattis-count').textContent = `${state.data.kattis.length} problems`;
+    document.getElementById('vicutils-count').textContent = `${state.data.vicutils.length} scripts`;
+}
+
+function renderProblemList() {
+    const listView = document.getElementById('problem-list');
+    listView.style.display = 'block';
     
-    document.getElementById('main-view').style.display = 'none';
-    document.getElementById('problems-view').style.display = 'block';
-    document.getElementById('problems-title').textContent = platform === 'vicutils' ? 'Utility Scripts' : `${title} Problems`;
+    const platform = state.currentPlatform;
+    const problems = state.data[platform];
     
-    const container = document.getElementById('problems-container');
+    document.getElementById('list-title').textContent = 
+        platform === 'vicutils' ? 'VicUtils Scripts' : `${capitalize(platform)} Problems`;
     
-    if (problems.length === 0) {
-        container.innerHTML = '<div class="no-problems">No items found for this section yet.</div>';
-        return;
-    }
+    const container = document.getElementById('problem-cards');
+    container.innerHTML = '';
     
-    const grid = document.createElement('div');
-    grid.className = 'problems-grid';
-    
-    problems.forEach(problem => {
-        const item = document.createElement('div');
-        item.className = `problem-item ${problem.type}-page`;
+    problems.forEach(prob => {
+        const card = document.createElement('div');
+        card.className = 'problem-card';
         
-        let icon = '';
-        if (problem.type === 'html') icon = '🌐';
-        else if (problem.type === 'png') icon = '🖼️';
-        else if (problem.type === 'util-script') icon = '🛠️';
-        else icon = '💻';
+        const badge = prob.type === 'html' ? 'badge-html' : 
+                     prob.type === 'png' ? 'badge-png' : 'badge-code';
+        const badgeText = prob.type === 'html' ? 'HTML' : 
+                         prob.type === 'png' ? 'IMAGE' : 'CODE';
         
-        const displayPath = platform === 'vicutils' ? problem.name : `${platform}/${problem.name}`;
-        
-        item.innerHTML = `
-            <div class="problem-name">
-                <span class="problem-type-icon">${icon}</span>
-                ${problem.displayName}
-            </div>
-            <div class="problem-path">${displayPath}</div>
+        card.innerHTML = `
+            <div class="problem-card-title">${prob.name}</div>
+            <div class="problem-card-path">${platform}/${prob.name}</div>
+            <span class="problem-type-badge ${badge}">${badgeText}</span>
         `;
         
-        if (platform === 'vicutils') {
-            // For vicutils, link directly to the HTML file
-            item.onclick = () => window.location.href = `${platform}/${problem.name}`;
-        } else if (problem.hasHtml && problem.htmlFiles.length > 0) {
-            // For leetcode and kattis, maintain the subfolder structure
-            item.onclick = () => window.location.href = `${platform}/${problem.name}/${problem.htmlFiles[0].name}`;
-        } else {
-            item.onclick = () => generatePage(platform, problem);
-        }
-        
-        grid.appendChild(item);
+        card.onclick = () => navigateToProblem(platform, prob);
+        container.appendChild(card);
     });
+}
+
+async function renderProblemView() {
+    const view = document.getElementById('problem-view');
+    view.style.display = 'block';
+    view.innerHTML = '<div style="text-align: center; padding: 3rem;">Loading...</div>';
     
-    container.innerHTML = '';
-    container.appendChild(grid);
-}
-
-function showMainView() {
-    document.getElementById('problems-view').style.display = 'none';
-    document.getElementById('main-view').style.display = 'grid';
-}
-
-async function generatePage(platform, problem) {
-    const problemId = encodeURIComponent(`${platform}/${problem.name}`);
-    const newUrl = `${window.location.origin}${window.location.pathname}#view/${problemId}`;
-    window.location.href = newUrl;
-}
-
-async function renderProblemPage(platform, problemName) {
-    const problem = problemsData[platform]?.find(p => p.name === problemName);
-    if (!problem) {
-        main.innerHTML = '<div class="error">Item not found</div>';
-        return;
-    }
+    const platform = state.currentPlatform;
+    const problem = state.currentProblem;
     
-    let problemUrl = '';
+    // Fetch Python code if available
     let pythonCode = '';
+    let problemUrl = '';
     
-    if (problem.hasPy && problem.mainPyFile) {
+    if (problem.files.py.length > 0) {
         try {
-            const pyResponse = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform === 'vicutils' ? platform : `${platform}/${problem.name}`}/${problem.mainPyFile.name}`);
-            if (pyResponse.ok) {
-                const pyData = await pyResponse.json();
-                const content = atob(pyData.content);
-                pythonCode = content;
-                
-                const urlMatch = content.match(/^#.*?(https:\/\/[^\s]+)/m);
-                if (urlMatch) {
-                    problemUrl = urlMatch[1];
-                }
+            const pyFile = problem.files.py[0];
+            const path = platform === 'vicutils' ? `${platform}/${pyFile.name}` : `${platform}/${problem.name}/${pyFile.name}`;
+            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`);
+            if (res.ok) {
+                const data = await res.json();
+                pythonCode = atob(data.content);
+                const match = pythonCode.match(/^#.*?(https:\/\/[^\s]+)/m);
+                if (match) problemUrl = match[1];
             }
-        } catch (error) {
-            console.warn('Could not fetch Python file:', error);
+        } catch (err) {
+            console.error('Error fetching Python code:', err);
         }
     }
     
-    const pageTitle = problem.displayName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    const platformTitle = platform === 'vicutils' ? 'VicUtils' : platform.charAt(0).toUpperCase() + platform.slice(1);
+    // Build HTML
+    const title = problem.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const subtitle = platform === 'vicutils' ? 'Utility Script' : `${capitalize(platform)} Solution`;
     
     const repoUrl = platform === 'vicutils' 
-        ? `https://github.com/${getRepoPath()}/blob/main/${platform}/${problem.name}`
+        ? `https://github.com/${getRepoPath()}/blob/main/${platform}/${problem.fullName || problem.name}`
         : `https://github.com/${getRepoPath()}/tree/main/${platform}/${problem.name}`;
     
-    let pageContent = `
-        <div class="generated-page">
-            <div class="nav-buttons">
-                <a href="javascript:history.back()" class="nav-btn">← Back</a>
-                <a href="${window.location.pathname}" class="nav-btn">🏠 Home</a>
-                ${problemUrl ? `<a href="${problemUrl}" target="_blank" class="nav-btn">🔗 Problem</a>` : ''}
-                <a href="${repoUrl}" target="_blank" class="nav-btn">
-                    <img src="VN.ico" alt="GitHub" style="width: 16px; height: 16px; margin-right: 4px;">
-                    Code
-                </a>
+    let html = `
+        <div class="problem-header">
+            <div class="problem-nav">
+                <a href="javascript:history.back()" class="nav-link">← Back</a>
+                <a href="${window.location.pathname}" class="nav-link">🏠 Home</a>
+                ${problemUrl ? `<a href="${problemUrl}" target="_blank" class="nav-link">🔗 Problem</a>` : ''}
+                <a href="${repoUrl}" target="_blank" class="nav-link">📂 GitHub</a>
             </div>
-            
-            <h1 class="page-title">${pageTitle}</h1>
-            <p class="page-subtitle">${platformTitle}${platform === 'vicutils' ? ' Script' : ' Problem Solution'}</p>
+            <h1 class="problem-title">${title}</h1>
+            <p class="problem-subtitle">${subtitle}</p>
+        </div>
     `;
     
-    // Use side-by-side layout if there's exactly 1 image and code
-    const useSideBySide = problem.hasPng && problem.pngFiles.length === 1 && pythonCode;
+    const hasSingleImage = problem.files.png.length === 1;
+    const hasCode = pythonCode.length > 0;
     
-    if (useSideBySide) {
-        pageContent += `<div class="side-by-side-layout">`;
+    if (hasSingleImage && hasCode) {
+        // Side-by-side layout
+        html += '<div class="content-wrapper">';
         
         // Image side
-        pageContent += `<div class="image-side">`;
-        const pngFile = problem.pngFiles[0];
-        const imageUrl = `${platform}/${problem.name}/${pngFile.name}`;
-        pageContent += `
-            <div class="image-container">
-                <img src="${imageUrl}" alt="Solution Visualization" loading="lazy">
-                <div class="image-caption">Solution Visualization</div>
+        html += '<div class="visual-panel">';
+        const imgUrl = `${platform}/${problem.name}/${problem.files.png[0].name}`;
+        html += `
+            <div class="image-box">
+                <img src="${imgUrl}" alt="Solution">
+                <div class="image-label">Solution Visualization</div>
             </div>
         `;
-        pageContent += `</div>`;
+        html += '</div>';
         
         // Code side
-        pageContent += `<div class="code-side">`;
-        pageContent += `
-            <div class="code-section">
-                <h3>Python ${platform === 'vicutils' ? 'Script' : 'Solution'}</h3>
-                <div class="code-content"><pre>${escapeHtml(pythonCode)}</pre></div>
+        html += '<div class="code-panel">';
+        html += `
+            <div class="code-box">
+                <div class="code-header">Python Solution</div>
+                <div class="code-wrapper"><pre><code class="language-python">${escapeHtml(pythonCode)}</code></pre></div>
             </div>
         `;
-        pageContent += `</div>`;
+        html += '</div>';
         
-        pageContent += `</div>`;
+        html += '</div>';
     } else {
-        // Regular stacked layout for multiple images or no code
-        if (problem.hasPng && problem.pngFiles.length > 0) {
-            const gridClass = problem.pngFiles.length === 1 ? 'images-grid single-image' : 'images-grid';
-            pageContent += `<div class="${gridClass}">`;
-            
-            problem.pngFiles.forEach((pngFile, index) => {
-                const imageUrl = `${platform}/${problem.name}/${pngFile.name}`;
-                const caption = problem.pngFiles.length > 1 ? `Solution Step ${index + 1}` : 'Solution Visualization';
-                
-                pageContent += `
-                    <div class="image-container">
-                        <img src="${imageUrl}" alt="${caption}" loading="lazy">
-                        <div class="image-caption">${caption}</div>
+        // Stacked layout
+        html += '<div class="content-wrapper stacked">';
+        
+        if (problem.files.png.length > 0) {
+            if (problem.files.png.length === 1) {
+                const imgUrl = `${platform}/${problem.name}/${problem.files.png[0].name}`;
+                html += `
+                    <div class="image-box">
+                        <img src="${imgUrl}" alt="Solution">
+                        <div class="image-label">Solution Visualization</div>
                     </div>
                 `;
-            });
-            
-            pageContent += `</div>`;
+            } else {
+                html += '<div class="multi-image-grid">';
+                problem.files.png.forEach((img, i) => {
+                    const imgUrl = `${platform}/${problem.name}/${img.name}`;
+                    html += `
+                        <div class="image-box">
+                            <img src="${imgUrl}" alt="Step ${i + 1}">
+                            <div class="image-label">Step ${i + 1}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
         }
         
-        if (pythonCode) {
-            pageContent += `
-                <div class="code-section">
-                    <h3>Python ${platform === 'vicutils' ? 'Script' : 'Solution'}</h3>
-                    <div class="code-content"><pre>${escapeHtml(pythonCode)}</pre></div>
+        if (hasCode) {
+            html += `
+                <div class="code-box">
+                    <div class="code-header">Python Solution</div>
+                    <div class="code-wrapper"><pre><code class="language-python">${escapeHtml(pythonCode)}</code></pre></div>
                 </div>
             `;
         }
+        
+        html += '</div>';
     }
     
-    pageContent += `</div>`;
-    
-    main.innerHTML = pageContent;
+    view.innerHTML = html;
     hljs.highlightAll();
-    document.title = `${pageTitle} - ${platformTitle}`;
-    
-    if (!document.querySelector('link[rel="icon"]')) {
-        const link = document.createElement('link');
-        link.rel = 'icon';
-        link.href = 'VN.ico';
-        document.head.appendChild(link);
+}
+
+// Navigation
+function navigateToPlatform(platform) {
+    state.currentView = 'list';
+    state.currentPlatform = platform;
+    window.location.hash = platform;
+    render();
+}
+
+function navigateToProblem(platform, problem) {
+    // Check if has HTML page
+    if (problem.files.html.length > 0) {
+        const htmlFile = problem.files.html[0].name;
+        window.location.href = platform === 'vicutils' 
+            ? `${platform}/${problem.fullName}`
+            : `${platform}/${problem.name}/${htmlFile}`;
+        return;
     }
+    
+    state.currentView = 'problem';
+    state.currentPlatform = platform;
+    state.currentProblem = problem;
+    window.location.hash = `view/${platform}/${problem.name}`;
+    render();
+}
+
+function navigateToHome() {
+    state.currentView = 'platforms';
+    state.currentPlatform = null;
+    state.currentProblem = null;
+    window.location.hash = '';
+    render();
+}
+
+// Utilities
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function escapeHtml(text) {
-    const code = document.createElement('code');
-    code.classList.add("language-python")
-    code.textContent = text;
-    return code.outerHTML;
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
-function addNavigationToCurrentPage() {
-    const path = window.location.pathname;
-    const isLeetCodeProblem = path.includes('/leetcode/') && path.endsWith('.html');
-    const isKattisProblem = path.includes('/kattis/') && path.endsWith('.html');
-    
-    if (isLeetCodeProblem || isKattisProblem) {
-        const platform = isLeetCodeProblem ? 'leetcode' : 'kattis';
-        const backButton = document.createElement('div');
-        backButton.innerHTML = `
-            <style>
-                .nav-buttons {
-                    position: fixed;
-                    top: 20px;
-                    left: 20px;
-                    z-index: 1000;
-                    display: flex;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                }
-                .nav-btn {
-                    background: #667eea;
-                    color: white;
-                    border: none;
-                    padding: 0.75rem 1rem;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-size: 0.9rem;
-                    font-weight: 500;
-                    text-decoration: none;
-                    display: inline-block;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                }
-                .nav-btn:hover {
-                    background: #5a6fd8;
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-                }
-                @media (max-width: 768px) {
-                    .nav-buttons {
-                        position: relative;
-                        top: 0;
-                        left: 0;
-                        margin-bottom: 1rem;
-                        justify-content: center;
-                    }
-                }
-            </style>
-            <div class="nav-buttons">
-                <a href="../../index.html" class="nav-btn">← Home</a>
-                <a href="../../index.html#${platform}" class="nav-btn">${platform.charAt(0).toUpperCase() + platform.slice(1)} Problems</a>
-            </div>
-        `;
-        main.insertBefore(backButton, document.body.firstChild);
-    }
-}
-
-// Initialize the app
-if (window.location.pathname.endsWith('index.html') || 
-    window.location.pathname.endsWith('/') || 
-    window.location.pathname.split('/').pop() === '') {
-    
-    // Handle hash navigation for problem views
-    const hash = window.location.hash;
-    if (hash.startsWith('#view/')) {
-        const problemPath = decodeURIComponent(hash.substring(6));
-        const [platform, problemName] = problemPath.split('/');
-        
-        // Load problems data first, then render the problem page
-        scanForProblems().then(() => {
-            renderProblemPage(platform, problemName);
-        });
-    } else {
-        scanForProblems();
-        
-        // Handle platform navigation
-        window.addEventListener('load', () => {
-            const simpleHash = window.location.hash.substring(1);
-            if (simpleHash === 'leetcode' || simpleHash === 'kattis' || simpleHash === 'vicutils') {
-                setTimeout(() => showProblems(simpleHash), 1000);
-            }
-        });
-    }
-} else {
-    addNavigationToCurrentPage();
-}
-
-// Handle browser back/forward navigation
-window.addEventListener('hashchange', () => {
-    const hash = window.location.hash;
-    if (hash.startsWith('#view/')) {
-        const problemPath = decodeURIComponent(hash.substring(6));
-        const [platform, problemName] = problemPath.split('/');
-        renderProblemPage(platform, problemName);
-    } else if (hash === '') {
-        location.reload(); // Reload to show main page
+// Event listeners
+document.addEventListener('click', e => {
+    if (e.target.classList.contains('platform-box') || e.target.closest('.platform-box')) {
+        const box = e.target.closest('.platform-box') || e.target;
+        const platform = box.dataset.platform;
+        if (platform) navigateToPlatform(platform);
     }
 });
+
+document.getElementById('back-to-platforms')?.addEventListener('click', navigateToHome);
+
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.slice(1);
+    
+    if (!hash) {
+        navigateToHome();
+    } else if (hash.startsWith('view/')) {
+        const [, platform, problemName] = hash.split('/');
+        const problem = state.data[platform]?.find(p => p.name === problemName);
+        if (problem) {
+            state.currentView = 'problem';
+            state.currentPlatform = platform;
+            state.currentProblem = problem;
+            render();
+        }
+    } else if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
+        navigateToPlatform(hash);
+    }
+});
+
+// Initialize
+(async () => {
+    await fetchRepoData();
+    
+    const hash = window.location.hash.slice(1);
+    
+    if (hash.startsWith('view/')) {
+        const [, platform, problemName] = hash.split('/');
+        const problem = state.data[platform]?.find(p => p.name === problemName);
+        if (problem) {
+            state.currentView = 'problem';
+            state.currentPlatform = platform;
+            state.currentProblem = problem;
+        } else {
+            state.currentView = 'platforms';
+        }
+    } else if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
+        state.currentView = 'list';
+        state.currentPlatform = hash;
+    } else {
+        state.currentView = 'platforms';
+    }
+    
+    render();
+})();
