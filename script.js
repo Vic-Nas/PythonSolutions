@@ -402,3 +402,8 @@ window.addEventListener('hashchange', () => {
         location.reload(); // Reload to show main page
     }
 });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    hljs.highlightAll();
+});

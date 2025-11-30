@@ -415,10 +415,11 @@ h1 {
     padding: 1.5rem;
     border-radius: 8px;
     font-family: 'Monaco', 'Menlo', monospace;
-    font-size: 0.9rem;
+    font-size: 2rem;
     line-height: 1.6;
     white-space: pre-wrap;
     overflow-x: auto;
+    font-weight: bold;
 }
 
 @media (max-width: 768px) {
