@@ -4,7 +4,7 @@ let problemsData = {
     vicutils: []
 };
 
-const container =  document.getElementById("container")
+const main =  document.getElementById("main")
 
 
 async function scanForProblems() {
@@ -209,7 +209,7 @@ async function generatePage(platform, problem) {
 async function renderProblemPage(platform, problemName) {
     const problem = problemsData[platform]?.find(p => p.name === problemName);
     if (!problem) {
-        container.innerHTML = '<div class="error">Item not found</div>';
+        main.innerHTML = '<div class="error">Item not found</div>';
         return;
     }
     
@@ -286,7 +286,7 @@ async function renderProblemPage(platform, problemName) {
     
     pageContent += `</div>`;
     
-    div.innerHTML = pageContent;
+    main.innerHTML = pageContent;
     document.title = `${pageTitle} - ${platformTitle}`;
     
     if (!document.querySelector('link[rel="icon"]')) {
@@ -357,7 +357,7 @@ function addNavigationToCurrentPage() {
                 <a href="../../index.html#${platform}" class="nav-btn">${platform.charAt(0).toUpperCase() + platform.slice(1)} Problems</a>
             </div>
         `;
-        container.insertBefore(backButton, container.firstChild);
+        main.insertBefore(backButton, document.body.firstChild);
     }
 }
 
