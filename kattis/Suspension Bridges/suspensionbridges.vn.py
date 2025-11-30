@@ -21,7 +21,7 @@ left, right = 0, 1
 # Fancy math. We could just iterate 50 times
 # d_l/d_epsilon to figure out tol_epsilon(tol_l)
 tol_epsilon = (tol ** 3) / (2 * s)
-iterations = ceil(log2(1/tol_epsilon - 2))
+iterations = ceil(log2(1/tol_epsilon))
 # Btw, for binary search the interval size is (upper_bound - lower_bound) / step
 # step = 1 for integers.
 
