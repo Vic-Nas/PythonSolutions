@@ -316,20 +316,28 @@ window.addEventListener('hashchange', () => {
     if (!hash) {
         navigateToHome();
     } else if (hash.startsWith('view/')) {
-        const parts = hash.split('/');
-        const platform = parts[1];
-        const problemName = decodeURIComponent(parts.slice(2).join('/'));
-        const problem = state.data[platform]?.find(p => p.name === problemName);
-        if (problem) {
-            state.currentView = 'problem';
-            state.currentPlatform = platform;
-            state.currentProblem = problem;
-            render();
+        // Remove 'view/' prefix first
+        const remainder = hash.substring(5);
+        // Split only on the first slash to separate platform from problem name
+        const firstSlashIndex = remainder.indexOf('/');
+        if (firstSlashIndex === -1) {
+            navigateToHome();
         } else {
-            // Problem not found, go to platform list
-            state.currentView = 'list';
-            state.currentPlatform = platform;
-            render();
+            const platform = remainder.substring(0, firstSlashIndex);
+            const problemName = decodeURIComponent(remainder.substring(firstSlashIndex + 1));
+            console.log('hashchange - Looking for problem:', problemName, 'in platform:', platform);
+            const problem = state.data[platform]?.find(p => p.name === problemName);
+            if (problem) {
+                state.currentView = 'problem';
+                state.currentPlatform = platform;
+                state.currentProblem = problem;
+                render();
+            } else {
+                // Problem not found, go to platform list
+                state.currentView = 'list';
+                state.currentPlatform = platform;
+                render();
+            }
         }
     } else if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
         navigateToPlatform(hash);
@@ -353,19 +361,26 @@ window.addEventListener('hashchange', () => {
     const hash = window.location.hash.slice(1);
     
     if (hash.startsWith('view/')) {
-        const parts = hash.split('/');
-        const platform = parts[1];
-        const problemName = decodeURIComponent(parts.slice(2).join('/'));
-        console.log('Looking for problem:', problemName, 'in platform:', platform);
-        console.log('Available problems:', state.data[platform]?.map(p => p.name));
-        const problem = state.data[platform]?.find(p => p.name === problemName);
-        if (problem) {
-            state.currentView = 'problem';
-            state.currentPlatform = platform;
-            state.currentProblem = problem;
-        } else {
-            console.warn('Problem not found:', problemName);
+        // Remove 'view/' prefix first
+        const remainder = hash.substring(5);
+        // Split only on the first slash to separate platform from problem name
+        const firstSlashIndex = remainder.indexOf('/');
+        if (firstSlashIndex === -1) {
             state.currentView = 'platforms';
+        } else {
+            const platform = remainder.substring(0, firstSlashIndex);
+            const problemName = decodeURIComponent(remainder.substring(firstSlashIndex + 1));
+            console.log('Looking for problem:', problemName, 'in platform:', platform);
+            console.log('Available problems:', state.data[platform]?.map(p => p.name));
+            const problem = state.data[platform]?.find(p => p.name === problemName);
+            if (problem) {
+                state.currentView = 'problem';
+                state.currentPlatform = platform;
+                state.currentProblem = problem;
+            } else {
+                console.warn('Problem not found:', problemName);
+                state.currentView = 'platforms';
+            }
         }
     } else if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
         state.currentView = 'list';
