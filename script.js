@@ -69,7 +69,8 @@ async function loadPlatforms() {
         if (contents) {
             const platformImg = contents.find(f => f.name === 'platform.png');
             if (platformImg) {
-                platformData.image = `${folder.name}/platform.png`;
+                // Use the download_url from GitHub API
+                platformData.image = platformImg.download_url || `${folder.name}/platform.png`;
             }
             
             // Count items recursively
