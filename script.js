@@ -287,6 +287,7 @@ async function renderProblemPage(platform, problemName) {
     pageContent += `</div>`;
     
     main.innerHTML = pageContent;
+    hljs.highlightAll();
     document.title = `${pageTitle} - ${platformTitle}`;
     
     if (!document.querySelector('link[rel="icon"]')) {
@@ -402,8 +403,3 @@ window.addEventListener('hashchange', () => {
         location.reload(); // Reload to show main page
     }
 });
-
-
-window.onload = () => {
-    hljs.highlightAll();
-}
