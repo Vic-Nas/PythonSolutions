@@ -27,8 +27,7 @@ iterations = ceil(log2(1/tol_epsilon - 2))
 
 for _ in range(iterations):
     epsilon = (left + right) / 2
-    fl = f(epsilon)
-    if fl > 0:
+    if f(epsilon) > 0:
         left = epsilon + tol_epsilon
     else:
         right = epsilon - tol_epsilon
