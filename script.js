@@ -1,3 +1,5 @@
+console.log('Script loaded');
+
 // State
 const state = {
     data: { leetcode: [], kattis: [], vicutils: [] },
@@ -14,6 +16,7 @@ function getRepoPath() {
 
 // Fetch repository data
 async function fetchRepoData() {
+    console.log('Fetching repo data...');
     const platforms = ['leetcode', 'kattis', 'vicutils'];
     
     for (const platform of platforms) {
@@ -25,7 +28,6 @@ async function fetchRepoData() {
             const problems = [];
             
             if (platform === 'vicutils') {
-                // VicUtils: scan for HTML files only
                 for (const item of items) {
                     if (item.type === 'file' && item.name.endsWith('.html')) {
                         problems.push({
@@ -37,7 +39,6 @@ async function fetchRepoData() {
                     }
                 }
             } else {
-                // LeetCode/Kattis: scan directories
                 const dirs = items.filter(i => i.type === 'dir');
                 
                 for (const dir of dirs) {
@@ -70,14 +71,57 @@ async function fetchRepoData() {
             }
             
             state.data[platform] = problems.sort((a, b) => a.name.localeCompare(b.name));
+            console.log(`Loaded ${problems.length} items for ${platform}`);
         } catch (err) {
             console.error(`Error loading ${platform}:`, err);
         }
     }
 }
 
+// Parse hash to get view state
+function parseHash() {
+    const hash = window.location.hash.slice(1);
+    console.log('Parsing hash:', hash);
+    
+    if (!hash) {
+        return { view: 'platforms', platform: null, problem: null };
+    }
+    
+    if (hash.startsWith('view/')) {
+        const remainder = hash.slice(5); // Remove 'view/'
+        const slashIndex = remainder.indexOf('/');
+        
+        if (slashIndex === -1) {
+            return { view: 'platforms', platform: null, problem: null };
+        }
+        
+        const platform = remainder.slice(0, slashIndex);
+        const problemName = decodeURIComponent(remainder.slice(slashIndex + 1));
+        
+        console.log('Parsed view - platform:', platform, 'problem:', problemName);
+        
+        const problem = state.data[platform]?.find(p => p.name === problemName);
+        
+        if (problem) {
+            console.log('Found problem:', problem);
+            return { view: 'problem', platform, problem };
+        } else {
+            console.warn('Problem not found. Available:', state.data[platform]?.map(p => p.name));
+            return { view: 'list', platform, problem: null };
+        }
+    }
+    
+    if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
+        return { view: 'list', platform: hash, problem: null };
+    }
+    
+    return { view: 'platforms', platform: null, problem: null };
+}
+
 // Render views
 function render() {
+    console.log('Rendering view:', state.currentView);
+    
     const views = ['loading-screen', 'platform-selector', 'problem-list', 'problem-view'];
     views.forEach(v => document.getElementById(v).style.display = 'none');
     
@@ -140,6 +184,8 @@ async function renderProblemView() {
     const platform = state.currentPlatform;
     const problem = state.currentProblem;
     
+    console.log('Rendering problem:', problem.name, 'from platform:', platform);
+    
     // Fetch Python code if available
     let pythonCode = '';
     let problemUrl = '';
@@ -171,8 +217,8 @@ async function renderProblemView() {
     let html = `
         <div class="problem-header">
             <div class="problem-nav">
-                <a href="javascript:history.back()" class="nav-link">← Back</a>
-                <a href="${window.location.pathname}" class="nav-link">🏠 Home</a>
+                <a href="#${platform}" class="nav-link">← Back</a>
+                <a href="#" class="nav-link">🏠 Home</a>
                 ${problemUrl ? `<a href="${problemUrl}" target="_blank" class="nav-link">🔗 Problem</a>` : ''}
                 <a href="${repoUrl}" target="_blank" class="nav-link">📂 GitHub</a>
             </div>
@@ -256,13 +302,13 @@ async function renderProblemView() {
 
 // Navigation
 function navigateToPlatform(platform) {
-    state.currentView = 'list';
-    state.currentPlatform = platform;
+    console.log('Navigating to platform:', platform);
     window.location.hash = platform;
-    render();
 }
 
 function navigateToProblem(platform, problem) {
+    console.log('Navigating to problem:', problem.name);
+    
     // Check if has HTML page
     if (problem.files.html.length > 0) {
         const htmlFile = problem.files.html[0].name;
@@ -272,20 +318,13 @@ function navigateToProblem(platform, problem) {
         return;
     }
     
-    state.currentView = 'problem';
-    state.currentPlatform = platform;
-    state.currentProblem = problem;
     const encodedName = encodeURIComponent(problem.name);
     window.location.hash = `view/${platform}/${encodedName}`;
-    render();
 }
 
 function navigateToHome() {
-    state.currentView = 'platforms';
-    state.currentPlatform = null;
-    state.currentProblem = null;
+    console.log('Navigating to home');
     window.location.hash = '';
-    render();
 }
 
 // Utilities
@@ -311,84 +350,38 @@ document.addEventListener('click', e => {
 document.getElementById('back-to-platforms')?.addEventListener('click', navigateToHome);
 
 window.addEventListener('hashchange', () => {
-    const hash = window.location.hash.slice(1);
-    console.log('Hash changed to:', hash);
-    
-    if (!hash) {
-        navigateToHome();
-    } else if (hash.startsWith('view/')) {
-        // Remove 'view/' prefix first
-        const remainder = hash.substring(5);
-        // Split only on the first slash to separate platform from problem name
-        const firstSlashIndex = remainder.indexOf('/');
-        if (firstSlashIndex === -1) {
-            navigateToHome();
-        } else {
-            const platform = remainder.substring(0, firstSlashIndex);
-            const problemName = decodeURIComponent(remainder.substring(firstSlashIndex + 1));
-            console.log('hashchange - Looking for problem:', problemName, 'in platform:', platform);
-            const problem = state.data[platform]?.find(p => p.name === problemName);
-            if (problem) {
-                state.currentView = 'problem';
-                state.currentPlatform = platform;
-                state.currentProblem = problem;
-                render();
-            } else {
-                // Problem not found, go to platform list
-                state.currentView = 'list';
-                state.currentPlatform = platform;
-                render();
-            }
-        }
-    } else if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
-        navigateToPlatform(hash);
-    }
+    console.log('Hash changed');
+    const parsed = parseHash();
+    state.currentView = parsed.view;
+    state.currentPlatform = parsed.platform;
+    state.currentProblem = parsed.problem;
+    render();
 });
 
 // Initialize
 (async () => {
-    // Check if we're on index.html or root path
+    console.log('Initializing app...');
+    
+    // Check if we're on index page
     const isIndexPage = window.location.pathname.endsWith('index.html') || 
                         window.location.pathname.endsWith('/') || 
                         window.location.pathname.split('/').pop() === '';
     
+    console.log('Is index page:', isIndexPage);
+    
     if (!isIndexPage) {
-        // We're on a direct problem HTML page - don't initialize the SPA
+        console.log('Not index page, skipping initialization');
         return;
     }
     
     await fetchRepoData();
     
-    const hash = window.location.hash.slice(1);
+    const parsed = parseHash();
+    state.currentView = parsed.view;
+    state.currentPlatform = parsed.platform;
+    state.currentProblem = parsed.problem;
     
-    if (hash.startsWith('view/')) {
-        // Remove 'view/' prefix first
-        const remainder = hash.substring(5);
-        // Split only on the first slash to separate platform from problem name
-        const firstSlashIndex = remainder.indexOf('/');
-        if (firstSlashIndex === -1) {
-            state.currentView = 'platforms';
-        } else {
-            const platform = remainder.substring(0, firstSlashIndex);
-            const problemName = decodeURIComponent(remainder.substring(firstSlashIndex + 1));
-            console.log('Looking for problem:', problemName, 'in platform:', platform);
-            console.log('Available problems:', state.data[platform]?.map(p => p.name));
-            const problem = state.data[platform]?.find(p => p.name === problemName);
-            if (problem) {
-                state.currentView = 'problem';
-                state.currentPlatform = platform;
-                state.currentProblem = problem;
-            } else {
-                console.warn('Problem not found:', problemName);
-                state.currentView = 'platforms';
-            }
-        }
-    } else if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
-        state.currentView = 'list';
-        state.currentPlatform = hash;
-    } else {
-        state.currentView = 'platforms';
-    }
+    console.log('Initial state:', state);
     
     render();
 })();
