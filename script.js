@@ -275,7 +275,8 @@ function navigateToProblem(platform, problem) {
     state.currentView = 'problem';
     state.currentPlatform = platform;
     state.currentProblem = problem;
-    window.location.hash = `view/${platform}/${problem.name}`;
+    const encodedName = encodeURIComponent(problem.name);
+    window.location.hash = `view/${platform}/${encodedName}`;
     render();
 }
 
@@ -330,12 +331,24 @@ window.addEventListener('hashchange', () => {
 
 // Initialize
 (async () => {
+    // Check if we're on index.html or root path
+    const isIndexPage = window.location.pathname.endsWith('index.html') || 
+                        window.location.pathname.endsWith('/') || 
+                        window.location.pathname.split('/').pop() === '';
+    
+    if (!isIndexPage) {
+        // We're on a direct problem HTML page - don't initialize the SPA
+        return;
+    }
+    
     await fetchRepoData();
     
     const hash = window.location.hash.slice(1);
     
     if (hash.startsWith('view/')) {
-        const [, platform, problemName] = hash.split('/');
+        const parts = hash.split('/');
+        const platform = parts[1];
+        const problemName = decodeURIComponent(parts.slice(2).join('/'));
         const problem = state.data[platform]?.find(p => p.name === problemName);
         if (problem) {
             state.currentView = 'problem';
