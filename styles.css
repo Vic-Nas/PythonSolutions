@@ -364,14 +364,21 @@ h1 {
     margin-bottom: 2rem;
 }
 
+.content-wrapper {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
 .images-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
     margin: 2rem 0;
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: auto;
+}
+
+/* When there's only one image and code, show side-by-side on large screens */
+.images-grid.single-image {
+    grid-template-columns: 1fr;
 }
 
 .image-container {
@@ -380,7 +387,7 @@ h1 {
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
-    max-height: 600px;
+    max-height: 700px;
     display: flex;
     flex-direction: column;
 }
@@ -392,7 +399,7 @@ h1 {
 .image-container img {
     width: 100%;
     height: auto;
-    max-height: 550px;
+    max-height: 650px;
     object-fit: contain;
     display: block;
     background: white;
@@ -412,9 +419,28 @@ h1 {
     border-radius: 10px;
     padding: 2rem;
     margin: 2rem 0;
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: auto;
+}
+
+/* Side-by-side layout for single image + code */
+.side-by-side-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 2rem 0;
+    align-items: start;
+}
+
+.side-by-side-layout .image-container,
+.side-by-side-layout .code-section {
+    margin: 0;
+    height: fit-content;
+}
+
+/* Stack on medium screens */
+@media (max-width: 1200px) {
+    .side-by-side-layout {
+        grid-template-columns: 1fr;
+    }
 }
 
 .code-section h3 {
@@ -428,11 +454,11 @@ h1 {
     padding: 1.5rem;
     border-radius: 8px;
     font-family: 'Monaco', 'Menlo', monospace;
-    font-size: 0.9rem;
-    line-height: 1.6;
+    font-size: 0.85rem;
+    line-height: 1.5;
     white-space: pre-wrap;
     overflow-x: auto;
-    max-height: 600px;
+    max-height: 700px;
     overflow-y: auto;
     font-weight: bold;
     scrollbar-width: thin;
