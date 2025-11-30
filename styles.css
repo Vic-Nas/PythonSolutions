@@ -411,7 +411,7 @@ h1 {
 
 .code-content {
     background: #1e293b;
-    color: #e2e8f0;
+    /* color: #e2e8f0;
     padding: 1.5rem;
     border-radius: 8px;
     font-family: 'Monaco', 'Menlo', monospace;
@@ -419,7 +419,7 @@ h1 {
     line-height: 1.6;
     white-space: pre-wrap;
     overflow-x: auto;
-    font-weight: bold;
+    font-weight: bold; */
 }
 
 @media (max-width: 768px) {
