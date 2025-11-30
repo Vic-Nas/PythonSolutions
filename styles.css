@@ -312,7 +312,8 @@ h1 {
 .generated-page {
     background: white;
     min-height: 100vh;
-    padding: 2rem 1rem;
+    padding: 0;
+    width: 100vw;
 }
 
 .nav-buttons {
@@ -323,12 +324,9 @@ h1 {
     position: sticky;
     top: 0;
     background: white;
-    padding: 1rem 0;
+    padding: 1rem 2rem;
     z-index: 10;
     border-bottom: 2px solid #e2e8f0;
-    max-width: 95%;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .nav-btn {
@@ -486,12 +484,6 @@ h1 {
 
 /* ===== RESPONSIVE ===== */
 
-@media (max-width: 1400px) {
-    .side-by-side-layout {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
@@ -541,5 +533,9 @@ h1 {
     
     .generated-page {
         padding: 1rem;
+    }
+    
+    .side-by-side-layout {
+        grid-template-columns: 1fr;
     }
 }
