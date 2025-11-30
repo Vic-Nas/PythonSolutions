@@ -1,0 +1,1 @@
+from math import*;d,s=map(int,input().split());l=0;r=1;exec("e=(l+r)/2;l,r=(e,r)if cosh(d*(1-e)/2/s/e)>1/e else(l,e);"*50);print(2*s*((1+e)/(1-e))**.5)

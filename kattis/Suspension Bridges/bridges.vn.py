@@ -1,3 +1,8 @@
+# Collecting beepers
+# https://open.kattis.com/problems/suspensionbridges/statistics
+# Error propagation, binary search
+# 29/11/2025
+
 from math import cosh, ceil, log2
 d, s = map(int, input().split())
 
