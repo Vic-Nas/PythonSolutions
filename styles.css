@@ -425,19 +425,21 @@ h1 {
 /* Side-by-side layout for single image + code */
 .side-by-side-layout {
     display: grid;
-    grid-template-columns: minmax(400px, 45%) minmax(500px, 55%);
+    grid-template-columns: 45% 55%;
     gap: 2rem;
     margin: 2rem 0;
     align-items: start;
     max-width: 1600px;
     margin-left: auto;
     margin-right: auto;
+    width: 100%;
 }
 
 .side-by-side-layout .image-container {
     margin: 0;
     height: fit-content;
     max-height: none;
+    min-width: 0;
 }
 
 .side-by-side-layout .image-container img {
@@ -447,6 +449,7 @@ h1 {
 .side-by-side-layout .code-section {
     margin: 0;
     height: fit-content;
+    min-width: 0;
 }
 
 /* Stack on medium screens */
