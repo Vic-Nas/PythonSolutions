@@ -312,7 +312,7 @@ h1 {
 .generated-page {
     background: white;
     min-height: 100vh;
-    padding: 2rem 4rem;
+    padding: 2rem 1rem;
 }
 
 .nav-buttons {
@@ -326,6 +326,9 @@ h1 {
     padding: 1rem 0;
     z-index: 10;
     border-bottom: 2px solid #e2e8f0;
+    max-width: 95%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .nav-btn {
