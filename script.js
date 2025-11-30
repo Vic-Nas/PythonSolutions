@@ -257,9 +257,8 @@ async function renderProblemPage(platform, problemName) {
                 </a>
             </div>
             
-            <div class="content-wrapper">
-                <h1 class="page-title">${pageTitle}</h1>
-                <p class="page-subtitle">${platformTitle}${platform === 'vicutils' ? ' Script' : ' Problem Solution'}</p>
+            <h1 class="page-title">${pageTitle}</h1>
+            <p class="page-subtitle">${platformTitle}${platform === 'vicutils' ? ' Script' : ' Problem Solution'}</p>
     `;
     
     // Use side-by-side layout if there's exactly 1 image and code
@@ -318,7 +317,7 @@ async function renderProblemPage(platform, problemName) {
         }
     }
     
-    pageContent += `</div></div>`;
+    pageContent += `</div>`;
     
     main.innerHTML = pageContent;
     hljs.highlightAll();
