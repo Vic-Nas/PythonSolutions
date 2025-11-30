@@ -312,8 +312,9 @@ h1 {
 .generated-page {
     background: white;
     min-height: 100vh;
-    padding: 0;
-    width: 100vw;
+    padding: 2rem;
+    max-width: 2400px;
+    margin: 0 auto;
 }
 
 .nav-buttons {
@@ -324,7 +325,7 @@ h1 {
     position: sticky;
     top: 0;
     background: white;
-    padding: 1rem 2rem;
+    padding: 1rem 0;
     z-index: 10;
     border-bottom: 2px solid #e2e8f0;
 }
@@ -352,11 +353,6 @@ h1 {
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.content-wrapper {
-    max-width: 100%;
-    margin: 0 auto;
-}
-
 .page-title {
     font-size: 2.5rem;
     color: #2d3748;
@@ -376,8 +372,12 @@ h1 {
 .side-by-side-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 3rem;
+    gap: 2rem;
     margin: 2rem 0;
+}
+
+.side-by-side-layout > * {
+    min-width: 0;
 }
 
 /* ===== STANDARD IMAGES GRID (for multiple images) ===== */
@@ -392,6 +392,8 @@ h1 {
 .images-grid.single-image {
     grid-template-columns: 1fr;
     max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* ===== IMAGE CONTAINER ===== */
@@ -483,6 +485,12 @@ h1 {
 }
 
 /* ===== RESPONSIVE ===== */
+
+@media (max-width: 1100px) {
+    .side-by-side-layout {
+        grid-template-columns: 1fr;
+    }
+}
 
 @media (max-width: 768px) {
     .container {
