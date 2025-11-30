@@ -268,6 +268,7 @@ async function renderProblemPage(platform, problemName) {
         pageContent += `<div class="side-by-side-layout">`;
         
         // Image side
+        pageContent += `<div class="image-side">`;
         const pngFile = problem.pngFiles[0];
         const imageUrl = `${platform}/${problem.name}/${pngFile.name}`;
         pageContent += `
@@ -276,14 +277,17 @@ async function renderProblemPage(platform, problemName) {
                 <div class="image-caption">Solution Visualization</div>
             </div>
         `;
+        pageContent += `</div>`;
         
         // Code side
+        pageContent += `<div class="code-side">`;
         pageContent += `
             <div class="code-section">
                 <h3>Python ${platform === 'vicutils' ? 'Script' : 'Solution'}</h3>
                 <div class="code-content"><pre>${escapeHtml(pythonCode)}</pre></div>
             </div>
         `;
+        pageContent += `</div>`;
         
         pageContent += `</div>`;
     } else {
