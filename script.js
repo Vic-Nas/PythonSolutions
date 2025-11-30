@@ -4,7 +4,7 @@ let problemsData = {
     vicutils: []
 };
 
-const main =  document.getElementById("main")
+const main = document.getElementById("main")
 
 
 async function scanForProblems() {
@@ -23,11 +23,11 @@ async function scanForProblems() {
             const problems = [];
             
             if (platform === 'vicutils') {
-                // For vicutils, look for generated .html files
+                // For vicutils, ONLY look for .html files (ignore Python files)
                 for (const item of items) {
                     if (item.type === 'file' && item.name.endsWith('.html')) {
                         problems.push({
-                            name: item.name,  // Keep the full filename
+                            name: item.name,
                             displayName: item.name.replace('.html', '').replace(/_/g, ' '),
                             type: 'html',
                             hasPage: true,
@@ -62,7 +62,11 @@ async function scanForProblems() {
                             );
                             const hasPng = pngFiles.length > 0;
                             
-                            const pyFiles = files.filter(file => file.name.endsWith('.vn.py'));
+                            // FIXED: Only select .vn.py files that do NOT contain .shortest.
+                            const pyFiles = files.filter(file => 
+                                file.name.endsWith('.vn.py') && 
+                                !file.name.includes('.shortest.')
+                            );
                             const hasPy = pyFiles.length > 0;
                             
                             let type = 'code-only';
