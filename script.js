@@ -404,6 +404,6 @@ window.addEventListener('hashchange', () => {
 });
 
 
-document.addEventListener('DOMContentLoaded', () => {
+window.onload = () => {
     hljs.highlightAll();
-});
+}
