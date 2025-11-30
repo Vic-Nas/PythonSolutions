@@ -4,6 +4,9 @@ let problemsData = {
     vicutils: []
 };
 
+const container =  document.getElementById("container")
+
+
 async function scanForProblems() {
     const platforms = ['leetcode', 'kattis', 'vicutils'];
     
@@ -206,7 +209,7 @@ async function generatePage(platform, problem) {
 async function renderProblemPage(platform, problemName) {
     const problem = problemsData[platform]?.find(p => p.name === problemName);
     if (!problem) {
-        document.body.innerHTML = '<div class="error">Item not found</div>';
+        container.innerHTML = '<div class="error">Item not found</div>';
         return;
     }
     
@@ -283,7 +286,7 @@ async function renderProblemPage(platform, problemName) {
     
     pageContent += `</div>`;
     
-    document.body.innerHTML = pageContent;
+    div.innerHTML = pageContent;
     document.title = `${pageTitle} - ${platformTitle}`;
     
     if (!document.querySelector('link[rel="icon"]')) {
@@ -354,7 +357,7 @@ function addNavigationToCurrentPage() {
                 <a href="../../index.html#${platform}" class="nav-btn">${platform.charAt(0).toUpperCase() + platform.slice(1)} Problems</a>
             </div>
         `;
-        document.body.insertBefore(backButton, document.body.firstChild);
+        container.insertBefore(backButton, container.firstChild);
     }
 }
 
@@ -399,9 +402,3 @@ window.addEventListener('hashchange', () => {
         location.reload(); // Reload to show main page
     }
 });
-
-// Recharger le script Highlight.js
-const script = document.createElement('script');
-script.src = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js';
-script.onload = () => hljs.highlightAll();
-document.body.appendChild(script);
