@@ -312,6 +312,7 @@ document.getElementById('back-to-platforms')?.addEventListener('click', navigate
 
 window.addEventListener('hashchange', () => {
     const hash = window.location.hash.slice(1);
+    console.log('Hash changed to:', hash);
     
     if (!hash) {
         navigateToHome();
