@@ -276,7 +276,7 @@ async function renderProblemPage(platform, problemName) {
         pageContent += `
             <div class="code-section">
                 <h3>Python ${platform === 'vicutils' ? 'Script' : 'Solution'}</h3>
-                <div class="code-content">${escapeHtml(pythonCode)}</div>
+                <div class="code-content"><pre>${escapeHtml(pythonCode)}</pre></div>
             </div>
         `;
     }
