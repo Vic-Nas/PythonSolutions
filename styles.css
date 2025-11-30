@@ -312,7 +312,7 @@ h1 {
 .generated-page {
     background: white;
     min-height: 100vh;
-    padding: 2rem;
+    padding: 2rem 4rem;
 }
 
 .nav-buttons {
@@ -352,7 +352,7 @@ h1 {
 }
 
 .content-wrapper {
-    max-width: 1600px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
@@ -375,9 +375,8 @@ h1 {
 .side-by-side-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin: 2rem auto;
-    max-width: 100%;
+    gap: 3rem;
+    margin: 2rem 0;
 }
 
 /* ===== STANDARD IMAGES GRID (for multiple images) ===== */
@@ -386,8 +385,7 @@ h1 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 2rem;
-    margin: 2rem auto;
-    max-width: 100%;
+    margin: 2rem 0;
 }
 
 .images-grid.single-image {
@@ -433,8 +431,7 @@ h1 {
     border: 1px solid #e2e8f0;
     border-radius: 10px;
     padding: 2rem;
-    margin: 2rem auto;
-    max-width: 100%;
+    margin: 2rem 0;
 }
 
 .code-section h3 {
@@ -453,7 +450,7 @@ h1 {
     line-height: 1.6;
     overflow-x: auto;
     overflow-y: auto;
-    max-height: 600px;
+    max-height: 70vh;
 }
 
 .code-content pre {
