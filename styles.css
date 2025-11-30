@@ -312,6 +312,7 @@ h1 {
     min-height: 100vh;
     padding: 2rem;
     overflow-x: hidden;
+    width: 100%;
 }
 
 .nav-buttons {
@@ -424,13 +425,25 @@ h1 {
 /* Side-by-side layout for single image + code */
 .side-by-side-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(400px, 45%) minmax(500px, 55%);
     gap: 2rem;
     margin: 2rem 0;
     align-items: start;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.side-by-side-layout .image-container,
+.side-by-side-layout .image-container {
+    margin: 0;
+    height: fit-content;
+    max-height: none;
+}
+
+.side-by-side-layout .image-container img {
+    max-height: none;
+}
+
 .side-by-side-layout .code-section {
     margin: 0;
     height: fit-content;
@@ -454,15 +467,19 @@ h1 {
     padding: 1.5rem;
     border-radius: 8px;
     font-family: 'Monaco', 'Menlo', monospace;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     line-height: 1.5;
     white-space: pre-wrap;
     overflow-x: auto;
-    max-height: 700px;
-    overflow-y: auto;
-    font-weight: bold;
+    font-weight: normal;
     scrollbar-width: thin;
     scrollbar-color: #475569 #1e293b;
+}
+
+/* Only add max-height when NOT in side-by-side layout */
+.code-section:not(.side-by-side-layout .code-section) .code-content {
+    max-height: 700px;
+    overflow-y: auto;
 }
 
 .code-content::-webkit-scrollbar {
