@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Solutions - LeetCode, Kattis & VicUtils</title>
+    <title>Python Solutions - LeetCode, Kattis, AOC & VicUtils</title>
     <link rel="icon" href="VN.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="styles.css">
@@ -22,29 +22,13 @@
 
         <div id="platform-selector" style="display: none;">
             <h1>Choose a Platform</h1>
-            <div class="platform-grid">
-                <button class="platform-box" data-platform="leetcode">
-                    <span class="platform-emoji">💡</span>
-                    <h2>LeetCode</h2>
-                    <p id="leetcode-count">— problems</p>
-                </button>
-                <button class="platform-box" data-platform="kattis">
-                    <span class="platform-emoji">🎯</span>
-                    <h2>Kattis</h2>
-                    <p id="kattis-count">— problems</p>
-                </button>
-                <button class="platform-box" data-platform="vicutils">
-                    <span class="platform-emoji">🔧</span>
-                    <h2>VicUtils</h2>
-                    <p id="vicutils-count">— scripts</p>
-                </button>
-            </div>
+            <div class="platform-grid" id="platform-grid"></div>
         </div>
 
-        <div id="problem-list" style="display: none;">
-            <button class="back-button" id="back-to-platforms">← Back</button>
-            <h1 id="list-title"></h1>
-            <div id="problem-cards"></div>
+        <div id="folder-view" style="display: none;">
+            <button class="back-button" id="back-button">← Back</button>
+            <h1 id="folder-title"></h1>
+            <div id="folder-cards"></div>
         </div>
 
         <div id="problem-view" style="display: none;"></div>

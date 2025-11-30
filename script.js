@@ -2,10 +2,11 @@ console.log('Script loaded');
 
 // State
 const state = {
-    data: { leetcode: [], kattis: [], vicutils: [] },
+    platforms: [],
+    folderCache: {},
     currentView: 'loading',
-    currentPlatform: null,
-    currentProblem: null
+    currentPath: [],
+    currentItem: null
 };
 
 // Utility
@@ -14,191 +15,242 @@ function getRepoPath() {
     return parts[1] && parts[2] ? `${parts[1]}/${parts[2]}` : 'Vic-Nas/PythonSolutions';
 }
 
-// Fetch repository data
-async function fetchRepoData() {
-    console.log('Fetching repo data...');
-    const platforms = ['leetcode', 'kattis', 'vicutils'];
+// Fetch folder contents
+async function fetchFolderContents(path) {
+    if (state.folderCache[path]) {
+        return state.folderCache[path];
+    }
     
-    for (const platform of platforms) {
-        try {
-            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}`);
-            if (!res.ok) continue;
-            
-            const items = await res.json();
-            const problems = [];
-            
-            if (platform === 'vicutils') {
-                for (const item of items) {
-                    if (item.type === 'file' && item.name.endsWith('.html')) {
-                        problems.push({
-                            name: item.name.replace('.html', ''),
-                            fullName: item.name,
-                            type: 'html',
-                            files: { html: [item], png: [], py: [] }
-                        });
-                    }
-                }
-            } else {
-                const dirs = items.filter(i => i.type === 'dir');
-                
-                for (const dir of dirs) {
-                    const dirRes = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${platform}/${dir.name}`);
-                    if (!dirRes.ok) continue;
-                    
-                    const files = await dirRes.json();
-                    
-                    const htmlFiles = files.filter(f => f.name.endsWith('.html'));
-                    const pngFiles = files.filter(f => f.name.endsWith('.vn.png') || f.name.match(/\.vn\.\d+\.png$/))
-                        .sort((a, b) => {
-                            const numA = a.name.match(/\.(\d+)\.png$/)?.[1] || 0;
-                            const numB = b.name.match(/\.(\d+)\.png$/)?.[1] || 0;
-                            return parseInt(numA) - parseInt(numB);
-                        });
-                    const pyFiles = files.filter(f => f.name.endsWith('.vn.py') && !f.name.includes('.shortest.'));
-                    
-                    if (htmlFiles.length || pngFiles.length || pyFiles.length) {
-                        let type = 'code';
-                        if (htmlFiles.length) type = 'html';
-                        else if (pngFiles.length) type = 'png';
-                        
-                        problems.push({
-                            name: dir.name,
-                            type,
-                            files: { html: htmlFiles, png: pngFiles, py: pyFiles }
-                        });
-                    }
-                }
-            }
-            
-            state.data[platform] = problems.sort((a, b) => a.name.localeCompare(b.name));
-            console.log(`Loaded ${problems.length} items for ${platform}`);
-        } catch (err) {
-            console.error(`Error loading ${platform}:`, err);
-        }
+    try {
+        const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`);
+        if (!res.ok) return null;
+        
+        const items = await res.json();
+        state.folderCache[path] = items;
+        return items;
+    } catch (err) {
+        console.error(`Error fetching ${path}:`, err);
+        return null;
     }
 }
 
-// Parse hash to get view state
+// Check if folder contains files (is a "problem")
+function hasFiles(items) {
+    return items.some(item => 
+        item.type === 'file' && 
+        (item.name.endsWith('.vn.py') || 
+         item.name.endsWith('.vn.png') || 
+         item.name.endsWith('.html'))
+    );
+}
+
+// Load all platforms
+async function loadPlatforms() {
+    console.log('Loading platforms...');
+    const rootItems = await fetchFolderContents('');
+    if (!rootItems) return;
+    
+    const platformFolders = rootItems.filter(item => 
+        item.type === 'dir' && 
+        !['utils', '.git'].includes(item.name) &&
+        !item.name.startsWith('.')
+    );
+    
+    for (const folder of platformFolders) {
+        const platformData = {
+            name: folder.name,
+            path: folder.name,
+            image: null,
+            count: 0
+        };
+        
+        // Check for platform.png
+        const contents = await fetchFolderContents(folder.name);
+        if (contents) {
+            const platformImg = contents.find(f => f.name === 'platform.png');
+            if (platformImg) {
+                platformData.image = `${folder.name}/platform.png`;
+            }
+            
+            // Count items recursively
+            platformData.count = await countItems(folder.name);
+        }
+        
+        state.platforms.push(platformData);
+    }
+    
+    state.platforms.sort((a, b) => a.name.localeCompare(b.name));
+    console.log('Loaded platforms:', state.platforms);
+}
+
+// Recursively count problem items
+async function countItems(path) {
+    const items = await fetchFolderContents(path);
+    if (!items) return 0;
+    
+    if (hasFiles(items)) return 1;
+    
+    const subdirs = items.filter(i => i.type === 'dir');
+    let count = 0;
+    
+    for (const dir of subdirs) {
+        count += await countItems(`${path}/${dir.name}`);
+    }
+    
+    return count;
+}
+
+// Parse hash to navigate
 function parseHash() {
     let hash = window.location.hash.slice(1);
+    hash = decodeURIComponent(hash);
+    
     console.log('Parsing hash:', hash);
     
-    // Decode the entire hash first to handle encoded slashes
-    hash = decodeURIComponent(hash);
-    console.log('Decoded hash:', hash);
-    
     if (!hash) {
-        return { view: 'platforms', platform: null, problem: null };
+        return { view: 'platforms', path: [] };
     }
     
+    // Check if it's a problem view
     if (hash.startsWith('view/')) {
-        const remainder = hash.slice(5); // Remove 'view/'
-        const slashIndex = remainder.indexOf('/');
-        
-        if (slashIndex === -1) {
-            return { view: 'platforms', platform: null, problem: null };
-        }
-        
-        const platform = remainder.slice(0, slashIndex);
-        const problemName = remainder.slice(slashIndex + 1);
-        
-        console.log('Parsed view - platform:', platform, 'problem:', problemName);
-        
-        const problem = state.data[platform]?.find(p => p.name === problemName);
-        
-        if (problem) {
-            console.log('Found problem:', problem);
-            return { view: 'problem', platform, problem };
-        } else {
-            console.warn('Problem not found. Available:', state.data[platform]?.map(p => p.name));
-            return { view: 'list', platform, problem: null };
-        }
+        const pathStr = hash.slice(5);
+        const path = pathStr.split('/');
+        return { view: 'problem', path };
     }
     
-    if (['leetcode', 'kattis', 'vicutils'].includes(hash)) {
-        return { view: 'list', platform: hash, problem: null };
-    }
-    
-    return { view: 'platforms', platform: null, problem: null };
+    // Otherwise it's a folder navigation
+    const path = hash.split('/');
+    return { view: 'folder', path };
 }
 
 // Render views
 function render() {
-    console.log('Rendering view:', state.currentView);
+    console.log('Rendering view:', state.currentView, 'path:', state.currentPath);
     
-    const views = ['loading-screen', 'platform-selector', 'problem-list', 'problem-view'];
+    const views = ['loading-screen', 'platform-selector', 'folder-view', 'problem-view'];
     views.forEach(v => document.getElementById(v).style.display = 'none');
     
     if (state.currentView === 'loading') {
         document.getElementById('loading-screen').style.display = 'flex';
     } else if (state.currentView === 'platforms') {
         renderPlatforms();
-    } else if (state.currentView === 'list') {
-        renderProblemList();
+    } else if (state.currentView === 'folder') {
+        renderFolder();
     } else if (state.currentView === 'problem') {
-        renderProblemView();
+        renderProblem();
     }
 }
 
 function renderPlatforms() {
     document.getElementById('platform-selector').style.display = 'block';
-    document.getElementById('leetcode-count').textContent = `${state.data.leetcode.length} problems`;
-    document.getElementById('kattis-count').textContent = `${state.data.kattis.length} problems`;
-    document.getElementById('vicutils-count').textContent = `${state.data.vicutils.length} scripts`;
-}
-
-function renderProblemList() {
-    const listView = document.getElementById('problem-list');
-    listView.style.display = 'block';
+    const grid = document.getElementById('platform-grid');
+    grid.innerHTML = '';
     
-    const platform = state.currentPlatform;
-    const problems = state.data[platform];
-    
-    document.getElementById('list-title').textContent = 
-        platform === 'vicutils' ? 'VicUtils Scripts' : `${capitalize(platform)} Problems`;
-    
-    const container = document.getElementById('problem-cards');
-    container.innerHTML = '';
-    
-    problems.forEach(prob => {
-        const card = document.createElement('div');
-        card.className = 'problem-card';
+    state.platforms.forEach(platform => {
+        const card = document.createElement('button');
+        card.className = 'platform-box';
+        card.dataset.platform = platform.name;
         
-        const badge = prob.type === 'html' ? 'badge-html' : 
-                     prob.type === 'png' ? 'badge-png' : 'badge-code';
-        const badgeText = prob.type === 'html' ? 'HTML' : 
-                         prob.type === 'png' ? 'IMAGE' : 'CODE';
+        const displayName = capitalize(platform.name);
+        const countText = platform.name === 'vicutils' ? 'scripts' : 'problems';
         
         card.innerHTML = `
-            <div class="problem-card-title">${prob.name}</div>
-            <div class="problem-card-path">${platform}/${prob.name}</div>
-            <span class="problem-type-badge ${badge}">${badgeText}</span>
+            ${platform.image ? 
+                `<img src="${platform.image}" alt="${displayName}" class="platform-image">` :
+                `<span class="platform-emoji">${getDefaultEmoji(platform.name)}</span>`
+            }
+            <h2>${displayName}</h2>
+            <p>${platform.count} ${countText}</p>
         `;
         
-        card.onclick = () => navigateToProblem(platform, prob);
-        container.appendChild(card);
+        card.onclick = () => navigateTo([platform.name]);
+        grid.appendChild(card);
     });
 }
 
-async function renderProblemView() {
+async function renderFolder() {
+    const view = document.getElementById('folder-view');
+    view.style.display = 'block';
+    
+    const pathStr = state.currentPath.join('/');
+    const items = await fetchFolderContents(pathStr);
+    
+    if (!items) {
+        view.innerHTML = '<p>Error loading folder</p>';
+        return;
+    }
+    
+    // Get subdirectories only
+    const subdirs = items.filter(i => i.type === 'dir');
+    
+    // Set title
+    const titleParts = state.currentPath.map(capitalize);
+    document.getElementById('folder-title').textContent = titleParts.join(' / ');
+    
+    // Render cards
+    const container = document.getElementById('folder-cards');
+    container.innerHTML = '';
+    
+    for (const dir of subdirs) {
+        const card = document.createElement('div');
+        card.className = 'folder-card';
+        
+        const fullPath = [...state.currentPath, dir.name];
+        const count = await countItems(fullPath.join('/'));
+        
+        card.innerHTML = `
+            <div class="folder-card-title">${dir.name}</div>
+            <div class="folder-card-path">${fullPath.join('/')}</div>
+            <div class="folder-card-count">${count} item${count !== 1 ? 's' : ''}</div>
+        `;
+        
+        card.onclick = () => navigateTo(fullPath);
+        container.appendChild(card);
+    }
+}
+
+async function renderProblem() {
     const view = document.getElementById('problem-view');
     view.style.display = 'block';
     view.innerHTML = '<div style="text-align: center; padding: 3rem;">Loading...</div>';
     
-    const platform = state.currentPlatform;
-    const problem = state.currentProblem;
+    const pathStr = state.currentPath.join('/');
+    const items = await fetchFolderContents(pathStr);
     
-    console.log('Rendering problem:', problem.name, 'from platform:', platform);
+    if (!items) {
+        view.innerHTML = '<p>Error loading problem</p>';
+        return;
+    }
     
-    // Fetch Python code if available
+    // Separate files
+    const htmlFiles = items.filter(f => f.type === 'file' && f.name.endsWith('.html'));
+    const pngFiles = items.filter(f => 
+        f.type === 'file' && 
+        (f.name.endsWith('.vn.png') || f.name.match(/\.vn\.\d+\.png$/))
+    ).sort((a, b) => {
+        const numA = a.name.match(/\.(\d+)\.png$/)?.[1] || 0;
+        const numB = b.name.match(/\.(\d+)\.png$/)?.[1] || 0;
+        return parseInt(numA) - parseInt(numB);
+    });
+    const pyFiles = items.filter(f => 
+        f.type === 'file' && 
+        f.name.endsWith('.vn.py') && 
+        !f.name.includes('.shortest.')
+    );
+    
+    // Check if has HTML - if so, redirect
+    if (htmlFiles.length > 0) {
+        window.location.href = `${pathStr}/${htmlFiles[0].name}`;
+        return;
+    }
+    
+    // Fetch Python code
     let pythonCode = '';
     let problemUrl = '';
     
-    if (problem.files.py.length > 0) {
+    if (pyFiles.length > 0) {
         try {
-            const pyFile = problem.files.py[0];
-            const path = platform === 'vicutils' ? `${platform}/${pyFile.name}` : `${platform}/${problem.name}/${pyFile.name}`;
-            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`);
+            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${pathStr}/${pyFiles[0].name}`);
             if (res.ok) {
                 const data = await res.json();
                 pythonCode = atob(data.content);
@@ -211,17 +263,16 @@ async function renderProblemView() {
     }
     
     // Build HTML
-    const title = problem.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    const subtitle = platform === 'vicutils' ? 'Utility Script' : `${capitalize(platform)} Solution`;
+    const problemName = state.currentPath[state.currentPath.length - 1];
+    const title = problemName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const subtitle = state.currentPath.slice(0, -1).map(capitalize).join(' / ');
     
-    const repoUrl = platform === 'vicutils' 
-        ? `https://github.com/${getRepoPath()}/blob/main/${platform}/${problem.fullName || problem.name}`
-        : `https://github.com/${getRepoPath()}/tree/main/${platform}/${problem.name}`;
+    const repoUrl = `https://github.com/${getRepoPath()}/tree/main/${pathStr}`;
     
     let html = `
         <div class="problem-header">
             <div class="problem-nav">
-                <a href="#${platform}" class="nav-link">← Back</a>
+                <a href="javascript:history.back()" class="nav-link">← Back</a>
                 <a href="#" class="nav-link">🏠 Home</a>
                 ${problemUrl ? `<a href="${problemUrl}" target="_blank" class="nav-link">🔗 Problem</a>` : ''}
                 <a href="${repoUrl}" target="_blank" class="nav-link">📂 GitHub</a>
@@ -231,25 +282,22 @@ async function renderProblemView() {
         </div>
     `;
     
-    const hasSingleImage = problem.files.png.length === 1;
+    const hasSingleImage = pngFiles.length === 1;
     const hasCode = pythonCode.length > 0;
     
     if (hasSingleImage && hasCode) {
         // Side-by-side layout
         html += '<div class="content-wrapper">';
         
-        // Image side
         html += '<div class="visual-panel">';
-        const imgUrl = `${platform}/${problem.name}/${problem.files.png[0].name}`;
         html += `
             <div class="image-box">
-                <img src="${imgUrl}" alt="Solution">
+                <img src="${pathStr}/${pngFiles[0].name}" alt="Solution">
                 <div class="image-label">Solution Visualization</div>
             </div>
         `;
         html += '</div>';
         
-        // Code side
         html += '<div class="code-panel">';
         html += `
             <div class="code-box">
@@ -264,22 +312,20 @@ async function renderProblemView() {
         // Stacked layout
         html += '<div class="content-wrapper stacked">';
         
-        if (problem.files.png.length > 0) {
-            if (problem.files.png.length === 1) {
-                const imgUrl = `${platform}/${problem.name}/${problem.files.png[0].name}`;
+        if (pngFiles.length > 0) {
+            if (pngFiles.length === 1) {
                 html += `
                     <div class="image-box">
-                        <img src="${imgUrl}" alt="Solution">
+                        <img src="${pathStr}/${pngFiles[0].name}" alt="Solution">
                         <div class="image-label">Solution Visualization</div>
                     </div>
                 `;
             } else {
                 html += '<div class="multi-image-grid">';
-                problem.files.png.forEach((img, i) => {
-                    const imgUrl = `${platform}/${problem.name}/${img.name}`;
+                pngFiles.forEach((img, i) => {
                     html += `
                         <div class="image-box">
-                            <img src="${imgUrl}" alt="Step ${i + 1}">
+                            <img src="${pathStr}/${img.name}" alt="Step ${i + 1}">
                             <div class="image-label">Step ${i + 1}</div>
                         </div>
                     `;
@@ -305,30 +351,23 @@ async function renderProblemView() {
 }
 
 // Navigation
-function navigateToPlatform(platform) {
-    console.log('Navigating to platform:', platform);
-    window.location.hash = platform;
-}
-
-function navigateToProblem(platform, problem) {
-    console.log('Navigating to problem:', problem.name);
+async function navigateTo(path) {
+    console.log('Navigating to:', path);
     
-    // Check if has HTML page
-    if (problem.files.html.length > 0) {
-        const htmlFile = problem.files.html[0].name;
-        window.location.href = platform === 'vicutils' 
-            ? `${platform}/${problem.fullName}`
-            : `${platform}/${problem.name}/${htmlFile}`;
+    const pathStr = path.join('/');
+    const items = await fetchFolderContents(pathStr);
+    
+    if (!items) {
+        console.error('Could not load path:', pathStr);
         return;
     }
     
-    const encodedName = encodeURIComponent(problem.name);
-    window.location.hash = `view/${platform}/${encodedName}`;
-}
-
-function navigateToHome() {
-    console.log('Navigating to home');
-    window.location.hash = '';
+    // Check if this folder has files (is a problem)
+    if (hasFiles(items)) {
+        window.location.hash = `view/${path.map(encodeURIComponent).join('/')}`;
+    } else {
+        window.location.hash = path.map(encodeURIComponent).join('/');
+    }
 }
 
 // Utilities
@@ -342,23 +381,30 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function getDefaultEmoji(platformName) {
+    const emojis = {
+        leetcode: '💡',
+        kattis: '🎯',
+        vicutils: '🔧',
+        aoc: '🎄'
+    };
+    return emojis[platformName.toLowerCase()] || '📁';
+}
+
 // Event listeners
-document.addEventListener('click', e => {
-    if (e.target.classList.contains('platform-box') || e.target.closest('.platform-box')) {
-        const box = e.target.closest('.platform-box') || e.target;
-        const platform = box.dataset.platform;
-        if (platform) navigateToPlatform(platform);
+document.getElementById('back-button')?.addEventListener('click', () => {
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        window.location.hash = '';
     }
 });
 
-document.getElementById('back-to-platforms')?.addEventListener('click', navigateToHome);
-
-window.addEventListener('hashchange', () => {
+window.addEventListener('hashchange', async () => {
     console.log('Hash changed');
     const parsed = parseHash();
     state.currentView = parsed.view;
-    state.currentPlatform = parsed.platform;
-    state.currentProblem = parsed.problem;
+    state.currentPath = parsed.path;
     render();
 });
 
@@ -366,24 +412,20 @@ window.addEventListener('hashchange', () => {
 (async () => {
     console.log('Initializing app...');
     
-    // Check if we're on index page
     const isIndexPage = window.location.pathname.endsWith('index.html') || 
                         window.location.pathname.endsWith('/') || 
                         window.location.pathname.split('/').pop() === '';
-    
-    console.log('Is index page:', isIndexPage);
     
     if (!isIndexPage) {
         console.log('Not index page, skipping initialization');
         return;
     }
     
-    await fetchRepoData();
+    await loadPlatforms();
     
     const parsed = parseHash();
     state.currentView = parsed.view;
-    state.currentPlatform = parsed.platform;
-    state.currentProblem = parsed.problem;
+    state.currentPath = parsed.path;
     
     console.log('Initial state:', state);
     
