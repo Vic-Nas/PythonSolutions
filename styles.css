@@ -241,11 +241,16 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    cursor: pointer;
 }
 
 .nav-link:hover {
     border-color: var(--accent);
     color: var(--accent);
+}
+
+.nav-button {
+    font-family: inherit;
 }
 
 .problem-title {
