@@ -2,6 +2,7 @@
 __pycache__
 temp.py
 input.txt
+temp
 
 # Build artifacts
 build/
