@@ -4,11 +4,10 @@
 
 with open("input.txt", "r") as f:
     inp = f.readlines()
-    
 
 res1, res2 = 0, 0
 pointer = 50
-n = 0
+
 for row in inp:
     row = row.strip()
     sens = 1 if row[0] == "R" else -1
