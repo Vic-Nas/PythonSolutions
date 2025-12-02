@@ -11,7 +11,6 @@ with open("input.txt") as f:
             f.readlines()[0].strip().split(","))
     )
     
-    
 res1 = 0    
 res2 = 0
 for l, r in tqdm(inp):
@@ -22,10 +21,9 @@ for l, r in tqdm(inp):
         if s1 == s2:
             res1 += n
             
-        for p in range(1, len(s)//2 + 3):
+        for p in range(1, len(s)//2 + 1):
             if s == s[:p] * (len(s) // p):
                 res2 += n * (p != len(s))
                 break
-            
             
 print(res1, res2)
