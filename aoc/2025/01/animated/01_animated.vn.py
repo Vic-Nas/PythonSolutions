@@ -1,6 +1,3 @@
-
-
-
 import pygame
 from math import sin, cos, pi
 from pymsgbox import alert
@@ -88,4 +85,3 @@ for progress, row in enumerate(inp, 1):
 
 alert(state)
 pygame.quit()
-
