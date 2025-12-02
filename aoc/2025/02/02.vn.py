@@ -1,5 +1,5 @@
 # Advent of code Day 02
-# https://adventofcode.com/2025/day/02
+# https://adventofcode.com/2025/day/2
 # 02/12/2025
 
 from tqdm.auto import tqdm
@@ -23,7 +23,7 @@ for l, r in tqdm(inp):
             
         for p in range(1, len(s)//2 + 1):
             if s == s[:p] * (len(s) // p):
-                res2 += n * (p != len(s))
+                res2 += n
                 break
             
 print(res1, res2)
