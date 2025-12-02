@@ -17,13 +17,14 @@ radius = x0 / 1.2
 textRadius = x0 / 1.1
 fontSize = 20
 fontSize2 = int(1.5 * fontSize)
-res1, res2, res3, res4 = 0, 0, 0, 0
+res1, res2 = 0, 0
 pointer = 50
+running = True
+
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
-running = True
 font = pygame.font.Font(None, fontSize)
 font2 = pygame.font.Font(None, fontSize2)
 
