@@ -2,7 +2,6 @@
 # https://adventofcode.com/2025/day/3
 # 03/12/2025
     
-from tqdm.auto import tqdm
 from functools import cache 
     
 with open("input.txt", "r") as f:
@@ -16,16 +15,15 @@ def best(row, n, start=0):
         return 0
 
     return max(
-        best(row, n, start + 1), 
-        row[start] * 10**(n-1) + best(row, n - 1, start + 1) 
+        best(row, n, start + 1),
+        row[start] * 10**(n - 1) + best(row, n - 1, start + 1)
     )
     
-for row in tqdm(inp):
+for row in inp:
     row = tuple(map(int, row.strip()))
     res1 += best(row, 2)
     res2 += best(row, 12)
-    
-    
+
     
 print(res1, res2)       
     
