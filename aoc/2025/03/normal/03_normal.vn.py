@@ -15,7 +15,8 @@ def best(row, n, start=0):
     if len(row) - start < n or n == 0: return 0
 
     return  max(
-        best(row, n, start + 1), row[0] * 10**(n-1) + best(row[1:], start + 1, n - 1)
+        best(row, n, start + 1), 
+        row[0] * 10**(n-1) + best(row[1:], start + 1, n - 1)
     )
     
 for row in tqdm(inp):
