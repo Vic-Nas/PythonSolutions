@@ -1,9 +1,6 @@
 # Advent of code Day 04
 # https://adventofcode.com/2025/day/4
 # 04/12/2025
-    
-from tqdm.auto import tqdm
-from functools import reduce
 
 with open("input.txt") as file:
     inp = list(map(lambda row: list(row.strip()), file.readlines()))
