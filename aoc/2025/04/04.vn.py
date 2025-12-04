@@ -19,10 +19,6 @@ def adjacents(i, j):
                 pass
     return res
 
-def hash(mat):
-    step1 = reduce(lambda a, b: a + b, mat, [])
-    return reduce(lambda a, b: a + b, step1, "")
-
 PAPER = "@"
 OTHER = "."
     
