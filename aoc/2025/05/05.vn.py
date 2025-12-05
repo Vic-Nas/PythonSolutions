@@ -38,6 +38,7 @@ for ingredient in ingredients:
     for l, r in ranges:
         if l <= ingredient and ingredient <= r:
             res1 += 1
+            break
 
 res2 = 0
 for l, r in ranges:
