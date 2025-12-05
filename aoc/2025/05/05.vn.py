@@ -21,14 +21,6 @@ ingredients = list(
     )
 )
 
-res1 = 0
-for ingredient in ingredients:
-    for l, r in ranges:
-        if l <= ingredient and ingredient <= r:
-            res1 += 1
-            break
-        
-
 ranges = sorted(ranges)
 for i in range(len(ranges) -1):
     l, r = ranges[i]
@@ -36,10 +28,17 @@ for i in range(len(ranges) -1):
     if r >= l1:
         ranges[i + 1] = (l, max(r, r1))
         ranges[i] = (0, -1) 
-        # I should remove them but saying nothing
-        # is in is enough
-        
+        # I should remove it but saying
+        # it is empty is enough
+
 # They're all independant now
+
+res1 = 0
+for ingredient in ingredients:
+    for l, r in ranges:
+        if l <= ingredient and ingredient <= r:
+            res1 += 1
+
 res2 = 0
 for l, r in ranges:
     res2 += r - l + 1
