@@ -2,7 +2,7 @@ console.log('Script loaded');
 
 // Add your GitHub token here (optional - increases rate limit from 60 to 5000 requests/hour)
 // Get a token at: https://github.com/settings/tokens (no scopes needed)
-const GITHUB_TOKEN = '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'; // Example: 'ghp_xxxxxxxxxxxx'
+const GITHUB_TOKEN = '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'; // Example: 'ghp_xxxxxxxxxxxx'
 
 // State
 const state = {
