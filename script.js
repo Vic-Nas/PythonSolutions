@@ -6,8 +6,7 @@ const state = {
     folderCache: {},
     currentView: 'loading',
     currentPath: [],
-    currentItem: null,
-    isLoading: true
+    currentItem: null
 };
 
 // Utility
@@ -16,14 +15,10 @@ function getRepoPath() {
     return parts[1] && parts[2] ? `${parts[1]}/${parts[2]}` : 'Vic-Nas/PythonSolutions';
 }
 
-// Fetch folder contents with better caching
+// Fetch folder contents
 async function fetchFolderContents(path) {
-    const cacheKey = path;
-    const cached = state.folderCache[cacheKey];
-    
-    // Cache for 2 minutes
-    if (cached && cached.data && Date.now() - cached.timestamp < 120000) {
-        return cached.data;
+    if (state.folderCache[path]) {
+        return state.folderCache[path];
     }
     
     try {
@@ -31,10 +26,7 @@ async function fetchFolderContents(path) {
         if (!res.ok) return null;
         
         const items = await res.json();
-        state.folderCache[cacheKey] = {
-            data: items,
-            timestamp: Date.now()
-        };
+        state.folderCache[path] = items;
         return items;
     } catch (err) {
         console.error(`Error fetching ${path}:`, err);
@@ -56,10 +48,7 @@ function hasFiles(items) {
 async function loadPlatforms() {
     console.log('Loading platforms...');
     const rootItems = await fetchFolderContents('');
-    if (!rootItems) {
-        console.error('Failed to load root items');
-        return;
-    }
+    if (!rootItems) return;
     
     const platformFolders = rootItems.filter(item => 
         item.type === 'dir' && 
@@ -67,8 +56,8 @@ async function loadPlatforms() {
         !item.name.startsWith('.')
     );
     
-    // Build all platforms first
-    const platforms = [];
+    // Clear platforms before loading
+    state.platforms = [];
     
     for (const folder of platformFolders) {
         const platformData = {
@@ -78,25 +67,31 @@ async function loadPlatforms() {
             count: 0
         };
         
-        // Check for platform.png
-        const contents = await fetchFolderContents(folder.name);
-        if (contents) {
-            const platformImg = contents.find(f => f.name === 'platform.png');
-            if (platformImg) {
-                // Use the download_url from GitHub API
-                platformData.image = platformImg.download_url || `${folder.name}/platform.png`;
-            }
-            
-            // Count items recursively
-            platformData.count = await countItems(folder.name);
-        }
+        // Add platform immediately so it shows up
+        state.platforms.push(platformData);
         
-        platforms.push(platformData);
+        // Then load details asynchronously
+        (async () => {
+            // Check for platform.png
+            const contents = await fetchFolderContents(folder.name);
+            if (contents) {
+                const platformImg = contents.find(f => f.name === 'platform.png');
+                if (platformImg) {
+                    platformData.image = platformImg.download_url || `${folder.name}/platform.png`;
+                }
+                
+                // Count items recursively
+                platformData.count = await countItems(folder.name);
+                
+                // Re-render to show updated count
+                if (state.currentView === 'platforms') {
+                    renderPlatforms();
+                }
+            }
+        })();
     }
     
-    platforms.sort((a, b) => a.name.localeCompare(b.name));
-    state.platforms = platforms;
-    
+    state.platforms.sort((a, b) => a.name.localeCompare(b.name));
     console.log('Loaded platforms:', state.platforms);
 }
 
@@ -368,9 +363,7 @@ async function renderProblem() {
     }
     
     view.innerHTML = html;
-    if (typeof hljs !== 'undefined') {
-        hljs.highlightAll();
-    }
+    hljs.highlightAll();
 }
 
 // Navigation
@@ -467,17 +460,16 @@ window.addEventListener('hashchange', async () => {
         return;
     }
     
-    // Make goBack globally available for onclick handler
+    // Make goBack globally available
     window.goBack = goBack;
     
-    // Load platforms
-    await loadPlatforms();
+    // Start loading platforms but don't wait
+    loadPlatforms();
     
-    // Parse initial hash and render
+    // Immediately parse hash and show the requested view
     const parsed = parseHash();
     state.currentView = parsed.view;
     state.currentPath = parsed.path;
-    state.isLoading = false;
     
     console.log('Initial state:', state);
     
