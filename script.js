@@ -86,24 +86,40 @@ function hasFiles(pathParts) {
 
 // Count items in path
 function countItemsFromTree(pathParts) {
-    const items = getFolderFromTree(pathParts);
-    if (!items) return 0;
+    if (pathParts.length === 0) return 0;
     
-    let count = 0;
+    const platformName = pathParts[0];
+    const tree = state.treeData[platformName];
     
-    function countRecursive(nodes) {
-        for (const node of nodes) {
-            if (node.has_files) {
-                count++;
-            }
-            if (node.children) {
-                countRecursive(node.children);
-            }
-        }
+    if (!tree) return 0;
+    if (pathParts.length === 1) {
+        // Counting items in platform root
+        return countRecursive(tree);
     }
     
-    countRecursive(items);
-    return count;
+    // Find the specific node
+    const node = findInTree(tree, pathParts, 1);
+    if (!node) return 0;
+    
+    // If this node itself has files, it's 1 item
+    if (node.has_files) return 1;
+    
+    // Otherwise count children
+    if (!node.children) return 0;
+    return countRecursive(node.children);
+    
+    function countRecursive(nodes) {
+        let count = 0;
+        for (const n of nodes) {
+            if (n.has_files) {
+                count++;
+            }
+            if (n.children) {
+                count += countRecursive(n.children);
+            }
+        }
+        return count;
+    }
 }
 
 // Fetch file contents from GitHub (only when viewing a problem)
