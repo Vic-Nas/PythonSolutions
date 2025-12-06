@@ -167,7 +167,7 @@ function renderPlatforms() {
         card.dataset.platform = platform.name;
         
         const displayName = capitalize(platform.name);
-        const countText = platform.name === 'vicutils' ? 'scripts' : 'problems';
+        const countText = platform.name === 'vicutils' ? 'scripts' : 'solutions';
         
         card.innerHTML = `
             ${platform.image ? 
