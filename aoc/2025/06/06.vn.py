@@ -10,8 +10,8 @@ nums = inp[:-1]
 big = max(nums, key=len)
 reals = []
 
-# I needed to app something because
-# my algo needs to ops to calculate
+# I needed to add something because
+# my algo needs two ops to calculate
 # the zone. I added something I could clean
 # easily 
 ops = inp[-1].ljust(len(big), " ") + "\t"
