@@ -305,7 +305,10 @@ async function renderProblem() {
     const title = problemName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     const subtitle = state.currentPath.slice(0, -1).map(capitalize).join(' / ');
     
-    const repoUrl = `https://github.com/${getRepoPath()}/tree/main/${pathStr}`;
+    // Build GitHub file URL if we have a Python file
+    const githubFileUrl = pyFiles.length > 0 
+        ? `https://github.com/${getRepoPath()}/blob/main/${pathStr}/${pyFiles[0].name}`
+        : `https://github.com/${getRepoPath()}/tree/main/${pathStr}`;
     
     let html = `
         <div class="problem-header">
@@ -313,7 +316,7 @@ async function renderProblem() {
                 <button onclick="window.goBack()" class="nav-link nav-button">← Back</button>
                 <a href="#" class="nav-link">🏠 Home</a>
                 ${problemUrl ? `<a href="${problemUrl}" target="_blank" class="nav-link">🔗 Problem</a>` : ''}
-                <a href="${repoUrl}" target="_blank" class="nav-link">📂 GitHub</a>
+                <a href="${githubFileUrl}" target="_blank" class="nav-link">📂 GitHub File</a>
             </div>
             <h1 class="problem-title">${title}</h1>
             <p class="problem-subtitle">${subtitle}</p>
