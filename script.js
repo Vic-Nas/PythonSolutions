@@ -1,5 +1,9 @@
 console.log('Script loaded');
 
+// Add your GitHub token here (optional - increases rate limit from 60 to 5000 requests/hour)
+// Get a token at: https://github.com/settings/tokens (no scopes needed)
+const GITHUB_TOKEN = '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'; // Example: 'ghp_xxxxxxxxxxxx'
+
 // State
 const state = {
     platforms: [],
@@ -15,24 +19,25 @@ function getRepoPath() {
     return parts[1] && parts[2] ? `${parts[1]}/${parts[2]}` : 'Vic-Nas/PythonSolutions';
 }
 
-// Users can set their own token in browser console:
-// localStorage.setItem('github_token', 'ghp_your_token_here')
-const GITHUB_TOKEN = localStorage.getItem('github_token') || '';
-
-// Fetch folder contents
+// Fetch folder contents with in-memory caching
 async function fetchFolderContents(path) {
+    // Return cached data if available
     if (state.folderCache[path]) {
         return state.folderCache[path];
     }
     
     try {
-        const headers = {};
+        const headers = { 'Accept': 'application/vnd.github.v3+json' };
         if (GITHUB_TOKEN) {
             headers['Authorization'] = `token ${GITHUB_TOKEN}`;
         }
         
         const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`, { headers });
-        if (!res.ok) return null;
+        
+        if (!res.ok) {
+            console.error(`Failed to fetch ${path}: ${res.status} ${res.statusText}`);
+            return null;
+        }
         
         const items = await res.json();
         state.folderCache[path] = items;
@@ -57,7 +62,10 @@ function hasFiles(items) {
 async function loadPlatforms() {
     console.log('Loading platforms...');
     const rootItems = await fetchFolderContents('');
-    if (!rootItems) return;
+    if (!rootItems) {
+        console.error('Failed to load root directory');
+        return;
+    }
     
     const platformFolders = rootItems.filter(item => 
         item.type === 'dir' && 
@@ -65,7 +73,6 @@ async function loadPlatforms() {
         !item.name.startsWith('.')
     );
     
-    // Clear platforms before loading
     state.platforms = [];
     
     for (const folder of platformFolders) {
@@ -76,28 +83,19 @@ async function loadPlatforms() {
             count: 0
         };
         
-        // Add platform immediately so it shows up
-        state.platforms.push(platformData);
-        
-        // Then load details asynchronously
-        (async () => {
-            // Check for platform.png
-            const contents = await fetchFolderContents(folder.name);
-            if (contents) {
-                const platformImg = contents.find(f => f.name === 'platform.png');
-                if (platformImg) {
-                    platformData.image = platformImg.download_url || `${folder.name}/platform.png`;
-                }
-                
-                // Count items recursively
-                platformData.count = await countItems(folder.name);
-                
-                // Re-render to show updated count
-                if (state.currentView === 'platforms') {
-                    renderPlatforms();
-                }
+        // Check for platform.png
+        const contents = await fetchFolderContents(folder.name);
+        if (contents) {
+            const platformImg = contents.find(f => f.name === 'platform.png');
+            if (platformImg) {
+                platformData.image = platformImg.download_url || `${folder.name}/platform.png`;
             }
-        })();
+            
+            // Count items recursively
+            platformData.count = await countItems(folder.name);
+        }
+        
+        state.platforms.push(platformData);
     }
     
     state.platforms.sort((a, b) => a.name.localeCompare(b.name));
@@ -275,7 +273,12 @@ async function renderProblem() {
     
     if (pyFiles.length > 0) {
         try {
-            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${pathStr}/${pyFiles[0].name}`);
+            const headers = { 'Accept': 'application/vnd.github.v3+json' };
+            if (GITHUB_TOKEN) {
+                headers['Authorization'] = `token ${GITHUB_TOKEN}`;
+            }
+            
+            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${pathStr}/${pyFiles[0].name}`, { headers });
             if (res.ok) {
                 const data = await res.json();
                 pythonCode = atob(data.content);
@@ -372,7 +375,9 @@ async function renderProblem() {
     }
     
     view.innerHTML = html;
-    hljs.highlightAll();
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
 }
 
 // Navigation
@@ -401,22 +406,18 @@ function goBack() {
     // If we're viewing a problem, go back to its parent folder
     if (state.currentView === 'problem') {
         if (state.currentPath.length > 1) {
-            // Go to parent folder
             const parentPath = state.currentPath.slice(0, -1);
             window.location.hash = parentPath.map(encodeURIComponent).join('/');
         } else {
-            // Go to home
             window.location.hash = '';
         }
     } 
     // If we're in a folder view, go back one level
     else if (state.currentView === 'folder') {
         if (state.currentPath.length > 1) {
-            // Go to parent folder
             const parentPath = state.currentPath.slice(0, -1);
             window.location.hash = parentPath.map(encodeURIComponent).join('/');
         } else {
-            // Go to home
             window.location.hash = '';
         }
     }
@@ -472,10 +473,10 @@ window.addEventListener('hashchange', async () => {
     // Make goBack globally available
     window.goBack = goBack;
     
-    // Start loading platforms but don't wait
-    loadPlatforms();
+    // Load platforms
+    await loadPlatforms();
     
-    // Immediately parse hash and show the requested view
+    // Parse hash and render
     const parsed = parseHash();
     state.currentView = parsed.view;
     state.currentPath = parsed.path;
