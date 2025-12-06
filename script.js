@@ -3,7 +3,7 @@ console.log('Script loaded');
 // State
 const state = {
     platforms: [],
-    folderCache: {},
+    treeData: {},
     currentView: 'loading',
     currentPath: [],
     currentItem: null
@@ -15,99 +15,104 @@ function getRepoPath() {
     return parts[1] && parts[2] ? `${parts[1]}/${parts[2]}` : 'Vic-Nas/PythonSolutions';
 }
 
-// Fetch folder contents with in-memory caching
-async function fetchFolderContents(path) {
-    // Return cached data if available
-    if (state.folderCache[path]) {
-        return state.folderCache[path];
-    }
+// Load platforms from pre-generated data.json (no API calls!)
+async function loadPlatforms() {
+    console.log('Loading platforms from data.json...');
     
     try {
-        const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`);
-        
+        const res = await fetch('data.json');
         if (!res.ok) {
-            console.error(`Failed to fetch ${path}: ${res.status} ${res.statusText}`);
-            return null;
+            console.error('Failed to load data.json');
+            return;
         }
         
-        const items = await res.json();
-        state.folderCache[path] = items;
-        return items;
+        const data = await res.json();
+        state.platforms = data.platforms || [];
+        
+        // Build tree lookup for fast navigation
+        state.platforms.forEach(platform => {
+            state.treeData[platform.name] = platform.tree || [];
+        });
+        
+        console.log('Loaded platforms:', state.platforms.map(p => p.name));
+    } catch (err) {
+        console.error('Error loading data.json:', err);
+    }
+}
+
+// Find node in tree by path
+function findInTree(tree, pathParts, startIndex = 0) {
+    if (startIndex >= pathParts.length) return null;
+    
+    const currentPart = pathParts[startIndex];
+    const node = tree.find(n => n.name === currentPart);
+    
+    if (!node) return null;
+    if (startIndex === pathParts.length - 1) return node;
+    if (!node.children) return null;
+    
+    return findInTree(node.children, pathParts, startIndex + 1);
+}
+
+// Get folder contents from tree data
+function getFolderFromTree(pathParts) {
+    if (pathParts.length === 0) return null;
+    
+    const platformName = pathParts[0];
+    const tree = state.treeData[platformName];
+    
+    if (!tree) return null;
+    if (pathParts.length === 1) return tree;
+    
+    const node = findInTree(tree, pathParts, 1);
+    return node ? (node.children || []) : null;
+}
+
+// Check if path has files (is a problem)
+function hasFiles(pathParts) {
+    if (pathParts.length === 0) return false;
+    
+    const platformName = pathParts[0];
+    const tree = state.treeData[platformName];
+    
+    if (!tree) return false;
+    if (pathParts.length === 1) return false;
+    
+    const node = findInTree(tree, pathParts, 1);
+    return node ? node.has_files : false;
+}
+
+// Count items in path
+function countItemsFromTree(pathParts) {
+    const items = getFolderFromTree(pathParts);
+    if (!items) return 0;
+    
+    let count = 0;
+    
+    function countRecursive(nodes) {
+        for (const node of nodes) {
+            if (node.has_files) {
+                count++;
+            } else if (node.children) {
+                countRecursive(node.children);
+            }
+        }
+    }
+    
+    countRecursive(items);
+    return count;
+}
+
+// Fetch file contents from GitHub (only when viewing a problem)
+async function fetchFileContent(path) {
+    try {
+        const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`);
+        if (!res.ok) return null;
+        return await res.json();
     } catch (err) {
         console.error(`Error fetching ${path}:`, err);
         return null;
     }
-}
-
-// Check if folder contains files (is a "problem")
-function hasFiles(items) {
-    return items.some(item => 
-        item.type === 'file' && 
-        (item.name.endsWith('.vn.py') || 
-         item.name.endsWith('.vn.png') || 
-         item.name.endsWith('.html'))
-    );
-}
-
-// Load all platforms
-async function loadPlatforms() {
-    console.log('Loading platforms...');
-    const rootItems = await fetchFolderContents('');
-    if (!rootItems) {
-        console.error('Failed to load root directory');
-        return;
-    }
-    
-    const platformFolders = rootItems.filter(item => 
-        item.type === 'dir' && 
-        !['utils', '.git'].includes(item.name) &&
-        !item.name.startsWith('.')
-    );
-    
-    state.platforms = [];
-    
-    for (const folder of platformFolders) {
-        const platformData = {
-            name: folder.name,
-            path: folder.name,
-            image: null,
-            count: 0
-        };
-        
-        // Check for platform.png
-        const contents = await fetchFolderContents(folder.name);
-        if (contents) {
-            const platformImg = contents.find(f => f.name === 'platform.png');
-            if (platformImg) {
-                platformData.image = platformImg.download_url || `${folder.name}/platform.png`;
-            }
-            
-            // Count items recursively
-            platformData.count = await countItems(folder.name);
-        }
-        
-        state.platforms.push(platformData);
-    }
-    
-    state.platforms.sort((a, b) => a.name.localeCompare(b.name));
-    console.log('Loaded platforms:', state.platforms);
-}
-
-// Recursively count problem items
-async function countItems(path) {
-    const items = await fetchFolderContents(path);
-    if (!items) return 0;
-    
-    if (hasFiles(items)) return 1;
-    
-    const subdirs = items.filter(i => i.type === 'dir');
-    let count = 0;
-    
-    for (const dir of subdirs) {
-        count += await countItems(`${path}/${dir.name}`);
-    }
-    
-    return count;
 }
 
 // Parse hash to navigate
@@ -178,20 +183,16 @@ function renderPlatforms() {
     });
 }
 
-async function renderFolder() {
+function renderFolder() {
     const view = document.getElementById('folder-view');
     view.style.display = 'block';
     
-    const pathStr = state.currentPath.join('/');
-    const items = await fetchFolderContents(pathStr);
+    const items = getFolderFromTree(state.currentPath);
     
     if (!items) {
         view.innerHTML = '<p>Error loading folder</p>';
         return;
     }
-    
-    // Get subdirectories only
-    const subdirs = items.filter(i => i.type === 'dir');
     
     // Set title
     const titleParts = state.currentPath.map(capitalize);
@@ -205,22 +206,22 @@ async function renderFolder() {
     const container = document.getElementById('folder-cards');
     container.innerHTML = '';
     
-    for (const dir of subdirs) {
+    items.forEach(item => {
         const card = document.createElement('div');
         card.className = 'folder-card';
         
-        const fullPath = [...state.currentPath, dir.name];
-        const count = await countItems(fullPath.join('/'));
+        const fullPath = [...state.currentPath, item.name];
+        const count = countItemsFromTree(fullPath);
         
         card.innerHTML = `
-            <div class="folder-card-title">${dir.name}</div>
+            <div class="folder-card-title">${item.name}</div>
             <div class="folder-card-path">${fullPath.join('/')}</div>
             <div class="folder-card-count">${count} item${count !== 1 ? 's' : ''}</div>
         `;
         
         card.onclick = () => navigateTo(fullPath);
         container.appendChild(card);
-    }
+    });
 }
 
 async function renderProblem() {
@@ -229,7 +230,7 @@ async function renderProblem() {
     view.innerHTML = '<div style="text-align: center; padding: 3rem;">Loading...</div>';
     
     const pathStr = state.currentPath.join('/');
-    const items = await fetchFolderContents(pathStr);
+    const items = await fetchFileContent(pathStr);
     
     if (!items) {
         view.innerHTML = '<p>Error loading problem</p>';
@@ -367,19 +368,11 @@ async function renderProblem() {
 }
 
 // Navigation
-async function navigateTo(path) {
+function navigateTo(path) {
     console.log('Navigating to:', path);
     
-    const pathStr = path.join('/');
-    const items = await fetchFolderContents(pathStr);
-    
-    if (!items) {
-        console.error('Could not load path:', pathStr);
-        return;
-    }
-    
-    // Check if this folder has files (is a "problem")
-    if (hasFiles(items)) {
+    // Check if this folder has files (is a problem)
+    if (hasFiles(path)) {
         window.location.hash = `view/${path.map(encodeURIComponent).join('/')}`;
     } else {
         window.location.hash = path.map(encodeURIComponent).join('/');
@@ -435,7 +428,7 @@ function getDefaultEmoji(platformName) {
 }
 
 // Event listeners
-window.addEventListener('hashchange', async () => {
+window.addEventListener('hashchange', () => {
     console.log('Hash changed');
     const parsed = parseHash();
     state.currentView = parsed.view;
@@ -459,7 +452,7 @@ window.addEventListener('hashchange', async () => {
     // Make goBack globally available
     window.goBack = goBack;
     
-    // Load platforms
+    // Load platforms from data.json
     await loadPlatforms();
     
     // Parse hash and render

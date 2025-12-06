@@ -1,0 +1,106 @@
+name: Build Repository Data
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate data.json
+        run: |
+          python3 << 'EOF'
+          import os
+          import json
+          from pathlib import Path
+          
+          def has_files(path):
+              """Check if directory contains problem files"""
+              for item in path.iterdir():
+                  if item.is_file():
+                      name = item.name
+                      if name.endswith('.vn.py') or name.endswith('.vn.png') or name.endswith('.html'):
+                          return True
+              return False
+          
+          def count_items(path):
+              """Recursively count problem folders"""
+              if has_files(path):
+                  return 1
+              
+              count = 0
+              for item in path.iterdir():
+                  if item.is_dir() and not item.name.startswith('.'):
+                      count += count_items(item)
+              return count
+          
+          def build_tree(path, prefix=''):
+              """Build complete directory tree for navigation"""
+              items = []
+              
+              for item in sorted(path.iterdir()):
+                  if item.is_dir() and not item.name.startswith('.'):
+                      rel_path = str(item.relative_to(Path('.')))
+                      
+                      node = {
+                          'name': item.name,
+                          'path': rel_path,
+                          'type': 'dir',
+                          'has_files': has_files(item)
+                      }
+                      
+                      # Recurse into subdirectories
+                      children = build_tree(item, rel_path + '/')
+                      if children:
+                          node['children'] = children
+                      
+                      items.append(node)
+              
+              return items
+          
+          # Build platform data
+          platforms = []
+          root = Path('.')
+          
+          excluded = {'utils', '.git', '.github', '.vscode'}
+          
+          for platform_dir in sorted(root.iterdir()):
+              if platform_dir.is_dir() and platform_dir.name not in excluded and not platform_dir.name.startswith('.'):
+                  platform = {
+                      'name': platform_dir.name,
+                      'count': count_items(platform_dir),
+                      'image': f'{platform_dir.name}/platform.png' if (platform_dir / 'platform.png').exists() else None,
+                      'tree': build_tree(platform_dir)
+                  }
+                  platforms.append(platform)
+          
+          # Write data.json
+          data = {
+              'platforms': platforms,
+              'generated_at': __import__('datetime').datetime.now().isoformat()
+          }
+          
+          with open('data.json', 'w') as f:
+              json.dump(data, f, indent=2)
+          
+          print(f"✓ Generated data for {len(platforms)} platforms")
+          for p in platforms:
+              print(f"  - {p['name']}: {p['count']} items")
+          EOF
+      
+      - name: Commit and push if changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data.json
+          
+          if git diff --staged --quiet; then
+            echo "No changes to data.json"
+          else
+            git commit -m "🤖 Auto-generate data.json [skip ci]"
+            git push
+          fi
