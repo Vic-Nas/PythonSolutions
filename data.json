@@ -253,8 +253,15 @@
       "name": "vicutils",
       "count": 1,
       "image": null,
-      "tree": []
+      "tree": [
+        {
+          "name": "printBin",
+          "path": "vicutils/printBin",
+          "type": "dir",
+          "has_files": true
+        }
+      ]
     }
   ],
-  "generated_at": "2025-12-06T02:23:49.058278"
+  "generated_at": "2025-12-06T02:31:27.601536"
 }
