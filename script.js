@@ -6,7 +6,9 @@ const state = {
     folderCache: {},
     currentView: 'loading',
     currentPath: [],
-    currentItem: null
+    currentItem: null,
+    isLoading: true,
+    isInitialized: false
 };
 
 // Utility
@@ -15,18 +17,27 @@ function getRepoPath() {
     return parts[1] && parts[2] ? `${parts[1]}/${parts[2]}` : 'Vic-Nas/PythonSolutions';
 }
 
-// Fetch folder contents
+// Fetch folder contents with cache busting and validation
 async function fetchFolderContents(path) {
-    if (state.folderCache[path]) {
-        return state.folderCache[path];
+    const cacheKey = path;
+    const cached = state.folderCache[cacheKey];
+    
+    // Cache for 5 minutes
+    if (cached && Date.now() - cached.timestamp < 300000) {
+        return cached.data;
     }
     
     try {
-        const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`);
+        const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`, {
+            cache: 'no-cache' // Force fresh data from GitHub
+        });
         if (!res.ok) return null;
         
         const items = await res.json();
-        state.folderCache[path] = items;
+        state.folderCache[cacheKey] = {
+            data: items,
+            timestamp: Date.now()
+        };
         return items;
     } catch (err) {
         console.error(`Error fetching ${path}:`, err);
@@ -44,61 +55,79 @@ function hasFiles(items) {
     );
 }
 
-// Load all platforms
+// Load all platforms with proper error handling
 async function loadPlatforms() {
     console.log('Loading platforms...');
-    const rootItems = await fetchFolderContents('');
-    if (!rootItems) return;
     
-    const platformFolders = rootItems.filter(item => 
-        item.type === 'dir' && 
-        !['utils', '.git'].includes(item.name) &&
-        !item.name.startsWith('.')
-    );
-    
-    for (const folder of platformFolders) {
-        const platformData = {
-            name: folder.name,
-            path: folder.name,
-            image: null,
-            count: 0
-        };
-        
-        // Check for platform.png
-        const contents = await fetchFolderContents(folder.name);
-        if (contents) {
-            const platformImg = contents.find(f => f.name === 'platform.png');
-            if (platformImg) {
-                // Use the download_url from GitHub API
-                platformData.image = platformImg.download_url || `${folder.name}/platform.png`;
-            }
-            
-            // Count items recursively
-            platformData.count = await countItems(folder.name);
+    try {
+        const rootItems = await fetchFolderContents('');
+        if (!rootItems) {
+            console.error('Failed to load root items');
+            return;
         }
         
-        state.platforms.push(platformData);
+        const platformFolders = rootItems.filter(item => 
+            item.type === 'dir' && 
+            !['utils', '.git'].includes(item.name) &&
+            !item.name.startsWith('.')
+        );
+        
+        // Load platforms sequentially to avoid race conditions
+        const platforms = [];
+        
+        for (const folder of platformFolders) {
+            const platformData = {
+                name: folder.name,
+                path: folder.name,
+                image: null,
+                count: 0
+            };
+            
+            // Check for platform.png
+            const contents = await fetchFolderContents(folder.name);
+            if (contents) {
+                const platformImg = contents.find(f => f.name === 'platform.png');
+                if (platformImg) {
+                    platformData.image = platformImg.download_url || `${folder.name}/platform.png`;
+                }
+                
+                // Count items recursively
+                platformData.count = await countItems(folder.name);
+            }
+            
+            platforms.push(platformData);
+        }
+        
+        // Sort and assign only after all data is loaded
+        platforms.sort((a, b) => a.name.localeCompare(b.name));
+        state.platforms = platforms;
+        
+        console.log('Loaded platforms:', state.platforms);
+    } catch (err) {
+        console.error('Error loading platforms:', err);
     }
-    
-    state.platforms.sort((a, b) => a.name.localeCompare(b.name));
-    console.log('Loaded platforms:', state.platforms);
 }
 
 // Recursively count problem items
 async function countItems(path) {
-    const items = await fetchFolderContents(path);
-    if (!items) return 0;
-    
-    if (hasFiles(items)) return 1;
-    
-    const subdirs = items.filter(i => i.type === 'dir');
-    let count = 0;
-    
-    for (const dir of subdirs) {
-        count += await countItems(`${path}/${dir.name}`);
+    try {
+        const items = await fetchFolderContents(path);
+        if (!items) return 0;
+        
+        if (hasFiles(items)) return 1;
+        
+        const subdirs = items.filter(i => i.type === 'dir');
+        let count = 0;
+        
+        for (const dir of subdirs) {
+            count += await countItems(`${path}/${dir.name}`);
+        }
+        
+        return count;
+    } catch (err) {
+        console.error(`Error counting items in ${path}:`, err);
+        return 0;
     }
-    
-    return count;
 }
 
 // Parse hash to navigate
@@ -129,10 +158,14 @@ function render() {
     console.log('Rendering view:', state.currentView, 'path:', state.currentPath);
     
     const views = ['loading-screen', 'platform-selector', 'folder-view', 'problem-view'];
-    views.forEach(v => document.getElementById(v).style.display = 'none');
+    views.forEach(v => {
+        const el = document.getElementById(v);
+        if (el) el.style.display = 'none';
+    });
     
     if (state.currentView === 'loading') {
-        document.getElementById('loading-screen').style.display = 'flex';
+        const el = document.getElementById('loading-screen');
+        if (el) el.style.display = 'flex';
     } else if (state.currentView === 'platforms') {
         renderPlatforms();
     } else if (state.currentView === 'folder') {
@@ -143,9 +176,18 @@ function render() {
 }
 
 function renderPlatforms() {
-    document.getElementById('platform-selector').style.display = 'block';
+    const selector = document.getElementById('platform-selector');
     const grid = document.getElementById('platform-grid');
+    
+    if (!selector || !grid) return;
+    
+    selector.style.display = 'block';
     grid.innerHTML = '';
+    
+    if (state.platforms.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No platforms found</p>';
+        return;
+    }
     
     state.platforms.forEach(platform => {
         const card = document.createElement('button');
@@ -171,6 +213,8 @@ function renderPlatforms() {
 
 async function renderFolder() {
     const view = document.getElementById('folder-view');
+    if (!view) return;
+    
     view.style.display = 'block';
     
     const pathStr = state.currentPath.join('/');
@@ -186,14 +230,17 @@ async function renderFolder() {
     
     // Set title
     const titleParts = state.currentPath.map(capitalize);
-    document.getElementById('folder-title').textContent = titleParts.join(' / ');
+    const titleEl = document.getElementById('folder-title');
+    if (titleEl) titleEl.textContent = titleParts.join(' / ');
     
     // Setup back button
     const backBtn = document.getElementById('back-button');
-    backBtn.onclick = goBack;
+    if (backBtn) backBtn.onclick = goBack;
     
     // Render cards
     const container = document.getElementById('folder-cards');
+    if (!container) return;
+    
     container.innerHTML = '';
     
     for (const dir of subdirs) {
@@ -216,6 +263,8 @@ async function renderFolder() {
 
 async function renderProblem() {
     const view = document.getElementById('problem-view');
+    if (!view) return;
+    
     view.style.display = 'block';
     view.innerHTML = '<div style="text-align: center; padding: 3rem;">Loading...</div>';
     
@@ -255,7 +304,9 @@ async function renderProblem() {
     
     if (pyFiles.length > 0) {
         try {
-            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${pathStr}/${pyFiles[0].name}`);
+            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${pathStr}/${pyFiles[0].name}`, {
+                cache: 'no-cache'
+            });
             if (res.ok) {
                 const data = await res.json();
                 pythonCode = atob(data.content);
@@ -352,7 +403,11 @@ async function renderProblem() {
     }
     
     view.innerHTML = html;
-    hljs.highlightAll();
+    
+    // Highlight code if hljs is available
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    }
 }
 
 // Navigation
@@ -367,7 +422,7 @@ async function navigateTo(path) {
         return;
     }
     
-    // Check if this folder has files (is a problem)
+    // Check if this folder has files (is a "problem")
     if (hasFiles(items)) {
         window.location.hash = `view/${path.map(encodeURIComponent).join('/')}`;
     } else {
@@ -381,22 +436,18 @@ function goBack() {
     // If we're viewing a problem, go back to its parent folder
     if (state.currentView === 'problem') {
         if (state.currentPath.length > 1) {
-            // Go to parent folder
             const parentPath = state.currentPath.slice(0, -1);
             window.location.hash = parentPath.map(encodeURIComponent).join('/');
         } else {
-            // Go to home
             window.location.hash = '';
         }
     } 
     // If we're in a folder view, go back one level
     else if (state.currentView === 'folder') {
         if (state.currentPath.length > 1) {
-            // Go to parent folder
             const parentPath = state.currentPath.slice(0, -1);
             window.location.hash = parentPath.map(encodeURIComponent).join('/');
         } else {
-            // Go to home
             window.location.hash = '';
         }
     }
@@ -429,6 +480,12 @@ function getDefaultEmoji(platformName) {
 
 // Event listeners
 window.addEventListener('hashchange', async () => {
+    // Ignore hash changes during initial load
+    if (state.isLoading) {
+        console.log('Ignoring hash change during initial load');
+        return;
+    }
+    
     console.log('Hash changed');
     const parsed = parseHash();
     state.currentView = parsed.view;
@@ -449,8 +506,19 @@ window.addEventListener('hashchange', async () => {
         return;
     }
     
+    // Set loading state
+    state.isLoading = true;
+    state.currentView = 'loading';
+    render();
+    
+    // Load platforms completely before proceeding
     await loadPlatforms();
     
+    // Mark as initialized
+    state.isLoading = false;
+    state.isInitialized = true;
+    
+    // Now parse hash and render
     const parsed = parseHash();
     state.currentView = parsed.view;
     state.currentPath = parsed.path;
