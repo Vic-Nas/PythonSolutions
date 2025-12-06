@@ -64,6 +64,7 @@ function getFolderFromTree(pathParts) {
     if (!tree) return null;
     if (pathParts.length === 1) return tree;
     
+    // Start searching from index 1 (skip platform name)
     const node = findInTree(tree, pathParts, 1);
     return node ? (node.children || []) : null;
 }
@@ -78,6 +79,7 @@ function hasFiles(pathParts) {
     if (!tree) return false;
     if (pathParts.length === 1) return false;
     
+    // Start searching from index 1 (skip platform name)
     const node = findInTree(tree, pathParts, 1);
     return node ? node.has_files : false;
 }
@@ -93,7 +95,8 @@ function countItemsFromTree(pathParts) {
         for (const node of nodes) {
             if (node.has_files) {
                 count++;
-            } else if (node.children) {
+            }
+            if (node.children) {
                 countRecursive(node.children);
             }
         }
@@ -194,6 +197,8 @@ function renderFolder() {
         return;
     }
     
+    console.log('Rendering folder:', state.currentPath, 'Items:', items);
+    
     // Set title
     const titleParts = state.currentPath.map(capitalize);
     document.getElementById('folder-title').textContent = titleParts.join(' / ');
@@ -212,6 +217,8 @@ function renderFolder() {
         
         const fullPath = [...state.currentPath, item.name];
         const count = countItemsFromTree(fullPath);
+        
+        console.log('Card for', item.name, 'fullPath:', fullPath, 'count:', count, 'has_files:', item.has_files, 'children:', item.children);
         
         card.innerHTML = `
             <div class="folder-card-title">${item.name}</div>
