@@ -103,4 +103,5 @@ jobs:
           else
             git commit -m "🤖 Auto-generate data.json [skip ci]"
             git push
-          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
