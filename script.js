@@ -1,9 +1,5 @@
 console.log('Script loaded');
 
-// Add your GitHub token here (optional - increases rate limit from 60 to 5000 requests/hour)
-// Get a token at: https://github.com/settings/tokens (no scopes needed)
-const GITHUB_TOKEN = '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'; // Example: 'ghp_xxxxxxxxxxxx'
-
 // State
 const state = {
     platforms: [],
@@ -27,12 +23,7 @@ async function fetchFolderContents(path) {
     }
     
     try {
-        const headers = { 'Accept': 'application/vnd.github.v3+json' };
-        if (GITHUB_TOKEN) {
-            headers['Authorization'] = `token ${GITHUB_TOKEN}`;
-        }
-        
-        const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`, { headers });
+        const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`);
         
         if (!res.ok) {
             console.error(`Failed to fetch ${path}: ${res.status} ${res.statusText}`);
@@ -273,12 +264,7 @@ async function renderProblem() {
     
     if (pyFiles.length > 0) {
         try {
-            const headers = { 'Accept': 'application/vnd.github.v3+json' };
-            if (GITHUB_TOKEN) {
-                headers['Authorization'] = `token ${GITHUB_TOKEN}`;
-            }
-            
-            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${pathStr}/${pyFiles[0].name}`, { headers });
+            const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${pathStr}/${pyFiles[0].name}`);
             if (res.ok) {
                 const data = await res.json();
                 pythonCode = atob(data.content);
