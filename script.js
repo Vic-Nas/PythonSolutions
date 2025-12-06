@@ -276,9 +276,10 @@ async function renderProblem() {
         !f.name.includes('.shortest.')
     );
     
-    // Check if has HTML - if so, redirect
+    // Check if has HTML - if so, redirect to GitHub raw content
     if (htmlFiles.length > 0) {
-        window.location.href = `${pathStr}/${htmlFiles[0].name}`;
+        const rawUrl = `https://raw.githubusercontent.com/${getRepoPath()}/main/${pathStr}/${htmlFiles[0].name}`;
+        window.location.href = rawUrl;
         return;
     }
     
