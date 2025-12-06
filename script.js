@@ -15,6 +15,10 @@ function getRepoPath() {
     return parts[1] && parts[2] ? `${parts[1]}/${parts[2]}` : 'Vic-Nas/PythonSolutions';
 }
 
+// Users can set their own token in browser console:
+// localStorage.setItem('github_token', 'ghp_your_token_here')
+const GITHUB_TOKEN = localStorage.getItem('github_token') || '';
+
 // Fetch folder contents
 async function fetchFolderContents(path) {
     if (state.folderCache[path]) {
@@ -22,7 +26,12 @@ async function fetchFolderContents(path) {
     }
     
     try {
-        const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`);
+        const headers = {};
+        if (GITHUB_TOKEN) {
+            headers['Authorization'] = `token ${GITHUB_TOKEN}`;
+        }
+        
+        const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`, { headers });
         if (!res.ok) return null;
         
         const items = await res.json();
