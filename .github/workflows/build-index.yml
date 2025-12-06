@@ -52,17 +52,20 @@ jobs:
                   if item.is_dir() and not item.name.startswith('.'):
                       rel_path = str(item.relative_to(Path('.')))
                       
+                      item_has_files = has_files(item)
+                      
                       node = {
                           'name': item.name,
                           'path': rel_path,
                           'type': 'dir',
-                          'has_files': has_files(item)
+                          'has_files': item_has_files
                       }
                       
-                      # Recurse into subdirectories
-                      children = build_tree(item, rel_path + '/')
-                      if children:
-                          node['children'] = children
+                      # Only recurse if it doesn't have files (not a problem folder)
+                      if not item_has_files:
+                          children = build_tree(item, rel_path + '/')
+                          if children:
+                              node['children'] = children
                       
                       items.append(node)
               
