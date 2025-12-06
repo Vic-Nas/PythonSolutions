@@ -276,10 +276,28 @@ async function renderProblem() {
         !f.name.includes('.shortest.')
     );
     
-    // Check if has HTML - if so, redirect to GitHub raw content
+    // Check if has HTML - if so, embed it in an iframe
     if (htmlFiles.length > 0) {
         const rawUrl = `https://raw.githubusercontent.com/${getRepoPath()}/main/${pathStr}/${htmlFiles[0].name}`;
-        window.location.href = rawUrl;
+        const problemName = state.currentPath[state.currentPath.length - 1];
+        const title = problemName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        const subtitle = state.currentPath.slice(0, -1).map(capitalize).join(' / ');
+        const githubFileUrl = `https://github.com/${getRepoPath()}/blob/main/${pathStr}/${htmlFiles[0].name}`;
+        
+        view.innerHTML = `
+            <div class="problem-header">
+                <div class="problem-nav">
+                    <button onclick="window.goBack()" class="nav-link nav-button">← Back</button>
+                    <a href="#" class="nav-link">🏠 Home</a>
+                    <a href="${githubFileUrl}" target="_blank" class="nav-link">📂 GitHub File</a>
+                </div>
+                <h1 class="problem-title">${title}</h1>
+                <p class="problem-subtitle">${subtitle}</p>
+            </div>
+            <div style="width: 100%; height: calc(100vh - 200px); border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                <iframe src="${rawUrl}" style="width: 100%; height: 100%; border: none;" sandbox="allow-scripts allow-same-origin"></iframe>
+            </div>
+        `;
         return;
     }
     
