@@ -208,7 +208,7 @@ function renderFolder() {
     
     const items = getFolderFromTree(state.currentPath);
     
-    if (!items) {
+    if (!items || items.length === 0) {
         view.innerHTML = '<p>Error loading folder</p>';
         return;
     }

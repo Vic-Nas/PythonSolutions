@@ -75,25 +75,30 @@ jobs:
       
       - name: Generate documentation
         run: |
-          cd vicutils
           echo "=== Generating documentation ==="
-          for file in *.py; do
-            if [ "$file" != "__init__.py" ] && [ -f "$file" ]; then
-              echo "Processing: $file"
-              python -m pdoc --html --force --output-dir . "${file%.py}"
-              echo "Contents after pdoc:"
-              ls -la
-              # Move generated HTML
-              if [ -d "${file%.py}" ]; then
-                echo "Moving ${file%.py}/index.html to ${file%.py}.html"
-                mv "${file%.py}"/index.html "${file%.py}.html"
-                rm -rf "${file%.py}"
-              fi
+          # Find all Python files in vicutils subdirectories (not root)
+          find vicutils/ -mindepth 2 -name "*.py" -not -name "__init__.py" | while read file; do
+            echo "Processing: $file"
+            dir=$(dirname "$file")
+            basename=$(basename "$file" .py)
+            
+            cd "$dir"
+            python -m pdoc --html --force --output-dir . "$basename"
+            echo "Contents after pdoc:"
+            ls -la
+            
+            # Move generated HTML
+            if [ -d "$basename" ]; then
+              echo "Moving $basename/index.html to $basename.html"
+              mv "$basename"/index.html "$basename.html"
+              rm -rf "$basename"
             fi
+            
+            cd - > /dev/null
           done
-          cd ..
+          
           echo "=== Final vicutils contents ==="
-          ls -la vicutils/
+          find vicutils/ -type f
       
       - name: Build package
         run: |
@@ -116,7 +121,7 @@ jobs:
           
           # Add all changes
           git add .version setup.py
-          git add vicutils/*.html || echo "No HTML files to add"
+          git add vicutils/**/*.html || echo "No HTML files to add"
           
           if git diff --staged --quiet; then
             echo "No changes to commit"
