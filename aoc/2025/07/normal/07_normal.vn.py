@@ -35,7 +35,7 @@ nRows = len(inp)
 nCols = len(inp[0])
 
 # dp[i][j] = number of ways to reach position (i, j)
-dp = [[0] * nCols for _ in range(nRows)]
+dp = [[0 for _ in range(nCols)] for _ in range(nRows)]
 
 
 startCol = inp[0].index("S")
