@@ -390,6 +390,28 @@ body {
 
 
 /* ========================================
+   CODEMIRROR OVERRIDES
+   ======================================== */
+
+.CodeMirror {
+    height: 100% !important;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+}
+
+.CodeMirror-gutters {
+    background: #272822 !important;
+    border-right: 1px solid #3e3e42 !important;
+}
+
+.CodeMirror-linenumber {
+    color: #75715e !important;
+}
+
+
+
+/* ========================================
    INLINE EDITOR STYLES
    ======================================== */
 

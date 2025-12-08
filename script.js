@@ -9,7 +9,8 @@ const state = {
     currentItem: null,
     pyodide: null,
     pyodideLoading: false,
-    originalCode: ''
+    originalCode: '',
+    codeMirrorEditor: null
 };
 
 // Pyodide Management
@@ -47,7 +48,7 @@ async function initPyodide() {
     }
 }
 
-// Open Interactive Editor - Replace code section instead of modal
+// Open Interactive Editor - Replace code section
 function openEditor(pythonCode, problemTitle) {
     state.originalCode = pythonCode;
     
@@ -74,10 +75,10 @@ function openEditor(pythonCode, problemTitle) {
                 <button id="close-editor-btn-inline" class="inline-action-btn">✕ Close</button>
             </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; height: 500px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; height: 700px;">
             <div style="display: flex; flex-direction: column; border: 1px solid #3e3e42; border-radius: 4px; overflow: hidden;">
-                <div style="padding: 0.5rem; background: #2d2d30; border-bottom: 1px solid #3e3e42; font-size: 0.85rem; color: #fff;">Code</div>
-                <textarea id="code-editor-inline" spellcheck="false" style="flex: 1; background: #1e1e1e; color: #d4d4d4; border: none; padding: 1rem; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; resize: none; outline: none;">${escapeHtml(pythonCode)}</textarea>
+                <div style="padding: 0.5rem; background: #2d2d30; border-bottom: 1px solid #3e3e42; font-size: 0.85rem; color: #fff;">Code Editor</div>
+                <div id="codemirror-container" style="flex: 1; overflow: hidden;"></div>
             </div>
             <div style="display: flex; flex-direction: column; border: 1px solid #3e3e42; border-radius: 4px; overflow: hidden;">
                 <div style="padding: 0.5rem; background: #2d2d30; border-bottom: 1px solid #3e3e42; font-size: 0.85rem; color: #fff; display: flex; justify-content: space-between;">
@@ -91,9 +92,28 @@ function openEditor(pythonCode, problemTitle) {
             <div style="padding: 0.5rem; background: #2d2d30; border-bottom: 1px solid #3e3e42; font-size: 0.85rem; color: #fff;">
                 Test Input <span style="color: #888; font-weight: normal; margin-left: 0.5rem;">(available as input.txt or via input())</span>
             </div>
-            <textarea id="test-input-inline" placeholder="Paste test data here..." style="width: 100%; height: 100px; background: #1e1e1e; color: #d4d4d4; border: none; padding: 1rem; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; resize: none; outline: none;"></textarea>
+            <textarea id="test-input-inline" placeholder="Paste test data here..." style="width: 100%; height: 120px; background: #1e1e1e; color: #d4d4d4; border: none; padding: 1rem; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; resize: none; outline: none;"></textarea>
         </div>
     `;
+    
+    // Initialize CodeMirror
+    const container = document.getElementById('codemirror-container');
+    if (container && typeof CodeMirror !== 'undefined') {
+        state.codeMirrorEditor = CodeMirror(container, {
+            value: pythonCode,
+            mode: 'python',
+            theme: 'monokai',
+            lineNumbers: true,
+            indentUnit: 4,
+            tabSize: 4,
+            indentWithTabs: false,
+            lineWrapping: true,
+            autofocus: true
+        });
+        
+        // Set height
+        state.codeMirrorEditor.setSize('100%', '100%');
+    }
     
     // Attach event listeners
     document.getElementById('run-code-btn-inline')?.addEventListener('click', runCodeInline);
@@ -111,13 +131,19 @@ function openEditor(pythonCode, problemTitle) {
 
 // Close inline editor and restore original view
 function closeEditorInline() {
+    // Cleanup CodeMirror
+    if (state.codeMirrorEditor) {
+        state.codeMirrorEditor.toTextArea();
+        state.codeMirrorEditor = null;
+    }
+    
     // Reload the problem view to restore everything
     renderProblem();
 }
 
 // Run Code (inline version)
 async function runCodeInline() {
-    const code = document.getElementById('code-editor-inline').value;
+    const code = state.codeMirrorEditor ? state.codeMirrorEditor.getValue() : '';
     const testInput = document.getElementById('test-input-inline').value;
     const output = document.getElementById('code-output-inline');
     const runBtn = document.getElementById('run-code-btn-inline');
@@ -210,24 +236,11 @@ __builtins__.input = mock_input
 
 // Reset Code (inline version)
 function resetCodeInline() {
-    document.getElementById('code-editor-inline').value = state.originalCode;
+    if (state.codeMirrorEditor) {
+        state.codeMirrorEditor.setValue(state.originalCode);
+    }
     document.getElementById('code-output-inline').innerHTML = '';
     document.getElementById('test-input-inline').value = '';
-}
-
-// Download Code
-function downloadCode() {
-    const editor = document.getElementById('code-editor-inline');
-    if (!editor) return;
-    
-    const code = editor.value;
-    const blob = new Blob([code], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'solution.py';
-    a.click();
-    URL.revokeObjectURL(url);
 }
 
 // Utility
@@ -717,17 +730,6 @@ window.addEventListener('hashchange', () => {
     window.runCodeInline = runCodeInline;
     window.closeEditorInline = closeEditorInline;
     window.resetCodeInline = resetCodeInline;
-    window.downloadCode = downloadCode;
-    
-    // Setup modal event listeners (legacy - not used anymore but kept for safety)
-    const modal = document.getElementById('code-editor-modal');
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target.id === 'code-editor-modal') {
-                modal.style.display = 'none';
-            }
-        });
-    }
     
     await loadPlatforms();
     
