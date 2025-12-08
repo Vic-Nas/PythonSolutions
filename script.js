@@ -7,13 +7,13 @@ const state = {
     currentView: 'loading',
     currentPath: [],
     currentItem: null,
-    pyodide: null, // NOUVEAU
-    pyodideLoading: false, // NOUVEAU
-    originalCode: '' // NOUVEAU
+    pyodide: null,
+    pyodideLoading: false,
+    originalCode: ''
 };
 
-// NOUVEAU: Pyodide Management
-async function loadPyodide() {
+// CORRIGÉ: Pyodide Management
+async function initPyodide() {
     if (state.pyodide) return state.pyodide;
     if (state.pyodideLoading) {
         while (state.pyodideLoading) {
@@ -23,24 +23,32 @@ async function loadPyodide() {
     }
     
     state.pyodideLoading = true;
-    document.getElementById('pyodide-loading').style.display = 'flex';
+    const statusEl = document.getElementById('pyodide-loading');
+    statusEl.style.display = 'flex';
     
     try {
-        state.pyodide = await loadPyodide();
-        await state.pyodide.loadPackage(['micropip']);
+        console.log('Loading Pyodide...');
+        state.pyodide = await loadPyodide({
+            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+        });
         console.log('Pyodide loaded successfully');
-        document.getElementById('pyodide-loading').style.display = 'none';
+        
+        // Load micropip
+        await state.pyodide.loadPackage('micropip');
+        console.log('Micropip loaded');
+        
+        statusEl.style.display = 'none';
         state.pyodideLoading = false;
         return state.pyodide;
     } catch (err) {
         console.error('Failed to load Pyodide:', err);
-        document.getElementById('pyodide-loading').innerHTML = '<span style="color: red;">Failed to load Python. Please refresh.</span>';
+        statusEl.innerHTML = '<span style="color: red;">❌ Failed to load Python. Please refresh.</span>';
         state.pyodideLoading = false;
         return null;
     }
 }
 
-// NOUVEAU: Open Interactive Editor
+// Open Interactive Editor
 function openEditor(pythonCode, problemTitle) {
     state.originalCode = pythonCode;
     const modal = document.getElementById('code-editor-modal');
@@ -51,89 +59,112 @@ function openEditor(pythonCode, problemTitle) {
     editor.value = pythonCode;
     modal.style.display = 'flex';
     
-    // Load Pyodide in background
-    loadPyodide();
+    // Load Pyodide in background if not loaded
+    if (!state.pyodide && !state.pyodideLoading) {
+        initPyodide();
+    }
 }
 
-// NOUVEAU: Close Editor
+// Close Editor
 function closeEditor() {
     document.getElementById('code-editor-modal').style.display = 'none';
     document.getElementById('code-output').innerHTML = '';
 }
 
-// NOUVEAU: Run Code
+// CORRIGÉ: Run Code
 async function runCode() {
     const code = document.getElementById('code-editor').value;
     const testInput = document.getElementById('test-input').value;
     const output = document.getElementById('code-output');
     const runBtn = document.getElementById('run-code-btn');
     
-    output.innerHTML = '<div style="color: #888;">Running...</div>';
-    runBtn.disabled = true;
+    console.log('Run code clicked');
     
-    const pyodide = await loadPyodide();
+    output.innerHTML = '<div style="color: #888;">⏳ Running...</div>';
+    runBtn.disabled = true;
+    runBtn.textContent = '⏳ Running...';
+    
+    // Make sure Pyodide is loaded
+    const pyodide = await initPyodide();
     if (!pyodide) {
-        output.innerHTML = '<div style="color: red;">Python environment not loaded</div>';
+        output.innerHTML = '<div style="color: red;">❌ Python environment not loaded. Please refresh the page.</div>';
         runBtn.disabled = false;
+        runBtn.textContent = '▶️ Run Code';
         return;
     }
     
+    console.log('Pyodide ready, executing code...');
+    
     try {
-        // Redirect stdout
+        // Capture stdout
         let outputText = '';
         pyodide.setStdout({
             batched: (text) => {
-                outputText += text + '\n';
-                output.innerHTML = `<pre>${escapeHtml(outputText)}</pre>`;
+                outputText += text;
+                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4;">${escapeHtml(outputText)}</pre>`;
             }
         });
         
-        // If there's test input, make it available via input() mock
+        pyodide.setStderr({
+            batched: (text) => {
+                outputText += text;
+                output.innerHTML = `<pre style="margin: 0; color: #ff6b6b;">${escapeHtml(outputText)}</pre>`;
+            }
+        });
+        
+        // If there's test input, make it available
         if (testInput) {
             const inputLines = testInput.split('\n');
-            let inputIndex = 0;
-            pyodide.globals.set('__test_input__', inputLines);
-            const inputMock = `
-import builtins
-_input_lines = __test_input__
-_input_index = 0
+            pyodide.globals.set('__test_input_lines__', inputLines);
+            
+            const inputMockCode = `
+import sys
+from io import StringIO
+
+__test_input_lines__ = ${JSON.stringify(inputLines)}
+__test_input_index__ = [0]
 
 def mock_input(prompt=''):
-    global _input_index
     if prompt:
         print(prompt, end='')
-    if _input_index < len(_input_lines):
-        line = _input_lines[_input_index]
-        _input_index += 1
+    if __test_input_index__[0] < len(__test_input_lines__):
+        line = __test_input_lines__[__test_input_index__[0]]
+        __test_input_index__[0] += 1
         print(line)
         return line
     return ''
 
-builtins.input = mock_input
+# Replace built-in input
+__builtins__.input = mock_input
 `;
-            await pyodide.runPythonAsync(inputMock);
+            await pyodide.runPythonAsync(inputMockCode);
+            console.log('Input mock setup complete');
         }
         
-        // Run the code
+        // Run the user's code
         await pyodide.runPythonAsync(code);
+        console.log('Code execution complete');
         
         if (!outputText) {
-            output.innerHTML = '<div style="color: #4CAF50;">✓ Code executed successfully (no output)</div>';
+            output.innerHTML = '<div style="color: #4CAF50;">✅ Code executed successfully (no output)</div>';
         }
     } catch (err) {
-        output.innerHTML = `<div style="color: red;">Error:\n${escapeHtml(err.message)}</div>`;
+        console.error('Error executing code:', err);
+        output.innerHTML = `<pre style="margin: 0; color: #ff6b6b;">❌ Error:\n${escapeHtml(err.message)}</pre>`;
     }
     
     runBtn.disabled = false;
+    runBtn.textContent = '▶️ Run Code';
 }
 
-// NOUVEAU: Reset Code
+// Reset Code
 function resetCode() {
     document.getElementById('code-editor').value = state.originalCode;
     document.getElementById('code-output').innerHTML = '';
+    document.getElementById('test-input').value = '';
 }
 
-// NOUVEAU: Download Code
+// Download Code
 function downloadCode() {
     const code = document.getElementById('code-editor').value;
     const blob = new Blob([code], { type: 'text/plain' });
@@ -145,7 +176,7 @@ function downloadCode() {
     URL.revokeObjectURL(url);
 }
 
-// NOUVEAU: Clear Output
+// Clear Output
 function clearOutput() {
     document.getElementById('code-output').innerHTML = '';
 }
@@ -156,7 +187,7 @@ function getRepoPath() {
     return parts[1] && parts[2] ? `${parts[1]}/${parts[2]}` : 'Vic-Nas/PythonSolutions';
 }
 
-// Load platforms from pre-generated data.json (no API calls!)
+// Load platforms from pre-generated data.json
 async function loadPlatforms() {
     console.log('Loading platforms from data.json...');
     
@@ -170,7 +201,6 @@ async function loadPlatforms() {
         const data = await res.json();
         state.platforms = data.platforms || [];
         
-        // Build tree lookup for fast navigation
         state.platforms.forEach(platform => {
             state.treeData[platform.name] = platform.tree || [];
         });
@@ -205,7 +235,6 @@ function getFolderFromTree(pathParts) {
     if (!tree) return null;
     if (pathParts.length === 1) return tree;
     
-    // Start searching from index 1 (skip platform name)
     const node = findInTree(tree, pathParts, 1);
     return node ? (node.children || []) : null;
 }
@@ -220,7 +249,6 @@ function hasFiles(pathParts) {
     if (!tree) return false;
     if (pathParts.length === 1) return false;
     
-    // Start searching from index 1 (skip platform name)
     const node = findInTree(tree, pathParts, 1);
     return node ? node.has_files : false;
 }
@@ -234,18 +262,14 @@ function countItemsFromTree(pathParts) {
     
     if (!tree) return 0;
     if (pathParts.length === 1) {
-        // Counting items in platform root
         return countRecursive(tree);
     }
     
-    // Find the specific node
     const node = findInTree(tree, pathParts, 1);
     if (!node) return 0;
     
-    // If this node itself has files, it's 1 item
     if (node.has_files) return 1;
     
-    // Otherwise count children
     if (!node.children) return 0;
     return countRecursive(node.children);
     
@@ -263,7 +287,7 @@ function countItemsFromTree(pathParts) {
     }
 }
 
-// Fetch file contents from GitHub (only when viewing a problem)
+// Fetch file contents from GitHub
 async function fetchFileContent(path) {
     try {
         const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${path}`);
@@ -286,14 +310,12 @@ function parseHash() {
         return { view: 'platforms', path: [] };
     }
     
-    // Check if it's a problem view
     if (hash.startsWith('view/')) {
         const pathStr = hash.slice(5);
         const path = pathStr.split('/');
         return { view: 'problem', path };
     }
     
-    // Otherwise it's a folder navigation
     const path = hash.split('/');
     return { view: 'folder', path };
 }
@@ -356,15 +378,12 @@ function renderFolder() {
     
     console.log('Rendering folder:', state.currentPath, 'Items:', items);
     
-    // Set title
     const titleParts = state.currentPath.map(capitalize);
     document.getElementById('folder-title').textContent = titleParts.join(' / ');
     
-    // Setup back button
     const backBtn = document.getElementById('back-button');
     backBtn.onclick = goBack;
     
-    // Render cards
     const container = document.getElementById('folder-cards');
     container.innerHTML = '';
     
@@ -374,8 +393,6 @@ function renderFolder() {
         
         const fullPath = [...state.currentPath, item.name];
         const count = countItemsFromTree(fullPath);
-        
-        console.log('Card for', item.name, 'fullPath:', fullPath, 'count:', count, 'has_files:', item.has_files, 'children:', item.children);
         
         card.innerHTML = `
             <div class="folder-card-title">${item.name}</div>
@@ -387,9 +404,6 @@ function renderFolder() {
         container.appendChild(card);
     });
 }
-
-
-// CONTINUATION DE script.js
 
 async function renderProblem() {
     const view = document.getElementById('problem-view');
@@ -404,7 +418,6 @@ async function renderProblem() {
         return;
     }
     
-    // Separate files
     const htmlFiles = items.filter(f => f.type === 'file' && f.name.endsWith('.html'));
     const pngFiles = items.filter(f => 
         f.type === 'file' && 
@@ -420,7 +433,6 @@ async function renderProblem() {
         !f.name.includes('.shortest.')
     );
     
-    // Check if has HTML - fetch and display it
     if (htmlFiles.length > 0) {
         try {
             const res = await fetch(`https://api.github.com/repos/${getRepoPath()}/contents/${pathStr}/${htmlFiles[0].name}`);
@@ -454,7 +466,6 @@ async function renderProblem() {
         }
     }
     
-    // Fetch Python code
     let pythonCode = '';
     let problemUrl = '';
     
@@ -472,17 +483,14 @@ async function renderProblem() {
         }
     }
     
-    // Build HTML
     const problemName = state.currentPath[state.currentPath.length - 1];
     const title = problemName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     const subtitle = state.currentPath.slice(0, -1).map(capitalize).join(' / ');
     
-    // Build GitHub file URL if we have a Python file
     const githubFileUrl = pyFiles.length > 0 
         ? `https://github.com/${getRepoPath()}/blob/main/${pathStr}/${pyFiles[0].name}`
         : `https://github.com/${getRepoPath()}/tree/main/${pathStr}`;
     
-    // MODIFIÉ: Ajout du bouton "Run Code"
     let html = `
         <div class="problem-header">
             <div class="problem-nav">
@@ -501,7 +509,6 @@ async function renderProblem() {
     const hasCode = pythonCode.length > 0;
     
     if (hasSingleImage && hasCode) {
-        // Side-by-side layout
         html += '<div class="content-wrapper">';
         
         html += '<div class="visual-panel">';
@@ -524,7 +531,6 @@ async function renderProblem() {
         
         html += '</div>';
     } else {
-        // Stacked layout
         html += '<div class="content-wrapper stacked">';
         
         if (pngFiles.length > 0) {
@@ -571,7 +577,6 @@ async function renderProblem() {
 function navigateTo(path) {
     console.log('Navigating to:', path);
     
-    // Check if this folder has files (is a problem)
     if (hasFiles(path)) {
         window.location.hash = `view/${path.map(encodeURIComponent).join('/')}`;
     } else {
@@ -582,7 +587,6 @@ function navigateTo(path) {
 function goBack() {
     console.log('Going back from:', state.currentPath);
     
-    // If we're viewing a problem, go back to its parent folder
     if (state.currentView === 'problem') {
         if (state.currentPath.length > 1) {
             const parentPath = state.currentPath.slice(0, -1);
@@ -591,7 +595,6 @@ function goBack() {
             window.location.hash = '';
         }
     } 
-    // If we're in a folder view, go back one level
     else if (state.currentView === 'folder') {
         if (state.currentPath.length > 1) {
             const parentPath = state.currentPath.slice(0, -1);
@@ -600,7 +603,6 @@ function goBack() {
             window.location.hash = '';
         }
     }
-    // Otherwise go home
     else {
         window.location.hash = '';
     }
@@ -617,9 +619,8 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// NOUVEAU: Escape backticks for template literals
 function escapeBackticks(text) {
-    return text.replace(/`/g, '\\`').replace(/\$/g, '\\$');
+    return text.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/\\/g, '\\\\');
 }
 
 function getDefaultEmoji(platformName) {
@@ -641,23 +642,6 @@ window.addEventListener('hashchange', () => {
     render();
 });
 
-// NOUVEAU: Modal event listeners
-document.addEventListener('DOMContentLoaded', () => {
-    // Close modal when clicking outside
-    document.getElementById('code-editor-modal').addEventListener('click', (e) => {
-        if (e.target.id === 'code-editor-modal') {
-            closeEditor();
-        }
-    });
-    
-    // Button handlers
-    document.getElementById('close-modal-btn').addEventListener('click', closeEditor);
-    document.getElementById('run-code-btn').addEventListener('click', runCode);
-    document.getElementById('reset-code-btn').addEventListener('click', resetCode);
-    document.getElementById('download-code-btn').addEventListener('click', downloadCode);
-    document.getElementById('clear-output-btn').addEventListener('click', clearOutput);
-});
-
 // Initialize
 (async () => {
     console.log('Initializing app...');
@@ -673,12 +657,31 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Make functions globally available
     window.goBack = goBack;
-    window.openEditor = openEditor; // NOUVEAU
+    window.openEditor = openEditor;
+    window.runCode = runCode;
+    window.closeEditor = closeEditor;
+    window.resetCode = resetCode;
+    window.downloadCode = downloadCode;
+    window.clearOutput = clearOutput;
     
-    // Load platforms from data.json
+    // Setup modal event listeners
+    const modal = document.getElementById('code-editor-modal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target.id === 'code-editor-modal') {
+                closeEditor();
+            }
+        });
+        
+        document.getElementById('close-modal-btn')?.addEventListener('click', closeEditor);
+        document.getElementById('run-code-btn')?.addEventListener('click', runCode);
+        document.getElementById('reset-code-btn')?.addEventListener('click', resetCode);
+        document.getElementById('download-code-btn')?.addEventListener('click', downloadCode);
+        document.getElementById('clear-output-btn')?.addEventListener('click', clearOutput);
+    }
+    
     await loadPlatforms();
     
-    // Parse hash and render
     const parsed = parseHash();
     state.currentView = parsed.view;
     state.currentPath = parsed.path;
