@@ -390,7 +390,46 @@ body {
 
 
 /* ========================================
-   INTERACTIVE EDITOR MODAL STYLES
+   INLINE EDITOR STYLES
+   ======================================== */
+
+.inline-action-btn {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: #3e3e42;
+    color: #fff;
+}
+
+.inline-action-btn:hover {
+    background: #4e4e52;
+    transform: translateY(-1px);
+}
+
+.inline-action-btn:active {
+    transform: translateY(0);
+}
+
+.inline-action-btn.run-btn {
+    background: #4CAF50;
+}
+
+.inline-action-btn.run-btn:hover {
+    background: #45a049;
+}
+
+.inline-action-btn.run-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ========================================
+   INTERACTIVE EDITOR MODAL STYLES (Legacy - kept for compatibility)
    ======================================== */
 
 /* Modal Overlay */
@@ -554,6 +593,32 @@ body {
     resize: none;
     outline: none;
     tab-size: 4;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+}
+
+/* Better syntax-like appearance for editor */
+#code-editor::selection {
+    background: #264f78;
+}
+
+#code-editor::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+#code-editor::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+#code-editor::-webkit-scrollbar-thumb {
+    background: #424242;
+    border-radius: 5px;
+}
+
+#code-editor::-webkit-scrollbar-thumb:hover {
+    background: #4e4e4e;
 }
 
 /* Code Output */
@@ -576,20 +641,20 @@ body {
 }
 
 /* Test Input Section */
-.bottom-sections {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    height: 150px;
-}
-
 .test-input-section {
+    height: 150px;
     display: flex;
     flex-direction: column;
     background: #252526;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #3e3e42;
+}
+
+.test-input-section .section-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 #test-input {
@@ -605,78 +670,22 @@ body {
     outline: none;
 }
 
-/* File Upload Section */
-.file-upload-section {
-    display: flex;
-    flex-direction: column;
-    background: #252526;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #3e3e42;
+#test-input::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
 }
 
-.file-upload-section .section-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.upload-btn {
-    padding: 0.25rem 0.75rem;
-    background: #4CAF50;
-    border-radius: 4px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: background 0.2s ease;
-    margin-left: auto;
-}
-
-.upload-btn:hover {
-    background: #45a049;
-}
-
-.uploaded-files-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0.5rem;
+#test-input::-webkit-scrollbar-track {
     background: #1e1e1e;
 }
 
-.uploaded-file-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem;
-    background: #2d2d30;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
-    gap: 0.5rem;
+#test-input::-webkit-scrollbar-thumb {
+    background: #424242;
+    border-radius: 5px;
 }
 
-.uploaded-file-item span {
-    color: #d4d4d4;
-    font-size: 0.85rem;
-}
-
-.file-size {
-    color: #888;
-    font-size: 0.75rem !important;
-}
-
-.remove-file-btn {
-    background: #d32f2f;
-    border: none;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: background 0.2s ease;
-}
-
-.remove-file-btn:hover {
-    background: #c62828;
+#test-input::-webkit-scrollbar-thumb:hover {
+    background: #4e4e4e;
 }
 
 /* Pyodide Loading Indicator */
@@ -723,13 +732,7 @@ body {
         grid-template-columns: 1fr;
     }
     
-    .bottom-sections {
-        grid-template-columns: 1fr;
-        height: auto;
-    }
-    
-    .test-input-section,
-    .file-upload-section {
+    .test-input-section {
         height: 120px;
     }
     
@@ -755,13 +758,7 @@ body {
         font-size: 0.8rem;
     }
     
-    .bottom-sections {
-        grid-template-columns: 1fr;
-        height: auto;
-    }
-    
-    .test-input-section,
-    .file-upload-section {
+    .test-input-section {
         height: 120px;
     }
 }

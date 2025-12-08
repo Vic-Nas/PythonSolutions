@@ -9,8 +9,7 @@ const state = {
     currentItem: null,
     pyodide: null,
     pyodideLoading: false,
-    originalCode: '',
-    uploadedFiles: [] // Track uploaded files
+    originalCode: ''
 };
 
 // Pyodide Management
@@ -48,118 +47,80 @@ async function initPyodide() {
     }
 }
 
-// Handle file upload
-function handleFileUpload(event) {
-    const files = event.target.files;
-    const fileList = document.getElementById('uploaded-files-list');
-    
-    for (let file of files) {
-        // Check file size (1MB = 1048576 bytes)
-        if (file.size > 1048576) {
-            alert(`File ${file.name} is too large (max 1MB)`);
-            continue;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const content = e.target.result;
-            
-            // Store file info
-            state.uploadedFiles.push({
-                name: file.name,
-                content: content,
-                size: file.size
-            });
-            
-            // Update UI
-            const fileItem = document.createElement('div');
-            fileItem.className = 'uploaded-file-item';
-            fileItem.innerHTML = `
-                <span>📄 ${file.name}</span>
-                <span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
-                <button class="remove-file-btn" onclick="window.removeUploadedFile('${file.name}')">✕</button>
-            `;
-            fileList.appendChild(fileItem);
-            
-            // Write to Pyodide filesystem if loaded
-            if (state.pyodide) {
-                try {
-                    state.pyodide.FS.writeFile(file.name, new Uint8Array(content));
-                    console.log(`File ${file.name} written to virtual filesystem`);
-                } catch (err) {
-                    console.error('Error writing file to filesystem:', err);
-                }
-            }
-        };
-        
-        // Read as ArrayBuffer for binary support
-        reader.readAsArrayBuffer(file);
-    }
-    
-    // Reset input
-    event.target.value = '';
-}
-
-// Remove uploaded file
-function removeUploadedFile(filename) {
-    state.uploadedFiles = state.uploadedFiles.filter(f => f.name !== filename);
-    
-    // Update UI
-    const fileList = document.getElementById('uploaded-files-list');
-    const items = fileList.querySelectorAll('.uploaded-file-item');
-    items.forEach(item => {
-        if (item.textContent.includes(filename)) {
-            item.remove();
-        }
-    });
-    
-    // Remove from Pyodide filesystem
-    if (state.pyodide) {
-        try {
-            state.pyodide.FS.unlink(filename);
-            console.log(`File ${filename} removed from virtual filesystem`);
-        } catch (err) {
-            console.error('Error removing file:', err);
-        }
-    }
-}
-
-// Open Interactive Editor
+// Open Interactive Editor - Replace code section instead of modal
 function openEditor(pythonCode, problemTitle) {
     state.originalCode = pythonCode;
-    const modal = document.getElementById('code-editor-modal');
-    const editor = document.getElementById('code-editor');
-    const title = document.getElementById('modal-title');
     
-    title.textContent = `Interactive Editor - ${problemTitle}`;
-    editor.value = pythonCode;
-    modal.style.display = 'flex';
+    // Find the code box to replace
+    const codeBox = document.querySelector('.code-box');
+    if (!codeBox) return;
     
-    // Clear previous uploads
-    state.uploadedFiles = [];
-    document.getElementById('uploaded-files-list').innerHTML = '';
+    // Hide images if present
+    const visualPanel = document.querySelector('.visual-panel');
+    const imageBox = document.querySelector('.image-box');
+    const multiImageGrid = document.querySelector('.multi-image-grid');
     
-    // Load Pyodide in background if not loaded
+    if (visualPanel) visualPanel.style.display = 'none';
+    if (imageBox && !visualPanel) imageBox.style.display = 'none';
+    if (multiImageGrid) multiImageGrid.style.display = 'none';
+    
+    // Replace code box with interactive editor
+    codeBox.innerHTML = `
+        <div class="code-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Interactive Python Editor</span>
+            <div style="display: flex; gap: 0.5rem;">
+                <button id="run-code-btn-inline" class="inline-action-btn run-btn">▶️ Run</button>
+                <button id="reset-code-btn-inline" class="inline-action-btn">↺ Reset</button>
+                <button id="close-editor-btn-inline" class="inline-action-btn">✕ Close</button>
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; height: 500px;">
+            <div style="display: flex; flex-direction: column; border: 1px solid #3e3e42; border-radius: 4px; overflow: hidden;">
+                <div style="padding: 0.5rem; background: #2d2d30; border-bottom: 1px solid #3e3e42; font-size: 0.85rem; color: #fff;">Code</div>
+                <textarea id="code-editor-inline" spellcheck="false" style="flex: 1; background: #1e1e1e; color: #d4d4d4; border: none; padding: 1rem; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; resize: none; outline: none;">${escapeHtml(pythonCode)}</textarea>
+            </div>
+            <div style="display: flex; flex-direction: column; border: 1px solid #3e3e42; border-radius: 4px; overflow: hidden;">
+                <div style="padding: 0.5rem; background: #2d2d30; border-bottom: 1px solid #3e3e42; font-size: 0.85rem; color: #fff; display: flex; justify-content: space-between;">
+                    <span>Output</span>
+                    <button id="clear-output-btn-inline" style="background: #3e3e42; border: none; color: #fff; padding: 0.25rem 0.5rem; border-radius: 3px; cursor: pointer; font-size: 0.75rem;">Clear</button>
+                </div>
+                <div id="code-output-inline" style="flex: 1; background: #1e1e1e; color: #d4d4d4; padding: 1rem; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-y: auto;"></div>
+            </div>
+        </div>
+        <div style="margin-top: 1rem; border: 1px solid #3e3e42; border-radius: 4px; overflow: hidden;">
+            <div style="padding: 0.5rem; background: #2d2d30; border-bottom: 1px solid #3e3e42; font-size: 0.85rem; color: #fff;">
+                Test Input <span style="color: #888; font-weight: normal; margin-left: 0.5rem;">(available as input.txt or via input())</span>
+            </div>
+            <textarea id="test-input-inline" placeholder="Paste test data here..." style="width: 100%; height: 100px; background: #1e1e1e; color: #d4d4d4; border: none; padding: 1rem; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; resize: none; outline: none;"></textarea>
+        </div>
+    `;
+    
+    // Attach event listeners
+    document.getElementById('run-code-btn-inline')?.addEventListener('click', runCodeInline);
+    document.getElementById('reset-code-btn-inline')?.addEventListener('click', resetCodeInline);
+    document.getElementById('close-editor-btn-inline')?.addEventListener('click', closeEditorInline);
+    document.getElementById('clear-output-btn-inline')?.addEventListener('click', () => {
+        document.getElementById('code-output-inline').innerHTML = '';
+    });
+    
+    // Load Pyodide in background
     if (!state.pyodide && !state.pyodideLoading) {
         initPyodide();
     }
 }
 
-// Close Editor
-function closeEditor() {
-    document.getElementById('code-editor-modal').style.display = 'none';
-    document.getElementById('code-output').innerHTML = '';
-    document.getElementById('test-input').value = '';
-    state.uploadedFiles = [];
-    document.getElementById('uploaded-files-list').innerHTML = '';
+// Close inline editor and restore original view
+function closeEditorInline() {
+    // Reload the problem view to restore everything
+    renderProblem();
 }
 
-// Run Code
-async function runCode() {
-    const code = document.getElementById('code-editor').value;
-    const testInput = document.getElementById('test-input').value;
-    const output = document.getElementById('code-output');
-    const runBtn = document.getElementById('run-code-btn');
+// Run Code (inline version)
+async function runCodeInline() {
+    const code = document.getElementById('code-editor-inline').value;
+    const testInput = document.getElementById('test-input-inline').value;
+    const output = document.getElementById('code-output-inline');
+    const runBtn = document.getElementById('run-code-btn-inline');
     
     console.log('Run code clicked');
     
@@ -171,20 +132,20 @@ async function runCode() {
     if (!pyodide) {
         output.innerHTML = '<div style="color: red;">❌ Python environment not loaded. Please refresh the page.</div>';
         runBtn.disabled = false;
-        runBtn.textContent = '▶️ Run Code';
+        runBtn.textContent = '▶️ Run';
         return;
     }
     
     console.log('Pyodide ready, executing code...');
     
     try {
-        // Write uploaded files to virtual filesystem
-        for (let file of state.uploadedFiles) {
+        // Write test input as input.txt if provided
+        if (testInput) {
             try {
-                pyodide.FS.writeFile(file.name, new Uint8Array(file.content));
-                console.log(`File ${file.name} available for open()`);
+                pyodide.FS.writeFile('input.txt', testInput);
+                console.log('Test input written to input.txt');
             } catch (err) {
-                console.error(`Error writing ${file.name}:`, err);
+                console.error('Error writing input.txt:', err);
             }
         }
         
@@ -244,19 +205,22 @@ __builtins__.input = mock_input
     }
     
     runBtn.disabled = false;
-    runBtn.textContent = '▶️ Run Code';
+    runBtn.textContent = '▶️ Run';
 }
 
-// Reset Code
-function resetCode() {
-    document.getElementById('code-editor').value = state.originalCode;
-    document.getElementById('code-output').innerHTML = '';
-    document.getElementById('test-input').value = '';
+// Reset Code (inline version)
+function resetCodeInline() {
+    document.getElementById('code-editor-inline').value = state.originalCode;
+    document.getElementById('code-output-inline').innerHTML = '';
+    document.getElementById('test-input-inline').value = '';
 }
 
 // Download Code
 function downloadCode() {
-    const code = document.getElementById('code-editor').value;
+    const editor = document.getElementById('code-editor-inline');
+    if (!editor) return;
+    
+    const code = editor.value;
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -264,11 +228,6 @@ function downloadCode() {
     a.download = 'solution.py';
     a.click();
     URL.revokeObjectURL(url);
-}
-
-// Clear Output
-function clearOutput() {
-    document.getElementById('code-output').innerHTML = '';
 }
 
 // Utility
@@ -755,29 +714,19 @@ window.addEventListener('hashchange', () => {
     // Make functions globally available
     window.goBack = goBack;
     window.openEditor = openEditor;
-    window.runCode = runCode;
-    window.closeEditor = closeEditor;
-    window.resetCode = resetCode;
+    window.runCodeInline = runCodeInline;
+    window.closeEditorInline = closeEditorInline;
+    window.resetCodeInline = resetCodeInline;
     window.downloadCode = downloadCode;
-    window.clearOutput = clearOutput;
-    window.handleFileUpload = handleFileUpload;
-    window.removeUploadedFile = removeUploadedFile;
     
-    // Setup modal event listeners
+    // Setup modal event listeners (legacy - not used anymore but kept for safety)
     const modal = document.getElementById('code-editor-modal');
     if (modal) {
         modal.addEventListener('click', (e) => {
             if (e.target.id === 'code-editor-modal') {
-                closeEditor();
+                modal.style.display = 'none';
             }
         });
-        
-        document.getElementById('close-modal-btn')?.addEventListener('click', closeEditor);
-        document.getElementById('run-code-btn')?.addEventListener('click', runCode);
-        document.getElementById('reset-code-btn')?.addEventListener('click', resetCode);
-        document.getElementById('download-code-btn')?.addEventListener('click', downloadCode);
-        document.getElementById('clear-output-btn')?.addEventListener('click', clearOutput);
-        document.getElementById('file-upload-input')?.addEventListener('change', handleFileUpload);
     }
     
     await loadPlatforms();
