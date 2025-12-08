@@ -180,14 +180,8 @@ function openEditor(pythonCode, problemTitle) {
 
 // Close inline editor and restore original view
 function closeEditorInline() {
-    // Cleanup CodeMirror
-    if (state.codeMirrorEditor) {
-        state.codeMirrorEditor.toTextArea();
-        state.codeMirrorEditor = null;
-    }
-    
-    // Reload the problem view to restore everything
-    renderProblem();
+    // Simple solution: just reload the page
+    window.location.reload();
 }
 
 // Run Code (inline version)
