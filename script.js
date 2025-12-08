@@ -13,6 +13,31 @@ const state = {
     codeMirrorEditor: null
 };
 
+// ========================================
+// PACKAGES TO PRELOAD
+// Uncomment packages you need for your code
+// ========================================
+const PACKAGES_TO_LOAD = [
+    // Common packages
+    'numpy',
+    // 'pandas',
+    // 'matplotlib',
+    // 'scikit-learn',
+    // 'scipy',
+    
+    // Progress bars
+    'tqdm',
+    
+    // Requests/HTTP
+    // 'requests',
+    // 'beautifulsoup4',
+    
+    // Other
+    // 'pillow',
+    // 'sympy',
+    // 'networkx',
+];
+
 // Pyodide Management
 async function initPyodide() {
     if (state.pyodide) return state.pyodide;
@@ -36,6 +61,30 @@ async function initPyodide() {
         
         await state.pyodide.loadPackage('micropip');
         console.log('Micropip loaded');
+        
+        // Load pre-defined packages
+        if (PACKAGES_TO_LOAD.length > 0) {
+            statusEl.innerHTML = `<div class="loader-small"></div><span>Loading packages: ${PACKAGES_TO_LOAD.join(', ')}...</span>`;
+            
+            for (const pkg of PACKAGES_TO_LOAD) {
+                try {
+                    console.log(`Loading ${pkg}...`);
+                    await state.pyodide.loadPackage(pkg);
+                    console.log(`✓ ${pkg} loaded`);
+                } catch (err) {
+                    console.log(`${pkg} not in Pyodide, trying micropip...`);
+                    try {
+                        await state.pyodide.runPythonAsync(`
+                            import micropip
+                            await micropip.install('${pkg}')
+                        `);
+                        console.log(`✓ ${pkg} installed via micropip`);
+                    } catch (micropipErr) {
+                        console.warn(`✗ Could not load ${pkg}:`, micropipErr);
+                    }
+                }
+            }
+        }
         
         statusEl.style.display = 'none';
         state.pyodideLoading = false;
