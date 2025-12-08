@@ -9,10 +9,11 @@ const state = {
     currentItem: null,
     pyodide: null,
     pyodideLoading: false,
-    originalCode: ''
+    originalCode: '',
+    uploadedFiles: [] // Track uploaded files
 };
 
-// CORRIGÉ: Pyodide Management
+// Pyodide Management
 async function initPyodide() {
     if (state.pyodide) return state.pyodide;
     if (state.pyodideLoading) {
@@ -33,7 +34,6 @@ async function initPyodide() {
         });
         console.log('Pyodide loaded successfully');
         
-        // Load micropip
         await state.pyodide.loadPackage('micropip');
         console.log('Micropip loaded');
         
@@ -48,6 +48,82 @@ async function initPyodide() {
     }
 }
 
+// Handle file upload
+function handleFileUpload(event) {
+    const files = event.target.files;
+    const fileList = document.getElementById('uploaded-files-list');
+    
+    for (let file of files) {
+        // Check file size (1MB = 1048576 bytes)
+        if (file.size > 1048576) {
+            alert(`File ${file.name} is too large (max 1MB)`);
+            continue;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const content = e.target.result;
+            
+            // Store file info
+            state.uploadedFiles.push({
+                name: file.name,
+                content: content,
+                size: file.size
+            });
+            
+            // Update UI
+            const fileItem = document.createElement('div');
+            fileItem.className = 'uploaded-file-item';
+            fileItem.innerHTML = `
+                <span>📄 ${file.name}</span>
+                <span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
+                <button class="remove-file-btn" onclick="window.removeUploadedFile('${file.name}')">✕</button>
+            `;
+            fileList.appendChild(fileItem);
+            
+            // Write to Pyodide filesystem if loaded
+            if (state.pyodide) {
+                try {
+                    state.pyodide.FS.writeFile(file.name, new Uint8Array(content));
+                    console.log(`File ${file.name} written to virtual filesystem`);
+                } catch (err) {
+                    console.error('Error writing file to filesystem:', err);
+                }
+            }
+        };
+        
+        // Read as ArrayBuffer for binary support
+        reader.readAsArrayBuffer(file);
+    }
+    
+    // Reset input
+    event.target.value = '';
+}
+
+// Remove uploaded file
+function removeUploadedFile(filename) {
+    state.uploadedFiles = state.uploadedFiles.filter(f => f.name !== filename);
+    
+    // Update UI
+    const fileList = document.getElementById('uploaded-files-list');
+    const items = fileList.querySelectorAll('.uploaded-file-item');
+    items.forEach(item => {
+        if (item.textContent.includes(filename)) {
+            item.remove();
+        }
+    });
+    
+    // Remove from Pyodide filesystem
+    if (state.pyodide) {
+        try {
+            state.pyodide.FS.unlink(filename);
+            console.log(`File ${filename} removed from virtual filesystem`);
+        } catch (err) {
+            console.error('Error removing file:', err);
+        }
+    }
+}
+
 // Open Interactive Editor
 function openEditor(pythonCode, problemTitle) {
     state.originalCode = pythonCode;
@@ -59,6 +135,10 @@ function openEditor(pythonCode, problemTitle) {
     editor.value = pythonCode;
     modal.style.display = 'flex';
     
+    // Clear previous uploads
+    state.uploadedFiles = [];
+    document.getElementById('uploaded-files-list').innerHTML = '';
+    
     // Load Pyodide in background if not loaded
     if (!state.pyodide && !state.pyodideLoading) {
         initPyodide();
@@ -69,9 +149,12 @@ function openEditor(pythonCode, problemTitle) {
 function closeEditor() {
     document.getElementById('code-editor-modal').style.display = 'none';
     document.getElementById('code-output').innerHTML = '';
+    document.getElementById('test-input').value = '';
+    state.uploadedFiles = [];
+    document.getElementById('uploaded-files-list').innerHTML = '';
 }
 
-// CORRIGÉ: Run Code
+// Run Code
 async function runCode() {
     const code = document.getElementById('code-editor').value;
     const testInput = document.getElementById('test-input').value;
@@ -84,7 +167,6 @@ async function runCode() {
     runBtn.disabled = true;
     runBtn.textContent = '⏳ Running...';
     
-    // Make sure Pyodide is loaded
     const pyodide = await initPyodide();
     if (!pyodide) {
         output.innerHTML = '<div style="color: red;">❌ Python environment not loaded. Please refresh the page.</div>';
@@ -96,6 +178,16 @@ async function runCode() {
     console.log('Pyodide ready, executing code...');
     
     try {
+        // Write uploaded files to virtual filesystem
+        for (let file of state.uploadedFiles) {
+            try {
+                pyodide.FS.writeFile(file.name, new Uint8Array(file.content));
+                console.log(`File ${file.name} available for open()`);
+            } catch (err) {
+                console.error(`Error writing ${file.name}:`, err);
+            }
+        }
+        
         // Capture stdout
         let outputText = '';
         pyodide.setStdout({
@@ -112,14 +204,13 @@ async function runCode() {
             }
         });
         
-        // If there's test input, make it available
+        // Setup input() mock if test input provided
         if (testInput) {
             const inputLines = testInput.split('\n');
             pyodide.globals.set('__test_input_lines__', inputLines);
             
             const inputMockCode = `
 import sys
-from io import StringIO
 
 __test_input_lines__ = ${JSON.stringify(inputLines)}
 __test_input_index__ = [0]
@@ -134,7 +225,6 @@ def mock_input(prompt=''):
         return line
     return ''
 
-# Replace built-in input
 __builtins__.input = mock_input
 `;
             await pyodide.runPythonAsync(inputMockCode);
@@ -491,6 +581,7 @@ async function renderProblem() {
         ? `https://github.com/${getRepoPath()}/blob/main/${pathStr}/${pyFiles[0].name}`
         : `https://github.com/${getRepoPath()}/tree/main/${pathStr}`;
     
+    const runButtonId = `run-btn-${Date.now()}`;
     let html = `
         <div class="problem-header">
             <div class="problem-nav">
@@ -498,7 +589,7 @@ async function renderProblem() {
                 <a href="#" class="nav-link">🏠 Home</a>
                 ${problemUrl ? `<a href="${problemUrl}" target="_blank" class="nav-link">🔗 Problem</a>` : ''}
                 <a href="${githubFileUrl}" target="_blank" class="nav-link">📂 GitHub File</a>
-                ${pythonCode ? `<button onclick="window.openEditor(\`${escapeBackticks(pythonCode)}\`, '${escapeHtml(title)}')" class="nav-link nav-button run-code-nav">▶️ Run Code</button>` : ''}
+                ${pythonCode ? `<button id="${runButtonId}" class="nav-link nav-button run-code-nav">▶️ Run Code</button>` : ''}
             </div>
             <h1 class="problem-title">${title}</h1>
             <p class="problem-subtitle">${subtitle}</p>
@@ -568,6 +659,16 @@ async function renderProblem() {
     }
     
     view.innerHTML = html;
+    
+    if (pythonCode) {
+        const runBtn = document.getElementById(runButtonId);
+        if (runBtn) {
+            runBtn.addEventListener('click', () => {
+                openEditor(pythonCode, title);
+            });
+        }
+    }
+    
     if (typeof hljs !== 'undefined') {
         hljs.highlightAll();
     }
@@ -619,10 +720,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function escapeBackticks(text) {
-    return text.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/\\/g, '\\\\');
-}
-
 function getDefaultEmoji(platformName) {
     const emojis = {
         leetcode: '💡',
@@ -663,6 +760,8 @@ window.addEventListener('hashchange', () => {
     window.resetCode = resetCode;
     window.downloadCode = downloadCode;
     window.clearOutput = clearOutput;
+    window.handleFileUpload = handleFileUpload;
+    window.removeUploadedFile = removeUploadedFile;
     
     // Setup modal event listeners
     const modal = document.getElementById('code-editor-modal');
@@ -678,6 +777,7 @@ window.addEventListener('hashchange', () => {
         document.getElementById('reset-code-btn')?.addEventListener('click', resetCode);
         document.getElementById('download-code-btn')?.addEventListener('click', downloadCode);
         document.getElementById('clear-output-btn')?.addEventListener('click', clearOutput);
+        document.getElementById('file-upload-input')?.addEventListener('change', handleFileUpload);
     }
     
     await loadPlatforms();

@@ -576,8 +576,14 @@ body {
 }
 
 /* Test Input Section */
-.test-input-section {
+.bottom-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
     height: 150px;
+}
+
+.test-input-section {
     display: flex;
     flex-direction: column;
     background: #252526;
@@ -597,6 +603,80 @@ body {
     line-height: 1.6;
     resize: none;
     outline: none;
+}
+
+/* File Upload Section */
+.file-upload-section {
+    display: flex;
+    flex-direction: column;
+    background: #252526;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #3e3e42;
+}
+
+.file-upload-section .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.upload-btn {
+    padding: 0.25rem 0.75rem;
+    background: #4CAF50;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.2s ease;
+    margin-left: auto;
+}
+
+.upload-btn:hover {
+    background: #45a049;
+}
+
+.uploaded-files-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: #1e1e1e;
+}
+
+.uploaded-file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: #2d2d30;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.uploaded-file-item span {
+    color: #d4d4d4;
+    font-size: 0.85rem;
+}
+
+.file-size {
+    color: #888;
+    font-size: 0.75rem !important;
+}
+
+.remove-file-btn {
+    background: #d32f2f;
+    border: none;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.2s ease;
+}
+
+.remove-file-btn:hover {
+    background: #c62828;
 }
 
 /* Pyodide Loading Indicator */
@@ -643,6 +723,16 @@ body {
         grid-template-columns: 1fr;
     }
     
+    .bottom-sections {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .test-input-section,
+    .file-upload-section {
+        height: 120px;
+    }
+    
     .modal-content {
         height: 95vh;
     }
@@ -665,7 +755,13 @@ body {
         font-size: 0.8rem;
     }
     
-    .test-input-section {
+    .bottom-sections {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .test-input-section,
+    .file-upload-section {
         height: 120px;
     }
 }
