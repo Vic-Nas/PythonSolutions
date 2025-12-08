@@ -387,3 +387,285 @@ body {
         height: 100px;
     }
 }
+
+
+/* ========================================
+   INTERACTIVE EDITOR MODAL STYLES
+   ======================================== */
+
+/* Modal Overlay */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+/* Modal Content */
+.modal-content {
+    background: #1e1e1e;
+    border-radius: 12px;
+    width: 95%;
+    max-width: 1400px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* Modal Header */
+.modal-header {
+    background: #252526;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.modal-header h2 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: #3e3e42;
+    color: #fff;
+}
+
+.action-btn:hover {
+    background: #4e4e52;
+    transform: translateY(-1px);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+.run-btn {
+    background: #4CAF50;
+}
+
+.run-btn:hover {
+    background: #45a049;
+}
+
+.run-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.close-btn {
+    background: #d32f2f;
+}
+
+.close-btn:hover {
+    background: #c62828;
+}
+
+/* Modal Body */
+.modal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+/* Editor Container */
+.editor-container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    min-height: 0;
+}
+
+.editor-section {
+    display: flex;
+    flex-direction: column;
+    background: #252526;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #3e3e42;
+}
+
+.section-header {
+    padding: 0.75rem 1rem;
+    background: #2d2d30;
+    border-bottom: 1px solid #3e3e42;
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.clear-btn {
+    padding: 0.25rem 0.75rem;
+    background: #3e3e42;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.2s ease;
+}
+
+.clear-btn:hover {
+    background: #4e4e52;
+}
+
+/* Code Editor Textarea */
+#code-editor {
+    flex: 1;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    border: none;
+    padding: 1rem;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    tab-size: 4;
+}
+
+/* Code Output */
+#code-output {
+    flex: 1;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1rem;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#code-output pre {
+    margin: 0;
+    color: #d4d4d4;
+}
+
+/* Test Input Section */
+.test-input-section {
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    background: #252526;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #3e3e42;
+}
+
+#test-input {
+    flex: 1;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    border: none;
+    padding: 1rem;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+}
+
+/* Pyodide Loading Indicator */
+.pyodide-status {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #2d2d30;
+    border-top: 1px solid #3e3e42;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.loader-small {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #3e3e42;
+    border-top: 3px solid #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Run Code Button in Navigation */
+.run-code-nav {
+    background: #4CAF50 !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+.run-code-nav:hover {
+    background: #45a049 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .editor-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        height: 95vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .modal-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .action-btn {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .test-input-section {
+        height: 120px;
+    }
+}

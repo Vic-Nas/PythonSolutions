@@ -6,8 +6,149 @@ const state = {
     treeData: {},
     currentView: 'loading',
     currentPath: [],
-    currentItem: null
+    currentItem: null,
+    pyodide: null, // NOUVEAU
+    pyodideLoading: false, // NOUVEAU
+    originalCode: '' // NOUVEAU
 };
+
+// NOUVEAU: Pyodide Management
+async function loadPyodide() {
+    if (state.pyodide) return state.pyodide;
+    if (state.pyodideLoading) {
+        while (state.pyodideLoading) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        return state.pyodide;
+    }
+    
+    state.pyodideLoading = true;
+    document.getElementById('pyodide-loading').style.display = 'flex';
+    
+    try {
+        state.pyodide = await loadPyodide();
+        await state.pyodide.loadPackage(['micropip']);
+        console.log('Pyodide loaded successfully');
+        document.getElementById('pyodide-loading').style.display = 'none';
+        state.pyodideLoading = false;
+        return state.pyodide;
+    } catch (err) {
+        console.error('Failed to load Pyodide:', err);
+        document.getElementById('pyodide-loading').innerHTML = '<span style="color: red;">Failed to load Python. Please refresh.</span>';
+        state.pyodideLoading = false;
+        return null;
+    }
+}
+
+// NOUVEAU: Open Interactive Editor
+function openEditor(pythonCode, problemTitle) {
+    state.originalCode = pythonCode;
+    const modal = document.getElementById('code-editor-modal');
+    const editor = document.getElementById('code-editor');
+    const title = document.getElementById('modal-title');
+    
+    title.textContent = `Interactive Editor - ${problemTitle}`;
+    editor.value = pythonCode;
+    modal.style.display = 'flex';
+    
+    // Load Pyodide in background
+    loadPyodide();
+}
+
+// NOUVEAU: Close Editor
+function closeEditor() {
+    document.getElementById('code-editor-modal').style.display = 'none';
+    document.getElementById('code-output').innerHTML = '';
+}
+
+// NOUVEAU: Run Code
+async function runCode() {
+    const code = document.getElementById('code-editor').value;
+    const testInput = document.getElementById('test-input').value;
+    const output = document.getElementById('code-output');
+    const runBtn = document.getElementById('run-code-btn');
+    
+    output.innerHTML = '<div style="color: #888;">Running...</div>';
+    runBtn.disabled = true;
+    
+    const pyodide = await loadPyodide();
+    if (!pyodide) {
+        output.innerHTML = '<div style="color: red;">Python environment not loaded</div>';
+        runBtn.disabled = false;
+        return;
+    }
+    
+    try {
+        // Redirect stdout
+        let outputText = '';
+        pyodide.setStdout({
+            batched: (text) => {
+                outputText += text + '\n';
+                output.innerHTML = `<pre>${escapeHtml(outputText)}</pre>`;
+            }
+        });
+        
+        // If there's test input, make it available via input() mock
+        if (testInput) {
+            const inputLines = testInput.split('\n');
+            let inputIndex = 0;
+            pyodide.globals.set('__test_input__', inputLines);
+            const inputMock = `
+import builtins
+_input_lines = __test_input__
+_input_index = 0
+
+def mock_input(prompt=''):
+    global _input_index
+    if prompt:
+        print(prompt, end='')
+    if _input_index < len(_input_lines):
+        line = _input_lines[_input_index]
+        _input_index += 1
+        print(line)
+        return line
+    return ''
+
+builtins.input = mock_input
+`;
+            await pyodide.runPythonAsync(inputMock);
+        }
+        
+        // Run the code
+        await pyodide.runPythonAsync(code);
+        
+        if (!outputText) {
+            output.innerHTML = '<div style="color: #4CAF50;">✓ Code executed successfully (no output)</div>';
+        }
+    } catch (err) {
+        output.innerHTML = `<div style="color: red;">Error:\n${escapeHtml(err.message)}</div>`;
+    }
+    
+    runBtn.disabled = false;
+}
+
+// NOUVEAU: Reset Code
+function resetCode() {
+    document.getElementById('code-editor').value = state.originalCode;
+    document.getElementById('code-output').innerHTML = '';
+}
+
+// NOUVEAU: Download Code
+function downloadCode() {
+    const code = document.getElementById('code-editor').value;
+    const blob = new Blob([code], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'solution.py';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// NOUVEAU: Clear Output
+function clearOutput() {
+    document.getElementById('code-output').innerHTML = '';
+}
 
 // Utility
 function getRepoPath() {
@@ -247,6 +388,9 @@ function renderFolder() {
     });
 }
 
+
+// CONTINUATION DE script.js
+
 async function renderProblem() {
     const view = document.getElementById('problem-view');
     view.style.display = 'block';
@@ -338,6 +482,7 @@ async function renderProblem() {
         ? `https://github.com/${getRepoPath()}/blob/main/${pathStr}/${pyFiles[0].name}`
         : `https://github.com/${getRepoPath()}/tree/main/${pathStr}`;
     
+    // MODIFIÉ: Ajout du bouton "Run Code"
     let html = `
         <div class="problem-header">
             <div class="problem-nav">
@@ -345,6 +490,7 @@ async function renderProblem() {
                 <a href="#" class="nav-link">🏠 Home</a>
                 ${problemUrl ? `<a href="${problemUrl}" target="_blank" class="nav-link">🔗 Problem</a>` : ''}
                 <a href="${githubFileUrl}" target="_blank" class="nav-link">📂 GitHub File</a>
+                ${pythonCode ? `<button onclick="window.openEditor(\`${escapeBackticks(pythonCode)}\`, '${escapeHtml(title)}')" class="nav-link nav-button run-code-nav">▶️ Run Code</button>` : ''}
             </div>
             <h1 class="problem-title">${title}</h1>
             <p class="problem-subtitle">${subtitle}</p>
@@ -471,6 +617,11 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// NOUVEAU: Escape backticks for template literals
+function escapeBackticks(text) {
+    return text.replace(/`/g, '\\`').replace(/\$/g, '\\$');
+}
+
 function getDefaultEmoji(platformName) {
     const emojis = {
         leetcode: '💡',
@@ -490,6 +641,23 @@ window.addEventListener('hashchange', () => {
     render();
 });
 
+// NOUVEAU: Modal event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    // Close modal when clicking outside
+    document.getElementById('code-editor-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'code-editor-modal') {
+            closeEditor();
+        }
+    });
+    
+    // Button handlers
+    document.getElementById('close-modal-btn').addEventListener('click', closeEditor);
+    document.getElementById('run-code-btn').addEventListener('click', runCode);
+    document.getElementById('reset-code-btn').addEventListener('click', resetCode);
+    document.getElementById('download-code-btn').addEventListener('click', downloadCode);
+    document.getElementById('clear-output-btn').addEventListener('click', clearOutput);
+});
+
 // Initialize
 (async () => {
     console.log('Initializing app...');
@@ -503,8 +671,9 @@ window.addEventListener('hashchange', () => {
         return;
     }
     
-    // Make goBack globally available
+    // Make functions globally available
     window.goBack = goBack;
+    window.openEditor = openEditor; // NOUVEAU
     
     // Load platforms from data.json
     await loadPlatforms();

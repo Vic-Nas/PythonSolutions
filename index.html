@@ -34,6 +34,46 @@
         <div id="problem-view" style="display: none;"></div>
     </main>
 
+    <!-- NOUVEAU: Modal pour l'éditeur interactif -->
+    <div id="code-editor-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Interactive Python Editor</h2>
+                <div class="modal-actions">
+                    <button id="run-code-btn" class="action-btn run-btn">▶️ Run Code</button>
+                    <button id="reset-code-btn" class="action-btn">↺ Reset</button>
+                    <button id="download-code-btn" class="action-btn">⬇️ Download</button>
+                    <button id="close-modal-btn" class="action-btn close-btn">✕ Close</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="editor-container">
+                    <div class="editor-section">
+                        <div class="section-header">Python Code</div>
+                        <textarea id="code-editor" spellcheck="false"></textarea>
+                    </div>
+                    <div class="editor-section">
+                        <div class="section-header">
+                            <span>Console Output</span>
+                            <button id="clear-output-btn" class="clear-btn">Clear</button>
+                        </div>
+                        <div id="code-output"></div>
+                    </div>
+                </div>
+                <div class="test-input-section">
+                    <div class="section-header">Test Input (optional - paste test data here)</div>
+                    <textarea id="test-input" placeholder="Paste your test input here..."></textarea>
+                </div>
+            </div>
+            <div id="pyodide-loading" class="pyodide-status">
+                <div class="loader-small"></div>
+                <span>Loading Python environment...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODIFIÉ: Ajout de Pyodide -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="script.js"></script>
 </body>
