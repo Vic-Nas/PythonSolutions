@@ -218,26 +218,43 @@ async function runCodeInline() {
             }
         }
         
-        // Capture stdout
+        // Capture stdout with proper handling for carriage returns (for tqdm)
         let outputText = '';
+        let currentLine = '';
+        
         pyodide.setStdout({
             batched: (text) => {
-                outputText += text;
-                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4;">${escapeHtml(outputText)}</pre>`;
+                // Process character by character to handle \r correctly
+                for (let char of text) {
+                    if (char === '\r') {
+                        // Carriage return - reset current line (for tqdm progress bars)
+                        currentLine = '';
+                    } else if (char === '\n') {
+                        // Newline - commit current line to output
+                        outputText += currentLine + '\n';
+                        currentLine = '';
+                    } else {
+                        // Regular character - add to current line
+                        currentLine += char;
+                    }
+                }
+                
+                // Display accumulated output plus current line
+                const displayText = outputText + currentLine;
+                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(displayText)}</pre>`;
             }
         });
         
         pyodide.setStderr({
             batched: (text) => {
                 outputText += text;
-                output.innerHTML = `<pre style="margin: 0; color: #ff6b6b;">${escapeHtml(outputText)}</pre>`;
+                output.innerHTML = `<pre style="margin: 0; color: #ff6b6b; white-space: pre-wrap;">${escapeHtml(outputText)}</pre>`;
             }
         });
         
-        // Setup input() mock if test input provided
+        // Setup input() mock if test input provided (without echoing)
         if (testInput) {
             const inputLines = testInput.split('\n');
-            pyodide.globals.set('__test_input_lines__', inputLines);
             
             const inputMockCode = `
 import sys
@@ -247,11 +264,11 @@ __test_input_index__ = [0]
 
 def mock_input(prompt=''):
     if prompt:
-        print(prompt, end='')
+        sys.stdout.write(prompt)
+        sys.stdout.flush()
     if __test_input_index__[0] < len(__test_input_lines__):
         line = __test_input_lines__[__test_input_index__[0]]
         __test_input_index__[0] += 1
-        print(line)
         return line
     return ''
 
@@ -265,12 +282,18 @@ __builtins__.input = mock_input
         await pyodide.runPythonAsync(code);
         console.log('Code execution complete');
         
-        if (!outputText) {
+        // Commit any remaining content in currentLine
+        if (currentLine) {
+            outputText += currentLine + '\n';
+            output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(outputText)}</pre>`;
+        }
+        
+        if (!outputText && !currentLine) {
             output.innerHTML = '<div style="color: #4CAF50;">✅ Code executed successfully (no output)</div>';
         }
     } catch (err) {
         console.error('Error executing code:', err);
-        output.innerHTML = `<pre style="margin: 0; color: #ff6b6b;">❌ Error:\n${escapeHtml(err.message)}</pre>`;
+        output.innerHTML = `<pre style="margin: 0; color: #ff6b6b; white-space: pre-wrap;">❌ Error:\n${escapeHtml(err.message)}</pre>`;
     }
     
     runBtn.disabled = false;
