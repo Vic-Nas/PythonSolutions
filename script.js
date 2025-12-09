@@ -223,11 +223,18 @@ async function runCodeInline() {
         
         pyodide.setStdout({
             batched: (text) => {
+                console.log('=== STDOUT BATCH ===');
+                console.log('Raw text:', JSON.stringify(text));
+                
                 fullOutput += text;
+                
+                console.log('Full output so far:', JSON.stringify(fullOutput));
                 
                 // First, add \n after any \r that isn't already followed by \n
                 // This ensures tqdm completion moves to new line
                 let fixed = fullOutput.replace(/\r(?!\n)/g, '\r\n');
+                
+                console.log('After fixing \\r:', JSON.stringify(fixed));
                 
                 // Now split by \n and process
                 const lines = fixed.split('\n');
@@ -248,6 +255,8 @@ async function runCodeInline() {
                         }
                     }
                 }
+                
+                console.log('Clean lines:', cleanLines);
                 
                 output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(cleanLines.join('\n'))}</pre>`;
             }
