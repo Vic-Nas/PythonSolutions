@@ -231,10 +231,13 @@ async function runCodeInline() {
                 console.log('Full output so far:', JSON.stringify(fullOutput));
                 
                 // First, add \n after any \r that isn't already followed by \n
-                // This ensures tqdm completion moves to new line
                 let fixed = fullOutput.replace(/\r(?!\n)/g, '\r\n');
                 
-                console.log('After fixing \\r:', JSON.stringify(fixed));
+                // Special fix: detect end of tqdm (pattern like "it/s]") and add newline if not present
+                // This ensures content after tqdm appears on new line
+                fixed = fixed.replace(/(\d+\.\d+it\/s\])(?!\n)/g, '$1\n');
+                
+                console.log('After fixing \\r and tqdm:', JSON.stringify(fixed));
                 
                 // Now split by \n and process
                 const lines = fixed.split('\n');
