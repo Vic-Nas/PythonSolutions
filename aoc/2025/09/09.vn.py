@@ -53,12 +53,13 @@ with open("input.txt") as file:
 from tqdm.auto import tqdm
 from functools import cache
 from itertools import combinations
+import matplotlib.pyplot as plt
 
 
 xs = sorted(set(x for x, y in inp))
 ys = sorted(set(y for x, y in inp))
 
-
+original = inp
 inp = [(xs.index(x), ys.index(y)) for x, y in inp]
 
 edges = []
@@ -121,3 +122,16 @@ for (x1, y1), (x2, y2) in tqdm(list(combinations(inp, 2))):
         res2 = max(res2, area)
 
 print(res1, res2)
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+
+for i, (x, y) in enumerate(original):
+    x2, y2 = original[(i+1) % len(original)]
+    ax1.plot([x, x2], [y, y2], 'b-', marker='o')
+
+for i, (x, y) in enumerate(inp):
+    x2, y2 = inp[(i+1) % len(inp)]
+    ax2.plot([x, x2], [y, y2], 'r-', marker='o')
+
+
+plt.show()

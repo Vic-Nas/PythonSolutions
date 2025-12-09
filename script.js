@@ -21,7 +21,7 @@ const PACKAGES_TO_LOAD = [
     // Common packages
     'numpy',
     // 'pandas',
-    // 'matplotlib',
+    'matplotlib',
     // 'scikit-learn',
     // 'scipy',
     
