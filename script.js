@@ -218,48 +218,37 @@ async function runCodeInline() {
             }
         }
         
-        // Capture stdout - only show final state (filter tqdm intermediate updates)
+        // Capture stdout - filter tqdm and ensure newlines
         let fullOutput = '';
         
         pyodide.setStdout({
             batched: (text) => {
                 fullOutput += text;
                 
-                // Process the output: split by \n to get actual lines
+                // Split by actual newlines
                 const lines = fullOutput.split('\n');
-                const processedLines = [];
+                const cleanLines = [];
                 
-                // For each line except the last (incomplete one)
-                for (let i = 0; i < lines.length - 1; i++) {
+                for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
-                    // If line contains \r, only take the text after the last \r
-                    // This gives us the final state of tqdm progress bars
+                    
+                    // If this line has \r (tqdm), take only the last part after final \r
                     if (line.includes('\r')) {
                         const parts = line.split('\r');
-                        const lastPart = parts[parts.length - 1];
-                        if (lastPart.trim()) {
-                            processedLines.push(lastPart);
+                        const lastPart = parts[parts.length - 1].trim();
+                        if (lastPart) {
+                            cleanLines.push(lastPart);
                         }
-                    } else if (line.trim()) {
-                        processedLines.push(line);
+                    } else {
+                        const trimmed = line.trim();
+                        if (trimmed) {
+                            cleanLines.push(trimmed);
+                        }
                     }
                 }
                 
-                // Handle the last incomplete line
-                const lastLine = lines[lines.length - 1];
-                if (lastLine) {
-                    if (lastLine.includes('\r')) {
-                        const parts = lastLine.split('\r');
-                        const lastPart = parts[parts.length - 1];
-                        if (lastPart.trim()) {
-                            processedLines.push(lastPart);
-                        }
-                    } else if (lastLine.trim()) {
-                        processedLines.push(lastLine);
-                    }
-                }
-                
-                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(processedLines.join('\n'))}</pre>`;
+                // Display with explicit newlines between everything
+                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(cleanLines.join('\n'))}</pre>`;
             }
         });
         
