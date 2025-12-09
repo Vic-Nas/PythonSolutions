@@ -172,7 +172,7 @@ function openEditor(pythonCode, problemTitle) {
         document.getElementById('code-output-inline').innerHTML = '';
     });
     
-    // Load Pyodide in background
+    // Load Pyodide in background if not already loaded
     if (!state.pyodide && !state.pyodideLoading) {
         initPyodide();
     }
