@@ -225,31 +225,41 @@ async function runCodeInline() {
             batched: (text) => {
                 fullOutput += text;
                 
-                // Split into lines, keeping track of line endings
+                // Process the output: split by \n to get actual lines
                 const lines = fullOutput.split('\n');
-                const finalLines = [];
+                const processedLines = [];
                 
+                // For each line except the last (incomplete one)
                 for (let i = 0; i < lines.length - 1; i++) {
                     const line = lines[i];
-                    // Split by \r to get only the last update of lines that had \r
-                    const parts = line.split('\r');
-                    const finalPart = parts[parts.length - 1];
-                    if (finalPart.trim()) {
-                        finalLines.push(finalPart);
+                    // If line contains \r, only take the text after the last \r
+                    // This gives us the final state of tqdm progress bars
+                    if (line.includes('\r')) {
+                        const parts = line.split('\r');
+                        const lastPart = parts[parts.length - 1];
+                        if (lastPart.trim()) {
+                            processedLines.push(lastPart);
+                        }
+                    } else if (line.trim()) {
+                        processedLines.push(line);
                     }
                 }
                 
-                // Add last line if it exists and isn't empty
+                // Handle the last incomplete line
                 const lastLine = lines[lines.length - 1];
                 if (lastLine) {
-                    const parts = lastLine.split('\r');
-                    const finalPart = parts[parts.length - 1];
-                    if (finalPart.trim()) {
-                        finalLines.push(finalPart);
+                    if (lastLine.includes('\r')) {
+                        const parts = lastLine.split('\r');
+                        const lastPart = parts[parts.length - 1];
+                        if (lastPart.trim()) {
+                            processedLines.push(lastPart);
+                        }
+                    } else if (lastLine.trim()) {
+                        processedLines.push(lastLine);
                     }
                 }
                 
-                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(finalLines.join('\n'))}</pre>`;
+                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(processedLines.join('\n'))}</pre>`;
             }
         });
         
