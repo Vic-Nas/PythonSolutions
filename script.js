@@ -250,7 +250,14 @@ async function runCodeInline() {
                         const lastPart = parts[parts.length - 1].trim();
                         if (lastPart) {
                             // Only add tqdm lines that are at 100% (final state)
-                            if (!lastPart.includes('it/s]') || lastPart.trim().startsWith('100%')) {
+                            // Check if line contains "it/s]" (tqdm pattern)
+                            if (lastPart.includes('it/s]')) {
+                                // Only include if it starts with "100%"
+                                if (lastPart.startsWith('100%')) {
+                                    cleanLines.push(lastPart);
+                                }
+                            } else {
+                                // Not a tqdm line, include it
                                 cleanLines.push(lastPart);
                             }
                         }
