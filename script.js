@@ -230,39 +230,33 @@ async function runCodeInline() {
                 
                 console.log('Full output so far:', JSON.stringify(fullOutput));
                 
-                // First, add \n after any \r that isn't already followed by \n
-                let fixed = fullOutput.replace(/\r(?!\n)/g, '\r\n');
-                
-                // Special fix: detect end of tqdm (pattern like "it/s]") and add newline if not present
-                // This ensures content after tqdm appears on new line
-                fixed = fixed.replace(/(\d+\.\d+it\/s\])(?!\n)/g, '$1\n');
-                
-                console.log('After fixing \\r and tqdm:', JSON.stringify(fixed));
-                
-                // Now split by \n and process
-                const lines = fixed.split('\n');
+                // Split output into segments by \n (real newlines)
+                const segments = fullOutput.split('\n');
                 const cleanLines = [];
                 
-                for (let line of lines) {
-                    // For each line, if it has \r, take only text after the LAST \r
-                    if (line.includes('\r')) {
-                        const parts = line.split('\r');
+                for (let segment of segments) {
+                    // For each segment, if it contains \r, it's a tqdm progress line being updated
+                    // We only want the LAST update (after the last \r)
+                    if (segment.includes('\r')) {
+                        const parts = segment.split('\r');
                         const lastPart = parts[parts.length - 1].trim();
+                        
                         if (lastPart) {
-                            // Only add tqdm lines that are at 100% (final state)
-                            // Check if line contains "it/s]" (tqdm pattern)
+                            // Check if this is a tqdm line (contains "it/s]")
                             if (lastPart.includes('it/s]')) {
-                                // Only include if it starts with "100%"
+                                // Only include if it's the final 100% line
                                 if (lastPart.startsWith('100%')) {
                                     cleanLines.push(lastPart);
                                 }
+                                // Otherwise skip intermediate tqdm updates
                             } else {
                                 // Not a tqdm line, include it
                                 cleanLines.push(lastPart);
                             }
                         }
                     } else {
-                        const trimmed = line.trim();
+                        // No \r, just a regular line
+                        const trimmed = segment.trim();
                         if (trimmed) {
                             cleanLines.push(trimmed);
                         }
