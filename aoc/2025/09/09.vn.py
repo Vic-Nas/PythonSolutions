@@ -58,7 +58,7 @@ from itertools import combinations
 xs = sorted(set(x for x, y in inp))
 ys = sorted(set(y for x, y in inp))
 
-original = inp
+
 inp = [(xs.index(x), ys.index(y)) for x, y in inp]
 
 edges = []
