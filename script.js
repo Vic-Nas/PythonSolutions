@@ -218,29 +218,30 @@ async function runCodeInline() {
             }
         }
         
-        // Capture stdout - filter tqdm and ensure newlines after progress bars
+        // Capture stdout - filter tqdm intermediate updates
         let fullOutput = '';
-        let lastHadCarriageReturn = false;
         
         pyodide.setStdout({
             batched: (text) => {
                 fullOutput += text;
                 
-                // Check if we need to insert newline after previous tqdm line
-                let processedOutput = fullOutput;
-                
-                // Replace any sequence of: stuff \r final_stuff (not followed by \n) with: final_stuff \n
-                // This ensures tqdm completion is followed by newline
-                processedOutput = processedOutput.replace(/[^\n]*\r([^\r\n]+)(?!\n)/g, '$1\n');
-                
-                // Now split by newlines and clean up
-                const lines = processedOutput.split('\n');
+                // Split by \n first to preserve actual newlines
+                const lines = fullOutput.split('\n');
                 const cleanLines = [];
                 
                 for (let line of lines) {
-                    const trimmed = line.trim();
-                    if (trimmed) {
-                        cleanLines.push(trimmed);
+                    // For each line, if it has \r, take only text after the LAST \r
+                    if (line.includes('\r')) {
+                        const parts = line.split('\r');
+                        const lastPart = parts[parts.length - 1].trim();
+                        if (lastPart) {
+                            cleanLines.push(lastPart);
+                        }
+                    } else {
+                        const trimmed = line.trim();
+                        if (trimmed) {
+                            cleanLines.push(trimmed);
+                        }
                     }
                 }
                 
