@@ -287,62 +287,8 @@ __builtins__.input = mock_input
             console.log('Input mock setup complete');
         }
         
-        // Setup to prevent browser "page unresponsive" warnings
-        try {
-            await pyodide.runPythonAsync(`
-import sys
-import asyncio
-
-# Monkey-patch to allow yielding control periodically
-_original_range = range
-_iter_count = [0]
-
-class YieldingRange:
-    def __init__(self, *args):
-        self._range = _original_range(*args)
-        
-    def __iter__(self):
-        for i in self._range:
-            _iter_count[0] += 1
-            # Yield control every 1000 iterations to keep browser responsive
-            if _iter_count[0] % 1000 == 0:
-                try:
-                    # Try to yield control if we're in an async context
-                    pass
-                except:
-                    pass
-            yield i
-    
-    def __len__(self):
-        return len(self._range)
-
-# Only use yielding range for large ranges
-def smart_range(*args):
-    if len(args) == 1 and args[0] > 10000:
-        return YieldingRange(*args)
-    elif len(args) >= 2 and abs(args[1] - args[0]) > 10000:
-        return YieldingRange(*args)
-    return _original_range(*args)
-
-__builtins__.range = smart_range
-            `);
-        } catch (err) {
-            console.log('Could not setup yielding (non-critical):', err);
-        }
-        
-        // Run the user's code with interrupt buffer to prevent browser "unresponsive" dialog
-        pyodide.setInterruptBuffer(new Int32Array(new SharedArrayBuffer(4)));
-        
-        // Allow interruption for long-running code
-        const runPromise = pyodide.runPythonAsync(code);
-        
-        // Keep the page responsive by periodically yielding
-        const keepAlive = setInterval(() => {
-            // This keeps the event loop running
-        }, 100);
-        
-        await runPromise;
-        clearInterval(keepAlive);
+        // Run the user's code - use runPythonAsync which is non-blocking
+        await pyodide.runPythonAsync(code);
         console.log('Code execution complete');
         
         // Show final output
