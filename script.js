@@ -218,15 +218,19 @@ async function runCodeInline() {
             }
         }
         
-        // Capture stdout - filter tqdm intermediate updates
+        // Capture stdout - filter tqdm intermediate updates and fix newlines
         let fullOutput = '';
         
         pyodide.setStdout({
             batched: (text) => {
                 fullOutput += text;
                 
-                // Split by \n first to preserve actual newlines
-                const lines = fullOutput.split('\n');
+                // First, add \n after any \r that isn't already followed by \n
+                // This ensures tqdm completion moves to new line
+                let fixed = fullOutput.replace(/\r(?!\n)/g, '\r\n');
+                
+                // Now split by \n and process
+                const lines = fixed.split('\n');
                 const cleanLines = [];
                 
                 for (let line of lines) {
