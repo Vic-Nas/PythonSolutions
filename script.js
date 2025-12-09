@@ -249,7 +249,10 @@ async function runCodeInline() {
                         const parts = line.split('\r');
                         const lastPart = parts[parts.length - 1].trim();
                         if (lastPart) {
-                            cleanLines.push(lastPart);
+                            // Only add tqdm lines that are at 100% (final state)
+                            if (!lastPart.includes('it/s]') || lastPart.trim().startsWith('100%')) {
+                                cleanLines.push(lastPart);
+                            }
                         }
                     } else {
                         const trimmed = line.trim();
