@@ -218,36 +218,32 @@ async function runCodeInline() {
             }
         }
         
-        // Capture stdout - filter tqdm and ensure newlines
+        // Capture stdout - filter tqdm and ensure newlines after progress bars
         let fullOutput = '';
+        let lastHadCarriageReturn = false;
         
         pyodide.setStdout({
             batched: (text) => {
                 fullOutput += text;
                 
-                // Split by actual newlines
-                const lines = fullOutput.split('\n');
+                // Check if we need to insert newline after previous tqdm line
+                let processedOutput = fullOutput;
+                
+                // Replace any sequence of: stuff \r final_stuff (not followed by \n) with: final_stuff \n
+                // This ensures tqdm completion is followed by newline
+                processedOutput = processedOutput.replace(/[^\n]*\r([^\r\n]+)(?!\n)/g, '$1\n');
+                
+                // Now split by newlines and clean up
+                const lines = processedOutput.split('\n');
                 const cleanLines = [];
                 
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i];
-                    
-                    // If this line has \r (tqdm), take only the last part after final \r
-                    if (line.includes('\r')) {
-                        const parts = line.split('\r');
-                        const lastPart = parts[parts.length - 1].trim();
-                        if (lastPart) {
-                            cleanLines.push(lastPart);
-                        }
-                    } else {
-                        const trimmed = line.trim();
-                        if (trimmed) {
-                            cleanLines.push(trimmed);
-                        }
+                for (let line of lines) {
+                    const trimmed = line.trim();
+                    if (trimmed) {
+                        cleanLines.push(trimmed);
                     }
                 }
                 
-                // Display with explicit newlines between everything
                 output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(cleanLines.join('\n'))}</pre>`;
             }
         });
