@@ -219,7 +219,7 @@ async function runCodeInline() {
         }
         
         // Capture stdout with proper handling for carriage returns (for tqdm)
-        let outputText = '';
+        let outputLines = [];
         let currentLine = '';
         
         pyodide.setStdout({
@@ -227,11 +227,11 @@ async function runCodeInline() {
                 // Process character by character to handle \r correctly
                 for (let char of text) {
                     if (char === '\r') {
-                        // Carriage return - reset current line (for tqdm progress bars)
-                        currentLine = '';
+                        // Carriage return - stay on same line, will overwrite
+                        // Don't do anything, just let currentLine get overwritten
                     } else if (char === '\n') {
-                        // Newline - commit current line to output
-                        outputText += currentLine + '\n';
+                        // Newline - commit current line to output array
+                        outputLines.push(currentLine);
                         currentLine = '';
                     } else {
                         // Regular character - add to current line
@@ -239,16 +239,31 @@ async function runCodeInline() {
                     }
                 }
                 
-                // Display accumulated output plus current line
-                const displayText = outputText + currentLine;
-                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(displayText)}</pre>`;
+                // Display all committed lines plus current line being built
+                const allLines = [...outputLines];
+                if (currentLine) {
+                    allLines.push(currentLine);
+                }
+                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(allLines.join('\n'))}</pre>`;
             }
         });
         
         pyodide.setStderr({
             batched: (text) => {
-                outputText += text;
-                output.innerHTML = `<pre style="margin: 0; color: #ff6b6b; white-space: pre-wrap;">${escapeHtml(outputText)}</pre>`;
+                // For stderr, just append everything
+                for (let char of text) {
+                    if (char === '\n') {
+                        outputLines.push(currentLine);
+                        currentLine = '';
+                    } else {
+                        currentLine += char;
+                    }
+                }
+                const allLines = [...outputLines];
+                if (currentLine) {
+                    allLines.push(currentLine);
+                }
+                output.innerHTML = `<pre style="margin: 0; color: #ff6b6b; white-space: pre-wrap;">${escapeHtml(allLines.join('\n'))}</pre>`;
             }
         });
         
@@ -284,11 +299,12 @@ __builtins__.input = mock_input
         
         // Commit any remaining content in currentLine
         if (currentLine) {
-            outputText += currentLine + '\n';
-            output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(outputText)}</pre>`;
+            outputLines.push(currentLine);
+            const allLines = outputLines;
+            output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(allLines.join('\n'))}</pre>`;
         }
         
-        if (!outputText && !currentLine) {
+        if (outputLines.length === 0 && !currentLine) {
             output.innerHTML = '<div style="color: #4CAF50;">✅ Code executed successfully (no output)</div>';
         }
     } catch (err) {
