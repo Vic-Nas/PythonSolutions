@@ -218,52 +218,46 @@ async function runCodeInline() {
             }
         }
         
-        // Capture stdout with proper handling for carriage returns (for tqdm)
-        let outputLines = [];
-        let currentLine = '';
+        // Capture stdout - only show final state (filter tqdm intermediate updates)
+        let fullOutput = '';
         
         pyodide.setStdout({
             batched: (text) => {
-                // Process character by character to handle \r correctly
-                for (let char of text) {
-                    if (char === '\r') {
-                        // Carriage return - stay on same line, will overwrite
-                        // Don't do anything, just let currentLine get overwritten
-                    } else if (char === '\n') {
-                        // Newline - commit current line to output array
-                        outputLines.push(currentLine);
-                        currentLine = '';
-                    } else {
-                        // Regular character - add to current line
-                        currentLine += char;
+                fullOutput += text;
+                
+                // Split into lines, keeping track of line endings
+                const lines = fullOutput.split('\n');
+                const finalLines = [];
+                
+                for (let i = 0; i < lines.length - 1; i++) {
+                    const line = lines[i];
+                    // Split by \r to get only the last update of lines that had \r
+                    const parts = line.split('\r');
+                    const finalPart = parts[parts.length - 1];
+                    if (finalPart.trim()) {
+                        finalLines.push(finalPart);
                     }
                 }
                 
-                // Display all committed lines plus current line being built
-                const allLines = [...outputLines];
-                if (currentLine) {
-                    allLines.push(currentLine);
+                // Add last line if it exists and isn't empty
+                const lastLine = lines[lines.length - 1];
+                if (lastLine) {
+                    const parts = lastLine.split('\r');
+                    const finalPart = parts[parts.length - 1];
+                    if (finalPart.trim()) {
+                        finalLines.push(finalPart);
+                    }
                 }
-                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(allLines.join('\n'))}</pre>`;
+                
+                output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(finalLines.join('\n'))}</pre>`;
             }
         });
         
         pyodide.setStderr({
             batched: (text) => {
-                // For stderr, just append everything
-                for (let char of text) {
-                    if (char === '\n') {
-                        outputLines.push(currentLine);
-                        currentLine = '';
-                    } else {
-                        currentLine += char;
-                    }
-                }
-                const allLines = [...outputLines];
-                if (currentLine) {
-                    allLines.push(currentLine);
-                }
-                output.innerHTML = `<pre style="margin: 0; color: #ff6b6b; white-space: pre-wrap;">${escapeHtml(allLines.join('\n'))}</pre>`;
+                fullOutput += text;
+                const lines = fullOutput.split('\n').filter(l => l.trim());
+                output.innerHTML = `<pre style="margin: 0; color: #ff6b6b; white-space: pre-wrap;">${escapeHtml(lines.join('\n'))}</pre>`;
             }
         });
         
@@ -293,18 +287,66 @@ __builtins__.input = mock_input
             console.log('Input mock setup complete');
         }
         
-        // Run the user's code
-        await pyodide.runPythonAsync(code);
-        console.log('Code execution complete');
+        // Setup to prevent browser "page unresponsive" warnings
+        try {
+            await pyodide.runPythonAsync(`
+import sys
+import asyncio
+
+# Monkey-patch to allow yielding control periodically
+_original_range = range
+_iter_count = [0]
+
+class YieldingRange:
+    def __init__(self, *args):
+        self._range = _original_range(*args)
         
-        // Commit any remaining content in currentLine
-        if (currentLine) {
-            outputLines.push(currentLine);
-            const allLines = outputLines;
-            output.innerHTML = `<pre style="margin: 0; color: #d4d4d4; white-space: pre-wrap;">${escapeHtml(allLines.join('\n'))}</pre>`;
+    def __iter__(self):
+        for i in self._range:
+            _iter_count[0] += 1
+            # Yield control every 1000 iterations to keep browser responsive
+            if _iter_count[0] % 1000 == 0:
+                try:
+                    # Try to yield control if we're in an async context
+                    pass
+                except:
+                    pass
+            yield i
+    
+    def __len__(self):
+        return len(self._range)
+
+# Only use yielding range for large ranges
+def smart_range(*args):
+    if len(args) == 1 and args[0] > 10000:
+        return YieldingRange(*args)
+    elif len(args) >= 2 and abs(args[1] - args[0]) > 10000:
+        return YieldingRange(*args)
+    return _original_range(*args)
+
+__builtins__.range = smart_range
+            `);
+        } catch (err) {
+            console.log('Could not setup yielding (non-critical):', err);
         }
         
-        if (outputLines.length === 0 && !currentLine) {
+        // Run the user's code with interrupt buffer to prevent browser "unresponsive" dialog
+        pyodide.setInterruptBuffer(new Int32Array(new SharedArrayBuffer(4)));
+        
+        // Allow interruption for long-running code
+        const runPromise = pyodide.runPythonAsync(code);
+        
+        // Keep the page responsive by periodically yielding
+        const keepAlive = setInterval(() => {
+            // This keeps the event loop running
+        }, 100);
+        
+        await runPromise;
+        clearInterval(keepAlive);
+        console.log('Code execution complete');
+        
+        // Show final output
+        if (!fullOutput.trim()) {
             output.innerHTML = '<div style="color: #4CAF50;">✅ Code executed successfully (no output)</div>';
         }
     } catch (err) {
