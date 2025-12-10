@@ -5,6 +5,7 @@
    
 E = 10 ** -3 
     
+
 class Line:
     def __init__(self, p1, p2):
         x1, y1 = p1
