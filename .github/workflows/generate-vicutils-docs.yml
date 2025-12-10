@@ -31,102 +31,88 @@ jobs:
           pip install pdoc3 build twine
           echo "pdoc3 version:"
           pdoc --version
-      
+
       - name: Increment version
         run: |
-          # Create .version file if it doesn't exist
           if [ ! -f .version ]; then
             echo "0.1" > .version
             echo "Created .version file with initial version 0.1"
           fi
           
-          # Read current version
           current_version=$(cat .version)
-          echo "Current version: $current_version"
-          
-          # Increment version (major.minor format)
           IFS='.' read -r major minor <<< "$current_version"
           new_minor=$((minor + 1))
           new_version="${major}.${new_minor}"
           
-          echo "New version: $new_version"
-          
-          # Save new version
           echo "$new_version" > .version
-          
-          # Update setup.py
           sed -i "s/version=\"[^\"]*\"/version=\"$new_version\"/" setup.py
-          
-          echo "=== Updated files ==="
-          echo "Version file:"
-          cat .version
-          echo "setup.py:"
-          grep 'version=' setup.py
-          
-          # Export for later steps
           echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
-      
+
+      - name: Generate __init__.py files automatically
+        run: |
+          echo "Generating __init__.py files..."
+          find vicutils -type d | while read dir; do
+            init_file="$dir/__init__.py"
+            if [ ! -f "$init_file" ]; then
+              touch "$init_file"
+            fi
+            echo "" > "$init_file"
+            for py in "$dir"/*.py; do
+              [ -f "$py" ] || continue
+              base=$(basename "$py" .py)
+              if [ "$base" != "__init__" ]; then
+                echo "from .${base} import *" >> "$init_file"
+              fi
+            done
+          done
+
       - name: Check vicutils directory
         run: |
           echo "=== Contents of vicutils directory ==="
           ls -la vicutils/
           echo "=== Python files found ==="
           find vicutils/ -name "*.py" -not -name "__init__.py"
-      
+
       - name: Generate documentation
         run: |
           echo "=== Generating documentation ==="
-          # Find all Python files in vicutils subdirectories (not root)
           find vicutils/ -mindepth 2 -name "*.py" -not -name "__init__.py" | while read file; do
-            echo "Processing: $file"
             dir=$(dirname "$file")
             basename=$(basename "$file" .py)
-            
             cd "$dir"
             python -m pdoc --html --force --output-dir . "$basename"
-            echo "Contents after pdoc:"
-            ls -la
-            
-            # Move generated HTML
             if [ -d "$basename" ]; then
-              echo "Moving $basename/index.html to $basename.html"
               mv "$basename"/index.html "$basename.html"
               rm -rf "$basename"
             fi
-            
             cd - > /dev/null
           done
-          
           echo "=== Final vicutils contents ==="
           find vicutils/ -type f
-      
+
       - name: Build package
         run: |
           echo "=== Building package ==="
           python -m build
           echo "=== Build artifacts ==="
           ls -la dist/
-      
+
       - name: Publish to PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
           python -m twine upload dist/* --skip-existing
-      
+
       - name: Commit and push if changes
         run: |
           git config --local user.name "Vic-Nas"
           git config --local user.email "github-actions@github.com"
-          
-          # Add all changes
           git add .version setup.py
           git add vicutils/**/*.html || echo "No HTML files to add"
-          
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            echo "Committing changes for version $NEW_VERSION"
-            git commit -m "Auto-generate docs and bump version to $NEW_VERSION"
+            git commit -m "Auto-generate docs and bump version $NEW_VERSION"
             git push
           fi
