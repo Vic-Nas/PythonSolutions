@@ -2,7 +2,6 @@
 
 from functools import cache
 
-
 class Line:
     """Represents an infinite line in 2D space using equation ax + by = c"""
     
