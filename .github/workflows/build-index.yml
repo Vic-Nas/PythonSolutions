@@ -3,6 +3,8 @@ name: Build Repository Data
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'vicutils/**/*.py'
   workflow_dispatch:
 
 permissions:

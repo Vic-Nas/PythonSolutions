@@ -127,6 +127,6 @@ jobs:
             echo "No changes to commit"
           else
             echo "Committing changes for version $NEW_VERSION"
-            git commit -m "Auto-generate docs and bump version to $NEW_VERSION [skip ci]"
+            git commit -m "Auto-generate docs and bump version to $NEW_VERSION"
             git push
           fi
