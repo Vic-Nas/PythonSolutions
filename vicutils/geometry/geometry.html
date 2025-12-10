@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>geometry API documentation</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>geometry</code></h1>
+</header>
+<section id="section-intro">
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="geometry.Line"><code class="flex name class">
+<span>class <span class="ident">Line</span></span>
+<span>(</span><span>p1, p2, epsilon=0.001)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Line:
+    &#34;&#34;&#34;Represents an infinite line in 2D space using equation ax + by = c&#34;&#34;&#34;
+    
+    def __init__(self, p1, p2, epsilon=1e-3):
+        &#34;&#34;&#34;
+        Initialize a line through two points.
+        
+        Args:
+            p1: (x, y) tuple - first point
+            p2: (x, y) tuple - second point
+            epsilon: tolerance for floating point comparisons
+        &#34;&#34;&#34;
+        self.epsilon = epsilon
+        x1, y1 = p1
+        x2, y2 = p2
+        
+        if x1 == x2:
+            # Vertical line: x = x1
+            self.a, self.b, self.c = 1, 0, x1
+        else:
+            # General line: y = ax + b -&gt; ax - y = -b
+            a = (y1 - y2) / (x1 - x2)
+            b = (x2 * y1 - x1 * y2) / (x2 - x1)
+            self.a, self.b, self.c = a, -1, -b
+        
+        self.line = self
+    
+    def has(self, p):
+        &#34;&#34;&#34;Check if point p lies on this line&#34;&#34;&#34;
+        if not p:
+            return False
+        x, y = p
+        return abs(x * self.a + y * self.b - self.c) &lt;= self.epsilon
+    
+    def inter(self, other):
+        &#34;&#34;&#34;
+        Find intersection point with another line.
+        
+        Returns:
+            (x, y) tuple if lines intersect, None if parallel
+        &#34;&#34;&#34;
+        a, b, p = self.a, self.b, self.c
+        c, d, q = other.a, other.b, other.c
+        
+        det = a * d - b * c
+        if abs(det) &lt;= self.epsilon:
+            return None  # Lines are parallel
+        
+        # Solve system using Cramer&#39;s rule
+        a, b, c, d = d, -b, -c, a
+        x = a * p + b * q
+        y = c * p + d * q
+        return (x / det, y / det)</code></pre>
+</details>
+<div class="desc"><p>Represents an infinite line in 2D space using equation ax + by = c</p>
+<p>Initialize a line through two points.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>p1</code></strong></dt>
+<dd>(x, y) tuple - first point</dd>
+<dt><strong><code>p2</code></strong></dt>
+<dd>(x, y) tuple - second point</dd>
+<dt><strong><code>epsilon</code></strong></dt>
+<dd>tolerance for floating point comparisons</dd>
+</dl></div>
+<h3>Methods</h3>
+<dl>
+<dt id="geometry.Line.has"><code class="name flex">
+<span>def <span class="ident">has</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def has(self, p):
+    &#34;&#34;&#34;Check if point p lies on this line&#34;&#34;&#34;
+    if not p:
+        return False
+    x, y = p
+    return abs(x * self.a + y * self.b - self.c) &lt;= self.epsilon</code></pre>
+</details>
+<div class="desc"><p>Check if point p lies on this line</p></div>
+</dd>
+<dt id="geometry.Line.inter"><code class="name flex">
+<span>def <span class="ident">inter</span></span>(<span>self, other)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inter(self, other):
+    &#34;&#34;&#34;
+    Find intersection point with another line.
+    
+    Returns:
+        (x, y) tuple if lines intersect, None if parallel
+    &#34;&#34;&#34;
+    a, b, p = self.a, self.b, self.c
+    c, d, q = other.a, other.b, other.c
+    
+    det = a * d - b * c
+    if abs(det) &lt;= self.epsilon:
+        return None  # Lines are parallel
+    
+    # Solve system using Cramer&#39;s rule
+    a, b, c, d = d, -b, -c, a
+    x = a * p + b * q
+    y = c * p + d * q
+    return (x / det, y / det)</code></pre>
+</details>
+<div class="desc"><p>Find intersection point with another line.</p>
+<h2 id="returns">Returns</h2>
+<p>(x, y) tuple if lines intersect, None if parallel</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="geometry.Polygon"><code class="flex name class">
+<span>class <span class="ident">Polygon</span></span>
+<span>(</span><span>vertices, epsilon=0.001)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Polygon:
+    &#34;&#34;&#34;Represents a polygon defined by its vertices&#34;&#34;&#34;
+    
+    def __init__(self, vertices, epsilon=1e-3):
+        &#34;&#34;&#34;
+        Initialize a polygon with vertices.
+        
+        Args:
+            vertices: List of (x, y) tuples
+            epsilon: tolerance for floating point comparisons in Line operations
+        &#34;&#34;&#34;
+        self.epsilon = epsilon
+        
+        # Build edges as rays from vertices
+        self.edges = []
+        n = len(vertices)
+        
+        for i in range(n):
+            x1, y1 = vertices[i]
+            x2, y2 = vertices[(i + 1) % n]
+            
+            line = Line((x1, y1), (x2, y2), epsilon=self.epsilon)
+            
+            # Create condition for ray based on edge direction
+            if x1 == x2:
+                # Vertical edge: y must be in range
+                def condition(p, Y1=y1, Y2=y2):
+                    _, y = p
+                    return min(Y1, Y2) &lt;= y &lt;= max(Y1, Y2)
+            elif y1 == y2:
+                # Horizontal edge: x must be in range
+                def condition(p, X1=x1, X2=x2):
+                    x, _ = p
+                    return min(X1, X2) &lt;= x &lt;= max(X1, X2)
+            else:
+                # Diagonal edge: both x and y must be in range
+                def condition(p, X1=x1, X2=x2, Y1=y1, Y2=y2):
+                    x, y = p
+                    return (min(X1, X2) &lt;= x &lt;= max(X1, X2) and 
+                            min(Y1, Y2) &lt;= y &lt;= max(Y1, Y2))
+            
+            self.edges.append(Ray(line, condition))
+    
+    @cache
+    def inside(self, p):
+        &#34;&#34;&#34;
+        Check if point p is inside the polygon using ray casting algorithm.
+        
+        Args:
+            p: (x, y) tuple
+            
+        Returns:
+            True if point is inside polygon, False otherwise
+        &#34;&#34;&#34;
+        x, y = p
+        
+        # Cast rays in four cardinal directions from the point
+        # A point is inside if all four rays intersect at least one edge
+        rays = [
+            Ray(Line(p, (x - 10, y), epsilon=self.epsilon), 
+                lambda p1, X=x: p1[0] &lt;= X),  # Left
+            Ray(Line(p, (x, y + 10), epsilon=self.epsilon), 
+                lambda p1, Y=y: p1[1] &gt;= Y),  # Up
+            Ray(Line(p, (x + 10, y), epsilon=self.epsilon), 
+                lambda p1, X=x: p1[0] &gt;= X),  # Right
+            Ray(Line(p, (x, y - 10), epsilon=self.epsilon), 
+                lambda p1, Y=y: p1[1] &lt;= Y)   # Down
+        ]
+        
+        hits = [0, 0, 0, 0]
+        for edge in self.edges:
+            for i, ray in enumerate(rays):
+                if ray.inter(edge):
+                    hits[i] = 1
+            # Early exit if all rays hit
+            if sum(hits) == 4:
+                return True
+        
+        return sum(hits) == 4</code></pre>
+</details>
+<div class="desc"><p>Represents a polygon defined by its vertices</p>
+<p>Initialize a polygon with vertices.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>vertices</code></strong></dt>
+<dd>List of (x, y) tuples</dd>
+<dt><strong><code>epsilon</code></strong></dt>
+<dd>tolerance for floating point comparisons in Line operations</dd>
+</dl></div>
+<h3>Methods</h3>
+<dl>
+<dt id="geometry.Polygon.inside"><code class="name flex">
+<span>def <span class="ident">inside</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@cache
+def inside(self, p):
+    &#34;&#34;&#34;
+    Check if point p is inside the polygon using ray casting algorithm.
+    
+    Args:
+        p: (x, y) tuple
+        
+    Returns:
+        True if point is inside polygon, False otherwise
+    &#34;&#34;&#34;
+    x, y = p
+    
+    # Cast rays in four cardinal directions from the point
+    # A point is inside if all four rays intersect at least one edge
+    rays = [
+        Ray(Line(p, (x - 10, y), epsilon=self.epsilon), 
+            lambda p1, X=x: p1[0] &lt;= X),  # Left
+        Ray(Line(p, (x, y + 10), epsilon=self.epsilon), 
+            lambda p1, Y=y: p1[1] &gt;= Y),  # Up
+        Ray(Line(p, (x + 10, y), epsilon=self.epsilon), 
+            lambda p1, X=x: p1[0] &gt;= X),  # Right
+        Ray(Line(p, (x, y - 10), epsilon=self.epsilon), 
+            lambda p1, Y=y: p1[1] &lt;= Y)   # Down
+    ]
+    
+    hits = [0, 0, 0, 0]
+    for edge in self.edges:
+        for i, ray in enumerate(rays):
+            if ray.inter(edge):
+                hits[i] = 1
+        # Early exit if all rays hit
+        if sum(hits) == 4:
+            return True
+    
+    return sum(hits) == 4</code></pre>
+</details>
+<div class="desc"><p>Check if point p is inside the polygon using ray casting algorithm.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>p</code></strong></dt>
+<dd>(x, y) tuple</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>True if point is inside polygon, False otherwise</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="geometry.Ray"><code class="flex name class">
+<span>class <span class="ident">Ray</span></span>
+<span>(</span><span>line, condition)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Ray:
+    &#34;&#34;&#34;Represents a line segment (bounded portion of a line)&#34;&#34;&#34;
+    
+    def __init__(self, line, condition):
+        &#34;&#34;&#34;
+        Initialize a ray with a line and boundary condition.
+        
+        Args:
+            line: Line object
+            condition: function(p) -&gt; bool that checks if point is within bounds
+        &#34;&#34;&#34;
+        self.line = line
+        self.condition = condition
+    
+    def has(self, p):
+        &#34;&#34;&#34;Check if point p lies on this ray (on line AND within bounds)&#34;&#34;&#34;
+        if not p:
+            return False
+        if not self.line.has(p):
+            return False
+        return self.condition(p)
+    
+    def inter(self, ray):
+        &#34;&#34;&#34;
+        Check if this ray intersects with another ray.
+        
+        Returns:
+            True if rays intersect, False otherwise
+        &#34;&#34;&#34;
+        inter = self.line.inter(ray.line)
+        if not inter:
+            return False
+        return self.has(inter) and ray.has(inter)</code></pre>
+</details>
+<div class="desc"><p>Represents a line segment (bounded portion of a line)</p>
+<p>Initialize a ray with a line and boundary condition.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>line</code></strong></dt>
+<dd>Line object</dd>
+<dt><strong><code>condition</code></strong></dt>
+<dd>function(p) -&gt; bool that checks if point is within bounds</dd>
+</dl></div>
+<h3>Methods</h3>
+<dl>
+<dt id="geometry.Ray.has"><code class="name flex">
+<span>def <span class="ident">has</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def has(self, p):
+    &#34;&#34;&#34;Check if point p lies on this ray (on line AND within bounds)&#34;&#34;&#34;
+    if not p:
+        return False
+    if not self.line.has(p):
+        return False
+    return self.condition(p)</code></pre>
+</details>
+<div class="desc"><p>Check if point p lies on this ray (on line AND within bounds)</p></div>
+</dd>
+<dt id="geometry.Ray.inter"><code class="name flex">
+<span>def <span class="ident">inter</span></span>(<span>self, ray)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inter(self, ray):
+    &#34;&#34;&#34;
+    Check if this ray intersects with another ray.
+    
+    Returns:
+        True if rays intersect, False otherwise
+    &#34;&#34;&#34;
+    inter = self.line.inter(ray.line)
+    if not inter:
+        return False
+    return self.has(inter) and ray.has(inter)</code></pre>
+</details>
+<div class="desc"><p>Check if this ray intersects with another ray.</p>
+<h2 id="returns">Returns</h2>
+<p>True if rays intersect, False otherwise</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="geometry.Line" href="#geometry.Line">Line</a></code></h4>
+<ul class="">
+<li><code><a title="geometry.Line.has" href="#geometry.Line.has">has</a></code></li>
+<li><code><a title="geometry.Line.inter" href="#geometry.Line.inter">inter</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="geometry.Polygon" href="#geometry.Polygon">Polygon</a></code></h4>
+<ul class="">
+<li><code><a title="geometry.Polygon.inside" href="#geometry.Polygon.inside">inside</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="geometry.Ray" href="#geometry.Ray">Ray</a></code></h4>
+<ul class="">
+<li><code><a title="geometry.Ray.has" href="#geometry.Ray.has">has</a></code></li>
+<li><code><a title="geometry.Ray.inter" href="#geometry.Ray.inter">inter</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
