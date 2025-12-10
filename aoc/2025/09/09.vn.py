@@ -84,7 +84,6 @@ def inside(p):
     # Evil ray algorithm
     # To be inside, the four rays must cross
     # something
-    if p in inp: return True
     x, y = p
     
     rays = [
