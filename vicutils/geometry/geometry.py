@@ -1,7 +1,6 @@
 # Geometry Library - Reusable classes for geometric operations
 
 from functools import cache
-import bisect
 
 
 class Line:
@@ -97,38 +96,23 @@ class Ray:
 class Polygon:
     """Represents a polygon defined by its vertices"""
     
-    def __init__(self, vertices, precision=2, epsilon=1e-3):
+    def __init__(self, vertices, epsilon=1e-3):
         """
         Initialize a polygon with vertices.
         
         Args:
-            vertices: List of (x, y) tuples (can be floats)
-            precision: Number of decimal digits (e.g., 2 for 0.01 precision)
-                      Coordinates are scaled by 10^precision to work with integers
+            vertices: List of (x, y) tuples
             epsilon: tolerance for floating point comparisons in Line operations
         """
-        self.precision = precision
-        self.multiplier = 10 ** precision
         self.epsilon = epsilon
         
-        # Extract unique x and y coordinates, sort them, and create mappings
-        xs = sorted(set(x for x, y in vertices))
-        ys = sorted(set(y for x, y in vertices))
-        
-        # Store mappings for converting back to original coordinates
-        self.xs = xs
-        self.ys = ys
-        
-        # Convert vertices to indices (scaled integer coordinates)
-        indexedVertices = [(xs.index(x), ys.index(y)) for x, y in vertices]
-        
-        # Build edges as rays using indexed coordinates
+        # Build edges as rays from vertices
         self.edges = []
-        n = len(indexedVertices)
+        n = len(vertices)
         
         for i in range(n):
-            x1, y1 = indexedVertices[i]
-            x2, y2 = indexedVertices[(i + 1) % n]
+            x1, y1 = vertices[i]
+            x2, y2 = vertices[(i + 1) % n]
             
             line = Line((x1, y1), (x2, y2), epsilon=self.epsilon)
             
@@ -152,86 +136,29 @@ class Polygon:
             
             self.edges.append(Ray(line, condition))
     
-    def addCoords(self, coords):
-        """
-        Pre-add a list of coordinates to the mappings.
-        Useful to add many coordinates at once efficiently.
-        
-        Args:
-            coords: List of (x, y) tuples to add to the coordinate mappings
-        """
-        # Extract all unique x and y values from coords
-        newXs = set(x for x, y in coords)
-        newYs = set(y for x, y in coords)
-        
-        # Merge and sort if there are new coordinates
-        xsChanged = False
-        ysChanged = False
-        
-        for x in newXs:
-            if x not in self.xs:
-                xsChanged = True
-                break
-        
-        for y in newYs:
-            if y not in self.ys:
-                ysChanged = True
-                break
-        
-        if xsChanged:
-            self.xs = sorted(set(self.xs) | newXs)
-        if ysChanged:
-            self.ys = sorted(set(self.ys) | newYs)
-    
-    def _toIndexed(self, p):
-        """
-        Convert a point in original coordinates to indexed coordinates.
-        If the coordinate doesn't exist, it's inserted in sorted order.
-        
-        Args:
-            p: (x, y) tuple in original coordinate system
-            
-        Returns:
-            (xIdx, yIdx) tuple in indexed coordinate system
-        """
-        xOrig, yOrig = p
-        
-        # Find or insert x coordinate using binary search
-        xIdx = bisect.bisect_left(self.xs, xOrig)
-        if xIdx >= len(self.xs) or self.xs[xIdx] != xOrig:
-            self.xs.insert(xIdx, xOrig)
-        
-        # Find or insert y coordinate using binary search
-        yIdx = bisect.bisect_left(self.ys, yOrig)
-        if yIdx >= len(self.ys) or self.ys[yIdx] != yOrig:
-            self.ys.insert(yIdx, yOrig)
-        
-        return (xIdx, yIdx)
-    
     @cache
     def inside(self, p):
         """
         Check if point p is inside the polygon using ray casting algorithm.
         
         Args:
-            p: (x, y) tuple in original coordinate system
+            p: (x, y) tuple
             
         Returns:
             True if point is inside polygon, False otherwise
         """
-        # Convert original coordinates to indexed coordinates
-        x, y = self._toIndexed(p)
+        x, y = p
         
         # Cast rays in four cardinal directions from the point
         # A point is inside if all four rays intersect at least one edge
         rays = [
-            Ray(Line((x, y), (x - 10, y), epsilon=self.epsilon), 
+            Ray(Line(p, (x - 10, y), epsilon=self.epsilon), 
                 lambda p1, X=x: p1[0] <= X),  # Left
-            Ray(Line((x, y), (x, y + 10), epsilon=self.epsilon), 
+            Ray(Line(p, (x, y + 10), epsilon=self.epsilon), 
                 lambda p1, Y=y: p1[1] >= Y),  # Up
-            Ray(Line((x, y), (x + 10, y), epsilon=self.epsilon), 
+            Ray(Line(p, (x + 10, y), epsilon=self.epsilon), 
                 lambda p1, X=x: p1[0] >= X),  # Right
-            Ray(Line((x, y), (x, y - 10), epsilon=self.epsilon), 
+            Ray(Line(p, (x, y - 10), epsilon=self.epsilon), 
                 lambda p1, Y=y: p1[1] <= Y)   # Down
         ]
         
