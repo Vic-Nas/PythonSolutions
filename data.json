@@ -823,14 +823,14 @@
     },
     {
       "name": "vicutils",
-      "count": 1,
+      "count": 2,
       "image": null,
       "tree": [
         {
           "name": "geometry",
           "path": "vicutils/geometry",
           "type": "dir",
-          "has_files": false
+          "has_files": true
         },
         {
           "name": "printBin",
@@ -841,5 +841,5 @@
       ]
     }
   ],
-  "generated_at": "2025-12-10T02:22:28.025973"
+  "generated_at": "2025-12-10T02:32:27.122970"
 }
