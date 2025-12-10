@@ -245,29 +245,44 @@ async function runCodeInline() {
                         
                         // Process each part after splitting by \r
                         for (let j = 0; j < parts.length; j++) {
-                            const part = parts[j].trim();
+                            const part = parts[j];
                             const isLastPart = j === parts.length - 1;
                             
-                            if (!part) continue;
+                            if (!part.trim()) continue;
                             
-                            // Check if this is a tqdm line (contains "it/s]")
-                            if (part.includes('it/s]')) {
-                                // Only include if it's the final 100% line and it's the last part
-                                if (part.startsWith('100%') && isLastPart) {
-                                    cleanLines.push(part);
+                            // Check if this contains a tqdm line (contains "it/s]")
+                            const tqdmMatch = part.match(/^(.*?it\/s\])(.*?)$/);
+                            
+                            if (tqdmMatch) {
+                                const tqdmPart = tqdmMatch[1].trim();
+                                const afterTqdm = tqdmMatch[2].trim();
+                                
+                                // Only include the 100% tqdm line if it's the last part
+                                if (tqdmPart.startsWith('100%') && isLastPart) {
+                                    cleanLines.push(tqdmPart);
                                     lastWasTqdm = true;
+                                    
+                                    // If there's content after the tqdm line, add it on a new line
+                                    if (afterTqdm) {
+                                        cleanLines.push('');
+                                        cleanLines.push(afterTqdm);
+                                        lastWasTqdm = false;
+                                    }
                                 } else if (!isLastPart) {
                                     // Intermediate tqdm update, skip but mark as tqdm
                                     lastWasTqdm = true;
                                 }
                             } else {
                                 // Not a tqdm line, it's regular content
-                                // If previous was tqdm 100%, add empty line for separation
-                                if (lastWasTqdm) {
-                                    cleanLines.push('');
-                                    lastWasTqdm = false;
+                                const trimmed = part.trim();
+                                if (trimmed) {
+                                    // If previous was tqdm 100%, add empty line for separation
+                                    if (lastWasTqdm) {
+                                        cleanLines.push('');
+                                        lastWasTqdm = false;
+                                    }
+                                    cleanLines.push(trimmed);
                                 }
-                                cleanLines.push(part);
                             }
                         }
                     } else {
