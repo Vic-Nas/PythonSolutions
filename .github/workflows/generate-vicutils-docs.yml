@@ -110,6 +110,8 @@ jobs:
           git config --local user.email "github-actions@github.com"
           git add .version setup.py
           git add vicutils/**/*.html || echo "No HTML files to add"
+          git add vicutils/**/*.py || echo "No Python files to add"
+
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
