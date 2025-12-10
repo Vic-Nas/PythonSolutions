@@ -21,7 +21,7 @@ class Line:
         
         self.a = y2-y1
         self.b = x1-x2
-        self.c = self.a*x1+self.b*x1
+        self.c = self.a*x1+self.b*y1
         
         self.line = self
     

@@ -10,13 +10,9 @@ class Line:
     def __init__(self, p1, p2):
         x1, y1 = p1
         x2, y2 = p2
-        if x1 == x2:
-            self.a, self.b, self.c = 1, 0, x1
-        else:
-            a = (y1-y2)/(x1-x2)
-            b = (x2*y1-x1*y2)/(x2-x1)
-            self.a, self.b, self.c = a, -1, -b
-        self.line = self
+        self.a = y2-y1
+        self.b = x1-x2
+        self.c = self.a*x1+self.b*y1
             
     def has(self, p):
         if not p: return False
