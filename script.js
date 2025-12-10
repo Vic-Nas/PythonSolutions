@@ -233,8 +233,11 @@ async function runCodeInline() {
                 // Split output into segments by \n (real newlines)
                 const segments = fullOutput.split('\n');
                 const cleanLines = [];
+                let lastWasTqdm = false;
                 
-                for (let segment of segments) {
+                for (let i = 0; i < segments.length; i++) {
+                    const segment = segments[i];
+                    
                     // For each segment, if it contains \r, it's a tqdm progress line being updated
                     // We only want the LAST update (after the last \r)
                     if (segment.includes('\r')) {
@@ -247,10 +250,18 @@ async function runCodeInline() {
                                 // Only include if it's the final 100% line
                                 if (lastPart.startsWith('100%')) {
                                     cleanLines.push(lastPart);
+                                    lastWasTqdm = true;
+                                } else {
+                                    lastWasTqdm = true;
                                 }
                                 // Otherwise skip intermediate tqdm updates
                             } else {
                                 // Not a tqdm line, include it
+                                // If previous was tqdm 100%, add empty line for separation
+                                if (lastWasTqdm) {
+                                    cleanLines.push('');
+                                    lastWasTqdm = false;
+                                }
                                 cleanLines.push(lastPart);
                             }
                         }
@@ -258,6 +269,11 @@ async function runCodeInline() {
                         // No \r, just a regular line
                         const trimmed = segment.trim();
                         if (trimmed) {
+                            // If previous was tqdm 100%, add empty line for separation
+                            if (lastWasTqdm) {
+                                cleanLines.push('');
+                                lastWasTqdm = false;
+                            }
                             cleanLines.push(trimmed);
                         }
                     }
