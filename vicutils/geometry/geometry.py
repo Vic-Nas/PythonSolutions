@@ -19,14 +19,9 @@ class Line:
         x1, y1 = p1
         x2, y2 = p2
         
-        if x1 == x2:
-            # Vertical line: x = x1
-            self.a, self.b, self.c = 1, 0, x1
-        else:
-            # General line: y = ax + b -> ax - y = -b
-            a = (y1 - y2) / (x1 - x2)
-            b = (x2 * y1 - x1 * y2) / (x2 - x1)
-            self.a, self.b, self.c = a, -1, -b
+        self.a = y2-y1
+        self.b = x1-x2
+        self.c = self.a*x1+self.b*x1
         
         self.line = self
     
