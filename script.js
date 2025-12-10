@@ -242,27 +242,32 @@ async function runCodeInline() {
                     // We only want the LAST update (after the last \r)
                     if (segment.includes('\r')) {
                         const parts = segment.split('\r');
-                        const lastPart = parts[parts.length - 1].trim();
                         
-                        if (lastPart) {
+                        // Process each part after splitting by \r
+                        for (let j = 0; j < parts.length; j++) {
+                            const part = parts[j].trim();
+                            const isLastPart = j === parts.length - 1;
+                            
+                            if (!part) continue;
+                            
                             // Check if this is a tqdm line (contains "it/s]")
-                            if (lastPart.includes('it/s]')) {
-                                // Only include if it's the final 100% line
-                                if (lastPart.startsWith('100%')) {
-                                    cleanLines.push(lastPart);
+                            if (part.includes('it/s]')) {
+                                // Only include if it's the final 100% line and it's the last part
+                                if (part.startsWith('100%') && isLastPart) {
+                                    cleanLines.push(part);
                                     lastWasTqdm = true;
-                                } else {
+                                } else if (!isLastPart) {
+                                    // Intermediate tqdm update, skip but mark as tqdm
                                     lastWasTqdm = true;
                                 }
-                                // Otherwise skip intermediate tqdm updates
                             } else {
-                                // Not a tqdm line, include it
+                                // Not a tqdm line, it's regular content
                                 // If previous was tqdm 100%, add empty line for separation
                                 if (lastWasTqdm) {
                                     cleanLines.push('');
                                     lastWasTqdm = false;
                                 }
-                                cleanLines.push(lastPart);
+                                cleanLines.push(part);
                             }
                         }
                     } else {
