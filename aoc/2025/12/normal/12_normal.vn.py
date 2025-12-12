@@ -49,12 +49,11 @@ class Region:
         if totalCellsNeeded > totalCellsAvailable:
             return False
         
-        # Liste des gifts à placer
         toPlace = []
         for i, need in enumerate(self.needs):
             toPlace.extend([i] * need)
         
-        maxTries = 100  # Limite absolue d'essais
+        maxTries = 100
         tries = [0]
         
         def tryPlace(reg, placedCount):
