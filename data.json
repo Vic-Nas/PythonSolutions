@@ -2,7 +2,7 @@
   "platforms": [
     {
       "name": "aoc",
-      "count": 77,
+      "count": 76,
       "image": "aoc/platform.png",
       "tree": [
         {
@@ -717,21 +717,7 @@
               "name": "11",
               "path": "aoc/2025/11",
               "type": "dir",
-              "has_files": false,
-              "children": [
-                {
-                  "name": "animated",
-                  "path": "aoc/2025/11/animated",
-                  "type": "dir",
-                  "has_files": true
-                },
-                {
-                  "name": "normal",
-                  "path": "aoc/2025/11/normal",
-                  "type": "dir",
-                  "has_files": true
-                }
-              ]
+              "has_files": true
             },
             {
               "name": "12",
@@ -827,5 +813,5 @@
       ]
     }
   ],
-  "generated_at": "2025-12-10T08:11:00.151095"
+  "generated_at": "2025-12-12T06:58:33.156469"
 }
