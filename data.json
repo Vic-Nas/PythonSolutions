@@ -795,7 +795,7 @@
     },
     {
       "name": "vicutils",
-      "count": 2,
+      "count": 3,
       "image": null,
       "tree": [
         {
@@ -808,7 +808,7 @@
           "name": "pdf",
           "path": "vicutils/pdf",
           "type": "dir",
-          "has_files": false
+          "has_files": true
         },
         {
           "name": "printBin",
@@ -819,5 +819,5 @@
       ]
     }
   ],
-  "generated_at": "2025-12-15T00:05:28.923676"
+  "generated_at": "2025-12-15T01:59:26.221412"
 }
