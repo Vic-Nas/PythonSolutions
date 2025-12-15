@@ -1641,3 +1641,4 @@ def launchGui():
     root = tk.Tk()
     app = PdfCompactorApp(root)
     root.mainloop()
+    
