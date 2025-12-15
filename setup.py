@@ -18,8 +18,8 @@ setup(
     long_description_content_type="text/markdown",
     url="https://vic-nas.github.io/PythonSolutions/",
     project_urls={
-        "Documentation": "https://vic-nas.github.io/PythonSolutions/vicutils/printBin.html",
-        "Source": "https://github.com/Vic-Nas/PythonSolutions",
+        "Documentation": "https://vic-nas.github.io/PythonSolutions/#vicutils",
+        "Source": "https://github.com/Vic-Nas/PythonSolutions/tree/main/vicutils",
     },
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -29,6 +29,15 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pdoc3 build twine
+          
+          # Install project dependencies from requirements.txt if it exists
+          if [ -f requirements.txt ]; then
+            echo "Installing dependencies from requirements.txt"
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found at root"
+          fi
+          
           echo "pdoc3 version:"
           pdoc --version
 
