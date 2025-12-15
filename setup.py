@@ -6,9 +6,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vicutils",
-    version="0.36",
+    version="0.37",
     packages=find_packages(),
-    install_requires=[],
+    install_requires=["PyMuPDF>=1.23.0", "Pillow>=10.0.0"],
     
     # Metadata for PyPI
     author="Vic-Nas",
