@@ -62,84 +62,30 @@ jobs:
           if [ -f requirements.txt ]; then
             echo "Updating install_requires in setup.py from requirements.txt"
             
-            # Read requirements and format as Python list
-            reqs=$(grep -v '^#' requirements.txt | grep -v '^
-
-      - name: Generate __init__.py files automatically
-        run: |
-          echo "Generating __init__.py files..."
-          find vicutils -type d | while read dir; do
-            init_file="$dir/__init__.py"
-            if [ ! -f "$init_file" ]; then
-              touch "$init_file"
-            fi
-            echo "" > "$init_file"
-            for py in "$dir"/*.py; do
-              [ -f "$py" ] || continue
-              base=$(basename "$py" .py)
-              if [ "$base" != "__init__" ]; then
-                echo "from .${base} import *" >> "$init_file"
-              fi
-            done
-          done
-
-      - name: Check vicutils directory
-        run: |
-          echo "=== Contents of vicutils directory ==="
-          ls -la vicutils/
-          echo "=== Python files found ==="
-          find vicutils/ -name "*.py" -not -name "__init__.py"
-
-      - name: Generate documentation
-        run: |
-          echo "=== Generating documentation ==="
-          find vicutils/ -mindepth 2 -name "*.py" -not -name "__init__.py" | while read file; do
-            dir=$(dirname "$file")
-            basename=$(basename "$file" .py)
-            cd "$dir"
-            python -m pdoc --html --force --output-dir . "$basename"
-            if [ -d "$basename" ]; then
-              mv "$basename"/index.html "$basename.html"
-              rm -rf "$basename"
-            fi
-            cd - > /dev/null
-          done
-          echo "=== Final vicutils contents ==="
-          find vicutils/ -type f
-
-      - name: Build package
-        run: |
-          echo "=== Building package ==="
-          python -m build
-          echo "=== Build artifacts ==="
-          ls -la dist/
-
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: |
-          python -m twine upload dist/* --skip-existing
-
-      - name: Commit and push if changes
-        run: |
-          git config --local user.name "Vic-Nas"
-          git config --local user.email "github-actions@github.com"
-          git add .version setup.py
-          git add vicutils/**/*.html || echo "No HTML files to add"
-          git add vicutils/**/*.py || echo "No Python files to add"
-
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Auto-generate docs and bump version $NEW_VERSION"
-            git push
-          fi | sed 's/.*/"&"/' | paste -sd ',' -)
+            python3 << 'EOF'
+          import re
+          
+          # Read requirements
+          with open('requirements.txt', 'r') as f:
+              reqs = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+          
+          # Format as Python list string
+          reqs_str = '[' + ', '.join(f'"{req}"' for req in reqs) + ']'
+          
+          # Read setup.py
+          with open('setup.py', 'r') as f:
+              content = f.read()
+          
+          # Replace install_requires
+          content = re.sub(r'install_requires=\[.*?\]', f'install_requires={reqs_str}', content, flags=re.DOTALL)
+          
+          # Write back
+          with open('setup.py', 'w') as f:
+              f.write(content)
+          
+          print(f"Updated install_requires: {reqs_str}")
+          EOF
             
-            # Update install_requires in setup.py
-            sed -i "s/install_requires=\[.*\]/install_requires=[$reqs]/" setup.py
-            
-            echo "Updated install_requires: [$reqs]"
           else
             echo "No requirements.txt found, skipping setup.py update"
           fi
