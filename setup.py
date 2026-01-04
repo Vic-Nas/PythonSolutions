@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vicutils",
-    version="0.37",
+    version="0.38",
     packages=find_packages(),
     install_requires=["PyMuPDF>=1.23.0", "Pillow>=10.0.0"],
     
