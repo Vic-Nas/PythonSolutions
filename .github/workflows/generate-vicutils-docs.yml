@@ -10,6 +10,7 @@ on:
 permissions:
   contents: write
   id-token: write  # Required for trusted publishing
+  packages: write  # Required for GitHub Packages
 
 jobs:
   generate-docs:
@@ -42,6 +43,7 @@ jobs:
           pdoc --version
 
       - name: Increment version
+        id: version
         run: |
           if [ ! -f .version ]; then
             echo "0.1" > .version
@@ -56,6 +58,7 @@ jobs:
           echo "$new_version" > .version
           sed -i "s/version=\"[^\"]*\"/version=\"$new_version\"/" setup.py
           echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
+          echo "version=$new_version" >> $GITHUB_OUTPUT
 
       - name: Update setup.py requirements
         run: |
@@ -146,6 +149,31 @@ jobs:
         run: |
           python -m twine upload dist/* --skip-existing
 
+      - name: Publish to GitHub Packages
+        env:
+          TWINE_USERNAME: ${{ github.actor }}
+          TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure pip for GitHub Packages
+          cat > ~/.pypirc << EOF
+          [distutils]
+          index-servers =
+              pypi
+              github
+          
+          [pypi]
+          username = __token__
+          password = ${{ secrets.PYPI_API_TOKEN }}
+          
+          [github]
+          repository = https://maven.pkg.github.com/${{ github.repository_owner }}
+          username = ${{ github.actor }}
+          password = ${{ secrets.GITHUB_TOKEN }}
+          EOF
+          
+          # Upload to GitHub Packages (will show in Packages section)
+          python -m twine upload --repository github dist/* --skip-existing || echo "GitHub Packages upload skipped or failed"
+
       - name: Commit and push if changes
         run: |
           git config --local user.name "Vic-Nas"
@@ -157,6 +185,29 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Auto-generate docs and bump version $NEW_VERSION"
+            git commit -m "Auto-generate docs and bump version ${{ steps.version.outputs.version }}"
             git push
           fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ## 📦 vicutils v${{ steps.version.outputs.version }}
+            
+            Auto-generated release from vicutils code changes.
+            
+            ### Installation
+            ```bash
+            pip install vicutils==${{ steps.version.outputs.version }}
+            ```
+            
+            ### Documentation
+            Visit [the documentation](https://vic-nas.github.io/PythonSolutions/#vicutils) for usage examples.
+          files: dist/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
