@@ -1,5 +1,5 @@
 # Collecting beepers
-# https://open.kattis.com/problems/suspensionbridges/statistics
+# https://open.kattis.com/problems/suspensionbridges
 # Error propagation, binary search
 # 29/11/2025
 

@@ -1,5 +1,5 @@
 # Collecting beepers
-# https://open.kattis.com/problems
+# https://open.kattis.com/problems/ballbearings
 # Dynamic programming
 # 15/09/2025
 
