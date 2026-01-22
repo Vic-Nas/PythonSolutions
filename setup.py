@@ -16,10 +16,10 @@ setup(
     description="Utility functions for Python programming",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://vic-nas.github.io/PythonSolutions/",
+    url="https://victorio-dev.github.io/PythonSolutions/",
     project_urls={
-        "Documentation": "https://vic-nas.github.io/PythonSolutions/#vicutils",
-        "Source": "https://github.com/Vic-Nas/PythonSolutions/tree/main/vicutils",
+        "Documentation": "https://victorio-dev.github.io/PythonSolutions/#vicutils",
+        "Source": "https://github.com/Victorio-dev/PythonSolutions/tree/main/vicutils",
     },
     classifiers=[
         "Programming Language :: Python :: 3",

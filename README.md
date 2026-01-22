@@ -1,6 +1,6 @@
-# [PythonSolutions](https://vic-nas.github.io/PythonSolutions/)
+# [PythonSolutions](https://victorio-dev.github.io/PythonSolutions/)
 
-## [Doc (vicutils)](https://vic-nas.github.io/PythonSolutions/#vicutils)
+## [Doc (vicutils)](https://victorio-dev.github.io/PythonSolutions/#vicutils)
 
 A collection of programming problem solutions and python package.
 
