@@ -745,7 +745,7 @@
     },
     {
       "name": "kattis",
-      "count": 4,
+      "count": 5,
       "image": "kattis/platform.png",
       "tree": [
         {
@@ -757,6 +757,12 @@
         {
           "name": "Collecting beepers",
           "path": "kattis/Collecting beepers",
+          "type": "dir",
+          "has_files": true
+        },
+        {
+          "name": "Forest for the trees",
+          "path": "kattis/Forest for the trees",
           "type": "dir",
           "has_files": true
         },
@@ -825,5 +831,5 @@
       ]
     }
   ],
-  "generated_at": "2026-01-22T00:56:05.384128"
+  "generated_at": "2026-01-22T02:49:11.178065"
 }
