@@ -745,7 +745,7 @@
     },
     {
       "name": "kattis",
-      "count": 3,
+      "count": 4,
       "image": "kattis/platform.png",
       "tree": [
         {
@@ -763,6 +763,12 @@
         {
           "name": "Suspension Bridges",
           "path": "kattis/Suspension Bridges",
+          "type": "dir",
+          "has_files": true
+        },
+        {
+          "name": "Where is my internet",
+          "path": "kattis/Where is my internet",
           "type": "dir",
           "has_files": true
         }
@@ -819,5 +825,5 @@
       ]
     }
   ],
-  "generated_at": "2026-01-16T23:29:07.994303"
+  "generated_at": "2026-01-22T00:56:05.384128"
 }
