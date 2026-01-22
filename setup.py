@@ -6,9 +6,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="vicutils",
-    version="0.35",
+    version="0.38",
     packages=find_packages(),
-    install_requires=[],
+    install_requires=["PyMuPDF>=1.23.0", "Pillow>=10.0.0"],
     
     # Metadata for PyPI
     author="Vic-Nas",
@@ -18,8 +18,8 @@ setup(
     long_description_content_type="text/markdown",
     url="https://vic-nas.github.io/PythonSolutions/",
     project_urls={
-        "Documentation": "https://vic-nas.github.io/PythonSolutions/vicutils/printBin.html",
-        "Source": "https://github.com/Vic-Nas/PythonSolutions",
+        "Documentation": "https://vic-nas.github.io/PythonSolutions/#vicutils",
+        "Source": "https://github.com/Vic-Nas/PythonSolutions/tree/main/vicutils",
     },
     classifiers=[
         "Programming Language :: Python :: 3",

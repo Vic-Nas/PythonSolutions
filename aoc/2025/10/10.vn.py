@@ -6,17 +6,23 @@ from functools import cache
 import heapq
 from collections import defaultdict
 from tqdm.auto import tqdm
-from collections import deque
+import re
 
-def parse(buttons: str):
-    buttons = buttons.strip().split()
+def parse(row: str):
+    row = row.strip()
+    goal = re.search(r"[#\.]+", row).group()
     goal = tuple(map(lambda x: int(x == "#"),
-        buttons[0][1:-1]))
-    size = len(goal)
-    req = tuple(map(int, buttons[-1][1:-1].split(",")))
+        goal))
+    buttons = re.findall(r"\(((?:\d,*)+)", row)
     buttons = list(map(
-        lambda s: tuple(map(int, s[1:-1].split(","))),
-        buttons[1:-1]))
+        lambda s: tuple(map(int, s.split(","))),
+        buttons))
+    req = list(
+        map(int, 
+            re.search(r"{(.*)}", row).group(1).split(",")
+        ))
+    
+    size = len(goal)    
     for i in range(len(buttons)):
         r = [0 for _ in range(size)]
         for j in buttons[i]:

@@ -795,12 +795,18 @@
     },
     {
       "name": "vicutils",
-      "count": 2,
+      "count": 3,
       "image": null,
       "tree": [
         {
           "name": "geometry",
           "path": "vicutils/geometry",
+          "type": "dir",
+          "has_files": true
+        },
+        {
+          "name": "pdf",
+          "path": "vicutils/pdf",
           "type": "dir",
           "has_files": true
         },
@@ -813,5 +819,5 @@
       ]
     }
   ],
-  "generated_at": "2025-12-12T06:59:42.640360"
+  "generated_at": "2026-01-16T23:29:07.994303"
 }

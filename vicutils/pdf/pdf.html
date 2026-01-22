@@ -1,0 +1,1725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>pdf API documentation</title>
+<meta name="description" content="PDF Compactor GUI Module
+Generated with Claude AI assistance …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pdf</code></h1>
+</header>
+<section id="section-intro">
+<p>PDF Compactor GUI Module
+Generated with Claude AI assistance</p>
+<p>Graphical user interface for PDF compaction using tkinter.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pdf.calculateOptimalGrid"><code class="name flex">
+<span>def <span class="ident">calculateOptimalGrid</span></span>(<span>totalPages: int, targetPages: int) ‑> Tuple[int, int]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculateOptimalGrid(totalPages: int, targetPages: int) -&gt; Tuple[int, int]:
+    &#34;&#34;&#34;
+    Calculate optimal grid (rows × columns) for given target page count.
+    
+    Attempts to create a grid as close to square as possible while fitting
+    all pages within the target number of output pages.
+    
+    Args:
+        totalPages: Total number of input pages to distribute
+        targetPages: Desired number of output pages
+        
+    Returns:
+        Tuple of (rows, columns) for the grid
+        
+    Example:
+        &gt;&gt;&gt; calculateOptimalGrid(24, 3)
+        (2, 4)  # 2×4 grid = 8 pages per output, 24/8 = 3 output pages
+    &#34;&#34;&#34;
+    if targetPages &lt;= 0 or totalPages &lt;= 0:
+        return 1, 1
+    
+    # Calculate pages per output page
+    pagesPerOutput = math.ceil(totalPages / targetPages)
+    
+    # Find factors closest to square root for most balanced grid
+    sqrtVal = math.sqrt(pagesPerOutput)
+    bestRows = 1
+    bestCols = pagesPerOutput
+    minDiff = abs(bestRows - bestCols)
+    
+    # Try to find perfect factors
+    for rows in range(1, int(sqrtVal) + 2):
+        if pagesPerOutput % rows == 0:
+            cols = pagesPerOutput // rows
+            diff = abs(rows - cols)
+            if diff &lt; minDiff:
+                minDiff = diff
+                bestRows = rows
+                bestCols = cols
+    
+    # If no perfect factors, find closest approximation
+    if bestRows * bestCols != pagesPerOutput:
+        bestRows = int(sqrtVal)
+        bestCols = math.ceil(pagesPerOutput / bestRows)
+    
+    return bestRows, bestCols</code></pre>
+</details>
+<div class="desc"><p>Calculate optimal grid (rows × columns) for given target page count.</p>
+<p>Attempts to create a grid as close to square as possible while fitting
+all pages within the target number of output pages.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>totalPages</code></strong></dt>
+<dd>Total number of input pages to distribute</dd>
+<dt><strong><code>targetPages</code></strong></dt>
+<dd>Desired number of output pages</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Tuple of (rows, columns) for the grid</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; calculateOptimalGrid(24, 3)
+(2, 4)  # 2×4 grid = 8 pages per output, 24/8 = 3 output pages
+</code></pre></div>
+</dd>
+<dt id="pdf.compactPdfs"><code class="name flex">
+<span>def <span class="ident">compactPdfs</span></span>(<span>inputPdfPaths: str | List[str],<br>config: <a title="pdf.CompactionConfig" href="#pdf.CompactionConfig">CompactionConfig</a> | None = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compactPdfs(
+    inputPdfPaths: Union[str, List[str]],
+    config: Optional[CompactionConfig] = None
+) -&gt; str:
+    &#34;&#34;&#34;
+    Compact multiple PDF pages onto single A4 pages in a grid layout.
+    
+    This is the main function for programmatic PDF compaction. It takes one or
+    more input PDFs and creates a single output PDF with pages arranged in a grid.
+    
+    Args:
+        inputPdfPaths: Single PDF path or list of PDF paths to compact
+        config: CompactionConfig object (uses defaults if None)
+        
+    Returns:
+        Path to the created output PDF file
+        
+    Raises:
+        FileNotFoundError: If any input PDF doesn&#39;t exist
+        ValueError: If inputPdfPaths is empty
+        
+    Example:
+        &gt;&gt;&gt; from vicutils.pdf import compactPdfs, CompactionConfig, LayoutMode
+        &gt;&gt;&gt; 
+        &gt;&gt;&gt; # Simple 2×2 grid
+        &gt;&gt;&gt; output = compactPdfs(&#34;input.pdf&#34;, CompactionConfig(rows=2, columns=2))
+        &gt;&gt;&gt; 
+        &gt;&gt;&gt; # Auto-calculate grid for 5 output pages
+        &gt;&gt;&gt; config = CompactionConfig(
+        ...     layoutMode=LayoutMode.TARGET_PAGES,
+        ...     targetPages=5,
+        ...     compression=85,
+        ...     showGrid=True
+        ... )
+        &gt;&gt;&gt; output = compactPdfs([&#34;file1.pdf&#34;, &#34;file2.pdf&#34;], config)
+    &#34;&#34;&#34;
+    # Handle single path input
+    if isinstance(inputPdfPaths, str):
+        inputPdfPaths = [inputPdfPaths]
+    
+    if not inputPdfPaths:
+        raise ValueError(&#34;No input PDF paths provided&#34;)
+    
+    # Validate all input files exist
+    for path in inputPdfPaths:
+        if not os.path.exists(path):
+            raise FileNotFoundError(f&#34;PDF not found: {path}&#34;)
+    
+    # Use default config if none provided
+    if config is None:
+        config = CompactionConfig()
+    
+    # Determine layout parameters
+    rows, columns = _getLayoutParameters(config, inputPdfPaths)
+    cellWidth = A4_WIDTH / columns
+    cellHeight = A4_HEIGHT / rows
+    
+    # Determine output path
+    if config.outputDir:
+        outputDir = config.outputDir
+    else:
+        outputDir = os.path.join(os.path.dirname(inputPdfPaths[0]), &#34;VicOutput&#34;)
+    os.makedirs(outputDir, exist_ok=True)
+    
+    if config.outputFilename:
+        filename = config.outputFilename
+        if not filename.endswith(&#39;.pdf&#39;):
+            filename += &#39;.pdf&#39;
+    else:
+        filename = &#34;vicOutput.pdf&#34;
+    
+    outputPath = os.path.join(outputDir, filename)
+    
+    # Open all input PDFs
+    docs = [fitz.open(path) for path in inputPdfPaths]
+    
+    try:
+        # Merge and compress all pages
+        allPages = mergePdfPages(docs, config.compression, config.separationPages)
+        
+        # Create output document
+        outputDoc = fitz.open()
+        pagesPerOutput = rows * columns
+        
+        # Process pages in groups
+        for i in range(0, len(allPages), pagesPerOutput):
+            # Create new A4 page
+            newPage = outputDoc.new_page(width=A4_WIDTH, height=A4_HEIGHT)
+            pageGroup = allPages[i:i + pagesPerOutput]
+            
+            # Place each page in the group
+            for idx, pixmap in enumerate(pageGroup):
+                if pixmap is not None:  # Skip separation pages
+                    _placePageOnGrid(
+                        newPage,
+                        pixmap,
+                        idx,
+                        columns,
+                        rows,
+                        cellWidth,
+                        cellHeight,
+                        config.pageOrder,
+                        config.maintainAspectRatio,
+                        config.addPageNumbers
+                    )
+            
+            # Draw grid if requested
+            if config.showGrid:
+                _drawGrid(newPage, columns, rows, cellWidth, cellHeight, config.gridColor)
+        
+        # Save with compression
+        outputDoc.save(
+            outputPath,
+            garbage=4,  # Maximum garbage collection
+            deflate=True,  # Compress content streams
+            clean=True  # Clean and optimize
+        )
+        outputDoc.close()
+        
+    finally:
+        # Clean up input documents
+        for doc in docs:
+            doc.close()
+    
+    return outputPath</code></pre>
+</details>
+<div class="desc"><p>Compact multiple PDF pages onto single A4 pages in a grid layout.</p>
+<p>This is the main function for programmatic PDF compaction. It takes one or
+more input PDFs and creates a single output PDF with pages arranged in a grid.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>inputPdfPaths</code></strong></dt>
+<dd>Single PDF path or list of PDF paths to compact</dd>
+<dt><strong><code>config</code></strong></dt>
+<dd>CompactionConfig object (uses defaults if None)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Path to the created output PDF file</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>FileNotFoundError</code></dt>
+<dd>If any input PDF doesn't exist</dd>
+<dt><code>ValueError</code></dt>
+<dd>If inputPdfPaths is empty</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; from vicutils.pdf import compactPdfs, CompactionConfig, LayoutMode
+&gt;&gt;&gt; 
+&gt;&gt;&gt; # Simple 2×2 grid
+&gt;&gt;&gt; output = compactPdfs(&quot;input.pdf&quot;, CompactionConfig(rows=2, columns=2))
+&gt;&gt;&gt; 
+&gt;&gt;&gt; # Auto-calculate grid for 5 output pages
+&gt;&gt;&gt; config = CompactionConfig(
+...     layoutMode=LayoutMode.TARGET_PAGES,
+...     targetPages=5,
+...     compression=85,
+...     showGrid=True
+... )
+&gt;&gt;&gt; output = compactPdfs([&quot;file1.pdf&quot;, &quot;file2.pdf&quot;], config)
+</code></pre></div>
+</dd>
+<dt id="pdf.launchGui"><code class="name flex">
+<span>def <span class="ident">launchGui</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def launchGui():
+    &#34;&#34;&#34;
+    Launch the PDF Compactor GUI application.
+    
+    This is the main entry point for the GUI. Call this function to start
+    the interactive PDF compaction interface.
+    
+    Example:
+        &gt;&gt;&gt; from vicutils.pdf import launchGui
+        &gt;&gt;&gt; launchGui()
+    &#34;&#34;&#34;
+    root = tk.Tk()
+    app = PdfCompactorApp(root)
+    root.mainloop()</code></pre>
+</details>
+<div class="desc"><p>Launch the PDF Compactor GUI application.</p>
+<p>This is the main entry point for the GUI. Call this function to start
+the interactive PDF compaction interface.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; from vicutils.pdf import launchGui
+&gt;&gt;&gt; launchGui()
+</code></pre></div>
+</dd>
+<dt id="pdf.mergePdfPages"><code class="name flex">
+<span>def <span class="ident">mergePdfPages</span></span>(<span>docs: List[pymupdf.Document], compression: int, separationPages: int = 0) ‑> List[pymupdf.Pixmap | None]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mergePdfPages(
+    docs: List[fitz.Document],
+    compression: int,
+    separationPages: int = 0
+) -&gt; List[Optional[fitz.Pixmap]]:
+    &#34;&#34;&#34;
+    Merge and compress pages from multiple PDF documents.
+    
+    Args:
+        docs: List of opened fitz.Document objects
+        compression: Compression percentage (25-100)
+        separationPages: Number of blank pages to insert between documents
+        
+    Returns:
+        List of fitz.Pixmap objects (or None for blank separation pages)
+    &#34;&#34;&#34;
+    allPages = []
+    compression = max(25, min(100, compression))
+    
+    for docIdx, doc in enumerate(docs):
+        for pageNum in range(len(doc)):
+            page = doc[pageNum]
+            
+            # Use compression factor for rendering
+            zoom = compression / 100.0
+            matrix = fitz.Matrix(zoom, zoom)
+            pixmap = page.get_pixmap(matrix=matrix, alpha=False)
+            
+            # Convert to RGB if needed (remove alpha channel)
+            if pixmap.alpha:
+                pixmap = fitz.Pixmap(fitz.csRGB, pixmap)
+            
+            allPages.append(pixmap)
+        
+        # Add separation pages between documents
+        if docIdx &lt; len(docs) - 1 and separationPages &gt; 0:
+            for _ in range(separationPages):
+                allPages.append(None)
+    
+    return allPages</code></pre>
+</details>
+<div class="desc"><p>Merge and compress pages from multiple PDF documents.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>docs</code></strong></dt>
+<dd>List of opened fitz.Document objects</dd>
+<dt><strong><code>compression</code></strong></dt>
+<dd>Compression percentage (25-100)</dd>
+<dt><strong><code>separationPages</code></strong></dt>
+<dd>Number of blank pages to insert between documents</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>List of fitz.Pixmap objects (or None for blank separation pages)</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pdf.CompactionConfig"><code class="flex name class">
+<span>class <span class="ident">CompactionConfig</span></span>
+<span>(</span><span>rows: int = 1,<br>columns: int = 1,<br>targetPages: int = 1,<br>layoutMode: <a title="pdf.LayoutMode" href="#pdf.LayoutMode">LayoutMode</a> = LayoutMode.GRID,<br>compression: int = 100,<br>separationPages: int = 0,<br>pageOrder: <a title="pdf.PageOrder" href="#pdf.PageOrder">PageOrder</a> = PageOrder.HORIZONTAL,<br>maintainAspectRatio: bool = True,<br>showGrid: bool = False,<br>gridColor: Tuple[float, float, float] = (0, 0, 0),<br>addPageNumbers: bool = False,<br>outputDir: str | None = None,<br>outputFilename: str | None = None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class CompactionConfig:
+    &#34;&#34;&#34;
+    Configuration for PDF compaction.
+    
+    Attributes:
+        rows: Number of rows per output page (grid mode)
+        columns: Number of columns per output page (grid mode)
+        targetPages: Target number of output pages (target_pages mode)
+        layoutMode: Layout mode to use (GRID or TARGET_PAGES)
+        compression: Image quality percentage (25-100, where 100=original)
+        separationPages: Number of blank pages to insert between input PDFs
+        pageOrder: Order for placing pages (HORIZONTAL or VERTICAL)
+        maintainAspectRatio: Whether to maintain aspect ratio when scaling
+        showGrid: Whether to draw grid lines on output pages
+        gridColor: RGB tuple for grid color (0-1 range for each component)
+        addPageNumbers: Whether to add page numbers to each cell
+        outputDir: Directory for output file (None = auto-create VicOutput)
+        outputFilename: Name of output file (None = auto-generate)
+    &#34;&#34;&#34;
+    rows: int = 1
+    columns: int = 1
+    targetPages: int = 1
+    layoutMode: LayoutMode = LayoutMode.GRID
+    compression: int = 100
+    separationPages: int = 0
+    pageOrder: PageOrder = PageOrder.HORIZONTAL
+    maintainAspectRatio: bool = True
+    showGrid: bool = False
+    gridColor: Tuple[float, float, float] = (0, 0, 0)
+    addPageNumbers: bool = False
+    outputDir: Optional[str] = None
+    outputFilename: Optional[str] = None
+    
+    def __post_init__(self):
+        &#34;&#34;&#34;Validate configuration values.&#34;&#34;&#34;
+        self.compression = max(25, min(100, self.compression))
+        self.rows = max(1, self.rows)
+        self.columns = max(1, self.columns)
+        self.targetPages = max(1, self.targetPages)
+        self.separationPages = max(0, self.separationPages)</code></pre>
+</details>
+<div class="desc"><p>Configuration for PDF compaction.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>rows</code></strong></dt>
+<dd>Number of rows per output page (grid mode)</dd>
+<dt><strong><code>columns</code></strong></dt>
+<dd>Number of columns per output page (grid mode)</dd>
+<dt><strong><code>targetPages</code></strong></dt>
+<dd>Target number of output pages (target_pages mode)</dd>
+<dt><strong><code>layoutMode</code></strong></dt>
+<dd>Layout mode to use (GRID or TARGET_PAGES)</dd>
+<dt><strong><code>compression</code></strong></dt>
+<dd>Image quality percentage (25-100, where 100=original)</dd>
+<dt><strong><code>separationPages</code></strong></dt>
+<dd>Number of blank pages to insert between input PDFs</dd>
+<dt><strong><code>pageOrder</code></strong></dt>
+<dd>Order for placing pages (HORIZONTAL or VERTICAL)</dd>
+<dt><strong><code>maintainAspectRatio</code></strong></dt>
+<dd>Whether to maintain aspect ratio when scaling</dd>
+<dt><strong><code>showGrid</code></strong></dt>
+<dd>Whether to draw grid lines on output pages</dd>
+<dt><strong><code>gridColor</code></strong></dt>
+<dd>RGB tuple for grid color (0-1 range for each component)</dd>
+<dt><strong><code>addPageNumbers</code></strong></dt>
+<dd>Whether to add page numbers to each cell</dd>
+<dt><strong><code>outputDir</code></strong></dt>
+<dd>Directory for output file (None = auto-create VicOutput)</dd>
+<dt><strong><code>outputFilename</code></strong></dt>
+<dd>Name of output file (None = auto-generate)</dd>
+</dl></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pdf.CompactionConfig.addPageNumbers"><code class="name">var <span class="ident">addPageNumbers</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.columns"><code class="name">var <span class="ident">columns</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.compression"><code class="name">var <span class="ident">compression</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.gridColor"><code class="name">var <span class="ident">gridColor</span> : Tuple[float, float, float]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.layoutMode"><code class="name">var <span class="ident">layoutMode</span> : <a title="pdf.LayoutMode" href="#pdf.LayoutMode">LayoutMode</a></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.maintainAspectRatio"><code class="name">var <span class="ident">maintainAspectRatio</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.outputDir"><code class="name">var <span class="ident">outputDir</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.outputFilename"><code class="name">var <span class="ident">outputFilename</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.pageOrder"><code class="name">var <span class="ident">pageOrder</span> : <a title="pdf.PageOrder" href="#pdf.PageOrder">PageOrder</a></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.rows"><code class="name">var <span class="ident">rows</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.separationPages"><code class="name">var <span class="ident">separationPages</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.showGrid"><code class="name">var <span class="ident">showGrid</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.CompactionConfig.targetPages"><code class="name">var <span class="ident">targetPages</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="pdf.LayoutMode"><code class="flex name class">
+<span>class <span class="ident">LayoutMode</span></span>
+<span>(</span><span>*values)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LayoutMode(Enum):
+    &#34;&#34;&#34;Layout mode for PDF compaction.&#34;&#34;&#34;
+    GRID = &#34;grid&#34;  # Manual rows × columns
+    TARGET_PAGES = &#34;target_pages&#34;  # Auto-calculate grid from target page count</code></pre>
+</details>
+<div class="desc"><p>Layout mode for PDF compaction.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pdf.LayoutMode.GRID"><code class="name">var <span class="ident">GRID</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.LayoutMode.TARGET_PAGES"><code class="name">var <span class="ident">TARGET_PAGES</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="pdf.PageOrder"><code class="flex name class">
+<span>class <span class="ident">PageOrder</span></span>
+<span>(</span><span>*values)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PageOrder(Enum):
+    &#34;&#34;&#34;Order in which pages are placed on the grid.&#34;&#34;&#34;
+    HORIZONTAL = &#34;horizontal&#34;  # Fill left-to-right, then top-to-bottom
+    VERTICAL = &#34;vertical&#34;  # Fill top-to-bottom, then left-to-right</code></pre>
+</details>
+<div class="desc"><p>Order in which pages are placed on the grid.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pdf.PageOrder.HORIZONTAL"><code class="name">var <span class="ident">HORIZONTAL</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="pdf.PageOrder.VERTICAL"><code class="name">var <span class="ident">VERTICAL</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="pdf.PdfCompactorApp"><code class="flex name class">
+<span>class <span class="ident">PdfCompactorApp</span></span>
+<span>(</span><span>root)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PdfCompactorApp:
+    &#34;&#34;&#34;Main application class for PDF Compactor GUI.&#34;&#34;&#34;
+    
+    def __init__(self, root):
+        &#34;&#34;&#34;
+        Initialize the PDF Compactor application.
+        
+        Args:
+            root: tkinter root window
+        &#34;&#34;&#34;
+        self.root = root
+        self.currentLanguage = &#39;en&#39;
+        self._setupWindow()
+        self._setupVariables()
+        self._setupUi()
+        
+    def _setupWindow(self):
+        &#34;&#34;&#34;Configure window based on platform.&#34;&#34;&#34;
+        # Set window size
+        windowWidth = 700
+        windowHeight = 700
+        
+        # Center window on screen
+        screenWidth = self.root.winfo_screenwidth()
+        screenHeight = self.root.winfo_screenheight()
+        x = (screenWidth - windowWidth) // 2
+        y = (screenHeight - windowHeight) // 2
+        
+        self.root.geometry(f&#34;{windowWidth}x{windowHeight}+{x}+{y}&#34;)
+        self.root.configure(bg=&#34;#2C3E50&#34;)
+        
+        # Allow window resizing
+        self.root.minsize(650, 650)
+        
+        # Platform-specific font configurations
+        system = platform.system()
+        if system == &#34;Darwin&#34;:  # macOS
+            try:
+                self.root.option_add(&#34;*Font&#34;, (&#34;SF Pro&#34;, 12))
+            except:
+                self.root.option_add(&#34;*Font&#34;, (&#34;Helvetica&#34;, 12))
+        elif system == &#34;Windows&#34;:
+            try:
+                self.root.option_add(&#34;*Font&#34;, (&#34;Segoe UI&#34;, 10))
+            except:
+                self.root.option_add(&#34;*Font&#34;, (&#34;Arial&#34;, 10))
+        else:  # Linux
+            try:
+                self.root.option_add(&#34;*Font&#34;, (&#34;Ubuntu&#34;, 10))
+            except:
+                self.root.option_add(&#34;*Font&#34;, (&#34;Sans&#34;, 10))
+        
+        self.root.title(self._translate(&#39;title&#39;))
+            
+    def _setupVariables(self):
+        &#34;&#34;&#34;Initialize all tkinter variables.&#34;&#34;&#34;
+        self.gridOption = StringVar(value=self._translate(&#39;show&#39;))
+        self.gridColor = StringVar(value=&#34;#000000&#34;)
+        self.outputFolder = StringVar()
+        self.pdfName = StringVar()
+        self.pageOrder = StringVar(value=self._translate(&#39;horizontal&#39;))
+        self.maintainAspect = BooleanVar(value=True)
+        self.addPageNumbers = BooleanVar(value=False)
+        self.quality = StringVar(value=self._translate(&#39;high&#39;))
+        self.languageVar = StringVar(value=&#39;en&#39;)
+        self.layoutMode = StringVar(value=&#39;grid&#39;)
+        
+        # Numeric values
+        self.rows = IntVar(value=1)
+        self.cols = IntVar(value=1)
+        self.separation = IntVar(value=0)
+        self.targetPages = IntVar(value=1)
+        
+    def _translate(self, key):
+        &#34;&#34;&#34;
+        Translate key to current language.
+        
+        Args:
+            key: Translation key
+            
+        Returns:
+            Translated string
+        &#34;&#34;&#34;
+        return TRANSLATIONS.get(self.currentLanguage, TRANSLATIONS[&#39;en&#39;]).get(key, key)
+        
+    def _changeLanguage(self, event=None):
+        &#34;&#34;&#34;Change application language and rebuild UI.&#34;&#34;&#34;
+        self.currentLanguage = self.languageVar.get()
+        savedFiles = list(self.listboxFiles.get(0, tk.END))
+        
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        
+        self._setupUi()
+        
+        for file in savedFiles:
+            self.listboxFiles.insert(tk.END, file)
+        
+        self.root.title(self._translate(&#39;title&#39;))
+        
+    def _setupUi(self):
+        &#34;&#34;&#34;Create the complete user interface.&#34;&#34;&#34;
+        # Main container with scrollbar
+        mainContainer = tk.Frame(self.root, bg=&#34;#2C3E50&#34;)
+        mainContainer.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Canvas and scrollbar
+        canvas = tk.Canvas(mainContainer, bg=&#34;#2C3E50&#34;, highlightthickness=0)
+        scrollbar = tk.Scrollbar(mainContainer, orient=&#34;vertical&#34;, command=canvas.yview)
+        scrollableFrame = tk.Frame(canvas, bg=&#34;#2C3E50&#34;)
+        
+        scrollableFrame.bind(
+            &#34;&lt;Configure&gt;&#34;,
+            lambda e: canvas.configure(scrollregion=canvas.bbox(&#34;all&#34;))
+        )
+        
+        canvasWindow = canvas.create_window((0, 0), window=scrollableFrame, anchor=&#34;nw&#34;)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Center content
+        def centerContent(event):
+            canvas.itemconfig(canvasWindow, width=event.width)
+        canvas.bind(&#39;&lt;Configure&gt;&#39;, centerContent)
+        
+        # Mouse wheel scrolling
+        def onMousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), &#34;units&#34;)
+        canvas.bind_all(&#34;&lt;MouseWheel&gt;&#34;, onMousewheel)
+        canvas.bind_all(&#34;&lt;Button-4&gt;&#34;, lambda e: canvas.yview_scroll(-1, &#34;units&#34;))
+        canvas.bind_all(&#34;&lt;Button-5&gt;&#34;, lambda e: canvas.yview_scroll(1, &#34;units&#34;))
+        
+        canvas.pack(side=&#34;left&#34;, fill=&#34;both&#34;, expand=True)
+        scrollbar.pack(side=&#34;right&#34;, fill=&#34;y&#34;)
+        
+        # Build UI sections
+        self._createHeader(scrollableFrame)
+        self._createFilesSection(scrollableFrame)
+        self._createBasicParamsSection(scrollableFrame)
+        self._createAdvancedOptionsSection(scrollableFrame)
+        self._createOutputSection(scrollableFrame)
+        self._createActionButtons(scrollableFrame)
+        self._createStatusBar()
+        
+    def _createHeader(self, parent):
+        &#34;&#34;&#34;Create title and language selector.&#34;&#34;&#34;
+        headerFrame = tk.Frame(parent, bg=&#34;#2C3E50&#34;)
+        headerFrame.pack(fill=tk.X, pady=(0, 10))
+        
+        titleLabel = tk.Label(
+            headerFrame,
+            text=self._translate(&#39;title&#39;),
+            font=(&#34;Arial&#34;, 18, &#34;bold&#34;),
+            bg=&#34;#2C3E50&#34;,
+            fg=&#34;white&#34;
+        )
+        titleLabel.pack(side=tk.LEFT, padx=(0, 20))
+        
+        langFrame = tk.Frame(headerFrame, bg=&#34;#2C3E50&#34;)
+        langFrame.pack(side=tk.RIGHT)
+        
+        tk.Label(
+            langFrame,
+            text=self._translate(&#39;language&#39;),
+            bg=&#34;#2C3E50&#34;,
+            fg=&#34;white&#34;
+        ).pack(side=tk.LEFT, padx=5)
+        
+        langMenu = ttk.Combobox(
+            langFrame,
+            textvariable=self.languageVar,
+            values=[&#39;en&#39;, &#39;fr&#39;],
+            state=&#34;readonly&#34;,
+            width=8
+        )
+        langMenu.set(self.currentLanguage)
+        langMenu.pack(side=tk.LEFT)
+        langMenu.bind(&#34;&lt;&lt;ComboboxSelected&gt;&gt;&#34;, self._changeLanguage)
+        
+    def _createFilesSection(self, parent):
+        &#34;&#34;&#34;Create file selection section.&#34;&#34;&#34;
+        filesFrame = tk.LabelFrame(
+            parent,
+            text=self._translate(&#39;input_files&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            font=(&#34;Arial&#34;, 11, &#34;bold&#34;),
+            padx=10,
+            pady=10
+        )
+        filesFrame.pack(fill=tk.BOTH, expand=False, pady=5)
+        
+        # Listbox with scrollbar
+        listContainer = tk.Frame(filesFrame, bg=&#34;#34495E&#34;)
+        listContainer.pack(fill=tk.BOTH, expand=False)
+        
+        scrollbar = tk.Scrollbar(listContainer)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        self.listboxFiles = Listbox(
+            listContainer,
+            selectmode=MULTIPLE,
+            height=4,
+            yscrollcommand=scrollbar.set,
+            bg=&#34;#ECF0F1&#34;,
+            font=(&#34;Courier&#34;, 9)
+        )
+        self.listboxFiles.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.config(command=self.listboxFiles.yview)
+        
+        # Action buttons
+        buttonFrame = tk.Frame(filesFrame, bg=&#34;#34495E&#34;)
+        buttonFrame.pack(pady=5)
+        
+        buttons = [
+            (self._translate(&#39;add_pdfs&#39;), self._selectInputFiles, &#34;#3498DB&#34;),
+            (self._translate(&#39;remove&#39;), self._removeSelectedFiles, &#34;#E74C3C&#34;),
+            (self._translate(&#39;move_up&#39;), self._moveUp, &#34;#95A5A6&#34;),
+            (self._translate(&#39;move_down&#39;), self._moveDown, &#34;#95A5A6&#34;),
+            (self._translate(&#39;clear_all&#39;), self._clearAll, &#34;#C0392B&#34;)
+        ]
+        
+        for text, command, color in buttons:
+            tk.Button(
+                buttonFrame,
+                text=text,
+                command=command,
+                bg=color,
+                fg=&#34;white&#34;,
+                padx=10,
+                pady=5
+            ).pack(side=tk.LEFT, padx=2)
+        
+    def _createBasicParamsSection(self, parent):
+        &#34;&#34;&#34;Create basic layout parameters section.&#34;&#34;&#34;
+        paramsFrame = tk.LabelFrame(
+            parent,
+            text=self._translate(&#39;layout_params&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            font=(&#34;Arial&#34;, 11, &#34;bold&#34;),
+            padx=10,
+            pady=10
+        )
+        paramsFrame.pack(fill=tk.X, pady=5)
+        
+        # Layout mode selector
+        modeFrame = tk.Frame(paramsFrame, bg=&#34;#34495E&#34;)
+        modeFrame.pack(fill=tk.X, pady=5)
+        
+        tk.Label(
+            modeFrame,
+            text=self._translate(&#39;layout_mode&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            width=15,
+            anchor=&#39;w&#39;
+        ).pack(side=tk.LEFT, padx=5)
+        
+        modeMenu = ttk.Combobox(
+            modeFrame,
+            textvariable=self.layoutMode,
+            values=[&#39;grid&#39;, &#39;target_pages&#39;],
+            state=&#34;readonly&#34;,
+            width=25
+        )
+        modeMenu.pack(side=tk.LEFT, padx=5)
+        modeMenu.bind(&#34;&lt;&lt;ComboboxSelected&gt;&gt;&#34;, self._toggleLayoutMode)
+        
+        # Create frames for both modes
+        self.gridControlsFrame = tk.Frame(paramsFrame, bg=&#34;#34495E&#34;)
+        self.targetPagesFrame = tk.Frame(paramsFrame, bg=&#34;#34495E&#34;)
+        
+        # Grid mode controls
+        self._createGridControls()
+        
+        # Target pages mode controls
+        self._createTargetPagesControls()
+        
+        # Show grid mode by default
+        self.gridControlsFrame.pack(fill=tk.X)
+        
+        # Separation (common to both modes)
+        self._createSeparationControl(paramsFrame)
+    
+    def _createGridControls(self):
+        &#34;&#34;&#34;Create grid mode controls (rows and columns).&#34;&#34;&#34;
+        # Rows
+        rowFrame = tk.Frame(self.gridControlsFrame, bg=&#34;#34495E&#34;)
+        rowFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Label(
+            rowFrame,
+            text=self._translate(&#39;rows&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            width=15,
+            anchor=&#39;w&#39;
+        ).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            rowFrame,
+            text=&#34;−&#34;,
+            command=lambda: self._adjustValue(self.rows, -1, 1, None),
+            bg=&#34;#95A5A6&#34;,
+            fg=&#34;white&#34;,
+            width=3
+        ).pack(side=tk.LEFT, padx=2)
+        
+        self.rowsLabel = tk.Label(
+            rowFrame,
+            text=&#34;1&#34;,
+            bg=&#34;#ECF0F1&#34;,
+            width=5,
+            relief=tk.SUNKEN
+        )
+        self.rowsLabel.pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            rowFrame,
+            text=&#34;+&#34;,
+            command=lambda: self._adjustValue(self.rows, 1, 1, None),
+            bg=&#34;#95A5A6&#34;,
+            fg=&#34;white&#34;,
+            width=3
+        ).pack(side=tk.LEFT, padx=2)
+        
+        # Columns
+        colFrame = tk.Frame(self.gridControlsFrame, bg=&#34;#34495E&#34;)
+        colFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Label(
+            colFrame,
+            text=self._translate(&#39;columns&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            width=15,
+            anchor=&#39;w&#39;
+        ).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            colFrame,
+            text=&#34;−&#34;,
+            command=lambda: self._adjustValue(self.cols, -1, 1, None),
+            bg=&#34;#95A5A6&#34;,
+            fg=&#34;white&#34;,
+            width=3
+        ).pack(side=tk.LEFT, padx=2)
+        
+        self.colsLabel = tk.Label(
+            colFrame,
+            text=&#34;1&#34;,
+            bg=&#34;#ECF0F1&#34;,
+            width=5,
+            relief=tk.SUNKEN
+        )
+        self.colsLabel.pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            colFrame,
+            text=&#34;+&#34;,
+            command=lambda: self._adjustValue(self.cols, 1, 1, None),
+            bg=&#34;#95A5A6&#34;,
+            fg=&#34;white&#34;,
+            width=3
+        ).pack(side=tk.LEFT, padx=2)
+    
+    def _createTargetPagesControls(self):
+        &#34;&#34;&#34;Create target pages mode controls.&#34;&#34;&#34;
+        targetFrame = tk.Frame(self.targetPagesFrame, bg=&#34;#34495E&#34;)
+        targetFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Label(
+            targetFrame,
+            text=self._translate(&#39;target_pages&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            width=15,
+            anchor=&#39;w&#39;
+        ).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            targetFrame,
+            text=&#34;−&#34;,
+            command=lambda: self._adjustValue(self.targetPages, -1, 1, 1000),
+            bg=&#34;#95A5A6&#34;,
+            fg=&#34;white&#34;,
+            width=3
+        ).pack(side=tk.LEFT, padx=2)
+        
+        self.targetLabel = tk.Label(
+            targetFrame,
+            text=&#34;1&#34;,
+            bg=&#34;#ECF0F1&#34;,
+            width=5,
+            relief=tk.SUNKEN
+        )
+        self.targetLabel.pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            targetFrame,
+            text=&#34;+&#34;,
+            command=lambda: self._adjustValue(self.targetPages, 1, 1, 1000),
+            bg=&#34;#95A5A6&#34;,
+            fg=&#34;white&#34;,
+            width=3
+        ).pack(side=tk.LEFT, padx=2)
+        
+        # Calculated grid info
+        self.calcGridLabel = tk.Label(
+            self.targetPagesFrame,
+            text=&#34;&#34;,
+            bg=&#34;#34495E&#34;,
+            fg=&#34;#3498DB&#34;,
+            font=(&#34;Arial&#34;, 9, &#34;italic&#34;)
+        )
+        self.calcGridLabel.pack(fill=tk.X, pady=3)
+    
+    def _createSeparationControl(self, parent):
+        &#34;&#34;&#34;Create separation pages control.&#34;&#34;&#34;
+        sepFrame = tk.Frame(parent, bg=&#34;#34495E&#34;)
+        sepFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Label(
+            sepFrame,
+            text=self._translate(&#39;separation&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            width=15,
+            anchor=&#39;w&#39;
+        ).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            sepFrame,
+            text=&#34;−&#34;,
+            command=lambda: self._adjustValue(self.separation, -1, 0, 20),
+            bg=&#34;#95A5A6&#34;,
+            fg=&#34;white&#34;,
+            width=3
+        ).pack(side=tk.LEFT, padx=2)
+        
+        self.sepLabel = tk.Label(
+            sepFrame,
+            text=&#34;0&#34;,
+            bg=&#34;#ECF0F1&#34;,
+            width=5,
+            relief=tk.SUNKEN
+        )
+        self.sepLabel.pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            sepFrame,
+            text=&#34;+&#34;,
+            command=lambda: self._adjustValue(self.separation, 1, 0, 20),
+            bg=&#34;#95A5A6&#34;,
+            fg=&#34;white&#34;,
+            width=3
+        ).pack(side=tk.LEFT, padx=2)
+    
+    def _toggleLayoutMode(self, event=None):
+        &#34;&#34;&#34;Switch between grid and target pages mode.&#34;&#34;&#34;
+        if self.layoutMode.get() == &#39;grid&#39;:
+            self.targetPagesFrame.pack_forget()
+            self.gridControlsFrame.pack(fill=tk.X, before=self.targetPagesFrame.master.winfo_children()[-1])
+        else:  # target_pages
+            self.gridControlsFrame.pack_forget()
+            self.targetPagesFrame.pack(fill=tk.X, before=self.targetPagesFrame.master.winfo_children()[-1])
+            self._updateCalculatedGrid()
+    
+    def _updateCalculatedGrid(self):
+        &#34;&#34;&#34;Update the calculated grid display for target pages mode.&#34;&#34;&#34;
+        inputPdfs = list(self.listboxFiles.get(0, tk.END))
+        if not inputPdfs:
+            self.calcGridLabel.config(text=&#34;&#34;)
+            return
+        
+        try:
+            totalPages = _countTotalPages(inputPdfs, self.separation.get())
+            rows, cols = calculateOptimalGrid(totalPages, self.targetPages.get())
+            self.calcGridLabel.config(text=self._translate(&#39;calculated_grid&#39;).format(rows, cols))
+        except:
+            self.calcGridLabel.config(text=&#34;&#34;)
+    
+    def _adjustValue(self, var, delta, minVal, maxVal):
+        &#34;&#34;&#34;
+        Adjust numeric value with +/- buttons.
+        
+        Args:
+            var: IntVar to modify
+            delta: Amount to add/subtract
+            minVal: Minimum allowed value
+            maxVal: Maximum allowed value (None for no limit)
+        &#34;&#34;&#34;
+        newVal = var.get() + delta
+        if maxVal is None or minVal &lt;= newVal &lt;= maxVal:
+            if newVal &gt;= minVal:
+                var.set(newVal)
+                
+                # Update corresponding label
+                if var == self.rows:
+                    self.rowsLabel.config(text=str(newVal))
+                elif var == self.cols:
+                    self.colsLabel.config(text=str(newVal))
+                elif var == self.separation:
+                    self.sepLabel.config(text=str(newVal))
+                    if self.layoutMode.get() == &#39;target_pages&#39;:
+                        self._updateCalculatedGrid()
+                elif var == self.targetPages:
+                    self.targetLabel.config(text=str(newVal))
+                    self._updateCalculatedGrid()
+            
+    def _createAdvancedOptionsSection(self, parent):
+        &#34;&#34;&#34;Create advanced options section.&#34;&#34;&#34;
+        advancedFrame = tk.LabelFrame(
+            parent,
+            text=self._translate(&#39;advanced_options&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            font=(&#34;Arial&#34;, 11, &#34;bold&#34;),
+            padx=10,
+            pady=10
+        )
+        advancedFrame.pack(fill=tk.X, pady=5)
+        
+        # Page order
+        orderFrame = tk.Frame(advancedFrame, bg=&#34;#34495E&#34;)
+        orderFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Label(
+            orderFrame,
+            text=self._translate(&#39;page_order&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;
+        ).pack(side=tk.LEFT, padx=5)
+        
+        orderMenu = ttk.Combobox(
+            orderFrame,
+            textvariable=self.pageOrder,
+            values=[self._translate(&#39;horizontal&#39;), self._translate(&#39;vertical&#39;)],
+            state=&#34;readonly&#34;,
+            width=12
+        )
+        orderMenu.pack(side=tk.LEFT, padx=5)
+        
+        # Quality preset
+        qualityFrame = tk.Frame(advancedFrame, bg=&#34;#34495E&#34;)
+        qualityFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Label(
+            qualityFrame,
+            text=self._translate(&#39;quality_preset&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;
+        ).pack(side=tk.LEFT, padx=5)
+        
+        qualityMenu = ttk.Combobox(
+            qualityFrame,
+            textvariable=self.quality,
+            values=[
+                self._translate(&#39;low&#39;),
+                self._translate(&#39;medium&#39;),
+                self._translate(&#39;high&#39;),
+                self._translate(&#39;maximum&#39;)
+            ],
+            state=&#34;readonly&#34;,
+            width=12
+        )
+        qualityMenu.pack(side=tk.LEFT, padx=5)
+        
+        # Grid options
+        gridOptFrame = tk.Frame(advancedFrame, bg=&#34;#34495E&#34;)
+        gridOptFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Label(
+            gridOptFrame,
+            text=self._translate(&#39;grid&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;
+        ).pack(side=tk.LEFT, padx=5)
+        
+        gridMenu = ttk.Combobox(
+            gridOptFrame,
+            textvariable=self.gridOption,
+            values=[self._translate(&#39;show&#39;), self._translate(&#39;hide&#39;)],
+            state=&#34;readonly&#34;,
+            width=8
+        )
+        gridMenu.pack(side=tk.LEFT, padx=5)
+        
+        self.colorDisplay = tk.Label(
+            gridOptFrame,
+            width=3,
+            bg=self.gridColor.get(),
+            relief=tk.RAISED
+        )
+        self.colorDisplay.pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            gridOptFrame,
+            text=self._translate(&#39;choose_color&#39;),
+            command=self._chooseGridColor,
+            bg=&#34;#9B59B6&#34;,
+            fg=&#34;white&#34;,
+            padx=8,
+            pady=3
+        ).pack(side=tk.LEFT, padx=5)
+        
+        # Checkboxes
+        checkFrame = tk.Frame(advancedFrame, bg=&#34;#34495E&#34;)
+        checkFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Checkbutton(
+            checkFrame,
+            text=self._translate(&#39;maintain_aspect&#39;),
+            variable=self.maintainAspect,
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            selectcolor=&#34;#2C3E50&#34;
+        ).pack(side=tk.LEFT, padx=10)
+        
+        tk.Checkbutton(
+            checkFrame,
+            text=self._translate(&#39;add_page_numbers&#39;),
+            variable=self.addPageNumbers,
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            selectcolor=&#34;#2C3E50&#34;
+        ).pack(side=tk.LEFT, padx=10)
+        
+    def _createOutputSection(self, parent):
+        &#34;&#34;&#34;Create output options section.&#34;&#34;&#34;
+        outputFrame = tk.LabelFrame(
+            parent,
+            text=self._translate(&#39;output_options&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            font=(&#34;Arial&#34;, 11, &#34;bold&#34;),
+            padx=10,
+            pady=10
+        )
+        outputFrame.pack(fill=tk.X, pady=5)
+        
+        # Output folder
+        folderFrame = tk.Frame(outputFrame, bg=&#34;#34495E&#34;)
+        folderFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Label(
+            folderFrame,
+            text=self._translate(&#39;folder&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            width=10
+        ).pack(side=tk.LEFT)
+        
+        self.folderEntry = tk.Entry(folderFrame, textvariable=self.outputFolder)
+        self.folderEntry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.folderEntry.delete(0, tk.END)
+        self.folderEntry.insert(0, self._translate(&#39;default_folder&#39;))
+        self.folderEntry.config(fg=&#39;gray&#39;)
+        self.folderEntry.bind(&#39;&lt;FocusIn&gt;&#39;, self._clearPlaceholderFolder)
+        self.folderEntry.bind(&#39;&lt;FocusOut&gt;&#39;, self._restorePlaceholderFolder)
+        
+        tk.Button(
+            folderFrame,
+            text=self._translate(&#39;browse&#39;),
+            command=self._selectOutputFolder,
+            bg=&#34;#1ABC9C&#34;,
+            fg=&#34;white&#34;,
+            padx=10,
+            pady=5
+        ).pack(side=tk.LEFT, padx=5)
+        
+        # PDF name
+        nameFrame = tk.Frame(outputFrame, bg=&#34;#34495E&#34;)
+        nameFrame.pack(fill=tk.X, pady=3)
+        
+        tk.Label(
+            nameFrame,
+            text=self._translate(&#39;filename&#39;),
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;,
+            width=10
+        ).pack(side=tk.LEFT)
+        
+        self.nameEntry = tk.Entry(nameFrame, textvariable=self.pdfName)
+        self.nameEntry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.nameEntry.delete(0, tk.END)
+        self.nameEntry.insert(0, self._translate(&#39;default_filename&#39;))
+        self.nameEntry.config(fg=&#39;gray&#39;)
+        self.nameEntry.bind(&#39;&lt;FocusIn&gt;&#39;, self._clearPlaceholderName)
+        self.nameEntry.bind(&#39;&lt;FocusOut&gt;&#39;, self._restorePlaceholderName)
+        
+    def _createActionButtons(self, parent):
+        &#34;&#34;&#34;Create preview and create PDF action buttons.&#34;&#34;&#34;
+        actionFrame = tk.Frame(parent, bg=&#34;#2C3E50&#34;)
+        actionFrame.pack(pady=15)
+        
+        tk.Button(
+            actionFrame,
+            text=self._translate(&#39;preview&#39;),
+            command=self._previewPdf,
+            bg=&#34;#E67E22&#34;,
+            fg=&#34;white&#34;,
+            padx=20,
+            pady=10,
+            font=(&#34;Arial&#34;, 11, &#34;bold&#34;)
+        ).pack(side=tk.LEFT, padx=10)
+        
+        tk.Button(
+            actionFrame,
+            text=self._translate(&#39;create_pdf&#39;),
+            command=self._createFinalOutput,
+            bg=&#34;#27AE60&#34;,
+            fg=&#34;white&#34;,
+            padx=20,
+            pady=10,
+            font=(&#34;Arial&#34;, 11, &#34;bold&#34;)
+        ).pack(side=tk.LEFT, padx=10)
+        
+    def _createStatusBar(self):
+        &#34;&#34;&#34;Create status bar at bottom of window.&#34;&#34;&#34;
+        self.statusBar = tk.Label(
+            self.root,
+            text=self._translate(&#39;ready&#39;),
+            bd=1,
+            relief=tk.SUNKEN,
+            anchor=tk.W,
+            bg=&#34;#34495E&#34;,
+            fg=&#34;white&#34;
+        )
+        self.statusBar.pack(side=tk.BOTTOM, fill=tk.X)
+        
+    def _updateStatus(self, message):
+        &#34;&#34;&#34;
+        Update status bar message.
+        
+        Args:
+            message: Status message to display
+        &#34;&#34;&#34;
+        self.statusBar.config(text=message)
+        self.root.update_idletasks()
+        
+    def _selectInputFiles(self):
+        &#34;&#34;&#34;Open file dialog to select PDF files.&#34;&#34;&#34;
+        files = filedialog.askopenfilenames(
+            filetypes=[(&#34;PDF Files&#34;, &#34;*.pdf&#34;), (&#34;All Files&#34;, &#34;*.*&#34;)]
+        )
+        for file in files:
+            if file not in self.listboxFiles.get(0, tk.END):
+                self.listboxFiles.insert(tk.END, file)
+        
+        self._updateStatus(self._translate(&#39;added_files&#39;).format(len(files)))
+        
+        if self.layoutMode.get() == &#39;target_pages&#39;:
+            self._updateCalculatedGrid()
+        
+    def _removeSelectedFiles(self):
+        &#34;&#34;&#34;Remove selected files from the list.&#34;&#34;&#34;
+        selected = self.listboxFiles.curselection()
+        for index in reversed(selected):
+            self.listboxFiles.delete(index)
+        
+        self._updateStatus(self._translate(&#39;removed_files&#39;))
+        
+        if self.layoutMode.get() == &#39;target_pages&#39;:
+            self._updateCalculatedGrid()
+        
+    def _moveUp(self):
+        &#34;&#34;&#34;Move selected file up in the list.&#34;&#34;&#34;
+        selected = self.listboxFiles.curselection()
+        if not selected or selected[0] == 0:
+            return
+        
+        for index in selected:
+            item = self.listboxFiles.get(index)
+            self.listboxFiles.delete(index)
+            self.listboxFiles.insert(index - 1, item)
+            self.listboxFiles.selection_set(index - 1)
+            
+    def _moveDown(self):
+        &#34;&#34;&#34;Move selected file down in the list.&#34;&#34;&#34;
+        selected = self.listboxFiles.curselection()
+        if not selected or selected[-1] == self.listboxFiles.size() - 1:
+            return
+        
+        for index in reversed(selected):
+            item = self.listboxFiles.get(index)
+            self.listboxFiles.delete(index)
+            self.listboxFiles.insert(index + 1, item)
+            self.listboxFiles.selection_set(index + 1)
+            
+    def _clearAll(self):
+        &#34;&#34;&#34;Clear all files from the list after confirmation.&#34;&#34;&#34;
+        if self.listboxFiles.size() &gt; 0:
+            if messagebox.askyesno(
+                self._translate(&#39;confirm&#39;),
+                self._translate(&#39;clear_all_confirm&#39;)
+            ):
+                self.listboxFiles.delete(0, tk.END)
+                self._updateStatus(self._translate(&#39;cleared_files&#39;))
+                
+                if self.layoutMode.get() == &#39;target_pages&#39;:
+                    self._updateCalculatedGrid()
+                
+    def _chooseGridColor(self):
+        &#34;&#34;&#34;Open color picker for grid color selection.&#34;&#34;&#34;
+        color = colorchooser.askcolor(color=self.gridColor.get())[1]
+        if color:
+            self.gridColor.set(color)
+            self.colorDisplay.config(bg=color)
+            
+    def _applyQualityPreset(self):
+        &#34;&#34;&#34;
+        Get compression percentage from quality preset.
+        
+        Returns:
+            Integer compression percentage (25-100)
+        &#34;&#34;&#34;
+        presets = {
+            self._translate(&#39;low&#39;): 50,
+            self._translate(&#39;medium&#39;): 75,
+            self._translate(&#39;high&#39;): 100,
+            self._translate(&#39;maximum&#39;): 100
+        }
+        return presets.get(self.quality.get(), 100)
+        
+    def _selectOutputFolder(self):
+        &#34;&#34;&#34;Open folder selection dialog.&#34;&#34;&#34;
+        folder = filedialog.askdirectory()
+        if folder:
+            self.outputFolder.set(folder)
+            self.folderEntry.delete(0, tk.END)
+            self.folderEntry.insert(0, folder)
+            self.folderEntry.config(fg=&#39;black&#39;)
+            
+    def _clearPlaceholderFolder(self, event):
+        &#34;&#34;&#34;Clear folder placeholder text on focus.&#34;&#34;&#34;
+        currentText = self.folderEntry.get()
+        if currentText == self._translate(&#39;default_folder&#39;):
+            self.folderEntry.delete(0, tk.END)
+            self.folderEntry.config(fg=&#39;black&#39;)
+            
+    def _restorePlaceholderFolder(self, event):
+        &#34;&#34;&#34;Restore folder placeholder text if empty.&#34;&#34;&#34;
+        if not self.folderEntry.get():
+            self.folderEntry.insert(0, self._translate(&#39;default_folder&#39;))
+            self.folderEntry.config(fg=&#39;gray&#39;)
+            
+    def _clearPlaceholderName(self, event):
+        &#34;&#34;&#34;Clear filename placeholder text on focus.&#34;&#34;&#34;
+        currentText = self.nameEntry.get()
+        if currentText == self._translate(&#39;default_filename&#39;):
+            self.nameEntry.delete(0, tk.END)
+            self.nameEntry.config(fg=&#39;black&#39;)
+            
+    def _restorePlaceholderName(self, event):
+        &#34;&#34;&#34;Restore filename placeholder text if empty.&#34;&#34;&#34;
+        if not self.nameEntry.get():
+            self.nameEntry.insert(0, self._translate(&#39;default_filename&#39;))
+            self.nameEntry.config(fg=&#39;gray&#39;)
+    
+    def _getConfigFromGui(self):
+        &#34;&#34;&#34;
+        Build CompactionConfig from GUI settings.
+        
+        Returns:
+            CompactionConfig object with current GUI settings
+        &#34;&#34;&#34;
+        # Parse grid color
+        try:
+            colorHex = self.gridColor.get()
+            gridColor = tuple(int(colorHex[i:i+2], 16)/255 for i in (1, 3, 5))
+        except:
+            gridColor = (0, 0, 0)
+        
+        # Determine page order
+        pageOrderValue = (
+            PageOrder.HORIZONTAL 
+            if self.pageOrder.get() == self._translate(&#39;horizontal&#39;)
+            else PageOrder.VERTICAL
+        )
+        
+        # Determine layout mode
+        layoutModeValue = (
+            LayoutMode.GRID
+            if self.layoutMode.get() == &#39;grid&#39;
+            else LayoutMode.TARGET_PAGES
+        )
+        
+        # Get output folder
+        outputDir = self.outputFolder.get()
+        if not outputDir or outputDir in [
+            self._translate(&#39;default_folder&#39;),
+            TRANSLATIONS[&#39;en&#39;][&#39;default_folder&#39;],
+            TRANSLATIONS[&#39;fr&#39;][&#39;default_folder&#39;]
+        ]:
+            outputDir = None
+        
+        # Get filename
+        filename = self.pdfName.get()
+        if not filename or filename in [
+            self._translate(&#39;default_filename&#39;),
+            TRANSLATIONS[&#39;en&#39;][&#39;default_filename&#39;],
+            TRANSLATIONS[&#39;fr&#39;][&#39;default_filename&#39;]
+        ]:
+            filename = None
+        
+        return CompactionConfig(
+            rows=self.rows.get(),
+            columns=self.cols.get(),
+            targetPages=self.targetPages.get(),
+            layoutMode=layoutModeValue,
+            compression=self._applyQualityPreset(),
+            separationPages=self.separation.get(),
+            pageOrder=pageOrderValue,
+            maintainAspectRatio=self.maintainAspect.get(),
+            showGrid=(self.gridOption.get() == self._translate(&#39;show&#39;)),
+            gridColor=gridColor,
+            addPageNumbers=self.addPageNumbers.get(),
+            outputDir=outputDir,
+            outputFilename=filename
+        )
+    
+    def _previewPdf(self):
+        &#34;&#34;&#34;Generate and display preview of first output page.&#34;&#34;&#34;
+        inputPdfs = list(self.listboxFiles.get(0, tk.END))
+        if not inputPdfs:
+            messagebox.showerror(
+                self._translate(&#39;error&#39;),
+                self._translate(&#39;no_files_error&#39;)
+            )
+            return
+            
+        try:
+            self._updateStatus(self._translate(&#39;preview_generating&#39;))
+            
+            config = self._getConfigFromGui()
+            rows, columns = _getLayoutParameters(config, inputPdfs)
+            
+            cellWidth = A4_WIDTH / columns
+            cellHeight = A4_HEIGHT / rows
+            
+            # Open documents
+            docs = [fitz.open(pdf) for pdf in inputPdfs]
+            
+            # Merge pages
+            allPages = mergePdfPages(docs, config.compression, config.separationPages)
+            previewPages = allPages[:columns * rows]
+            
+            # Create preview document
+            newDoc = fitz.open()
+            newPage = newDoc.new_page(width=A4_WIDTH, height=A4_HEIGHT)
+            
+            # Place pages
+            for idx, pixmap in enumerate(previewPages):
+                if pixmap is not None:
+                    _placePageOnGrid(
+                        newPage,
+                        pixmap,
+                        idx,
+                        columns,
+                        rows,
+                        cellWidth,
+                        cellHeight,
+                        config.pageOrder,
+                        config.maintainAspectRatio,
+                        config.addPageNumbers
+                    )
+            
+            # Draw grid if enabled
+            if config.showGrid:
+                _drawGrid(newPage, columns, rows, cellWidth, cellHeight, config.gridColor)
+            
+            # Close input documents
+            for doc in docs:
+                doc.close()
+            
+            # Save to temp file and render
+            tempDir = tempfile.gettempdir()
+            tempPdf = os.path.join(tempDir, &#34;preview_temp.pdf&#34;)
+            newDoc.save(tempPdf)
+            
+            pixPreview = newDoc[0].get_pixmap()
+            newDoc.close()
+            
+            # Create PIL image
+            img = Image.frombytes(
+                &#34;RGB&#34;,
+                [pixPreview.width, pixPreview.height],
+                pixPreview.samples
+            )
+            img.thumbnail((800, 600), Image.Resampling.LANCZOS)
+            
+            # Show preview window
+            previewWin = Toplevel(self.root)
+            previewWin.title(self._translate(&#39;preview_title&#39;))
+            previewWin.configure(bg=&#34;#2C3E50&#34;)
+            
+            canvas = Canvas(
+                previewWin,
+                width=img.width,
+                height=img.height,
+                bg=&#34;#2C3E50&#34;
+            )
+            canvas.pack(padx=10, pady=10)
+            
+            imgTk = ImageTk.PhotoImage(img)
+            canvas.create_image(0, 0, anchor=tk.NW, image=imgTk)
+            canvas.image = imgTk
+            
+            # Clean up temp file
+            try:
+                os.remove(tempPdf)
+            except:
+                pass
+                
+            self._updateStatus(self._translate(&#39;preview_success&#39;))
+            
+        except Exception as e:
+            messagebox.showerror(
+                self._translate(&#39;error&#39;),
+                f&#34;{self._translate(&#39;preview_failed&#39;)}:\n{str(e)}&#34;
+            )
+            self._updateStatus(self._translate(&#39;preview_failed&#39;))
+    
+    def _createFinalOutput(self):
+        &#34;&#34;&#34;Create final PDF output using core library.&#34;&#34;&#34;
+        inputPdfs = list(self.listboxFiles.get(0, tk.END))
+        if not inputPdfs:
+            messagebox.showerror(
+                self._translate(&#39;error&#39;),
+                self._translate(&#39;no_files_error&#39;)
+            )
+            return
+            
+        try:
+            self._updateStatus(self._translate(&#39;creating_pdf&#39;))
+            
+            config = self._getConfigFromGui()
+            outputPath = compactPdfs(inputPdfs, config)
+            
+            self._updateStatus(
+                self._translate(&#39;pdf_saved&#39;).format(os.path.basename(outputPath))
+            )
+            
+            messagebox.showinfo(
+                self._translate(&#39;success&#39;),
+                f&#34;{self._translate(&#39;pdf_created&#39;)}\n\n&#34;
+                f&#34;{self._translate(&#39;saved_to&#39;)}\n{outputPath}&#34;
+            )
+            
+        except Exception as e:
+            messagebox.showerror(
+                self._translate(&#39;error&#39;),
+                f&#34;{self._translate(&#39;pdf_failed&#39;)}:\n{str(e)}&#34;
+            )
+            self._updateStatus(self._translate(&#39;pdf_failed&#39;))</code></pre>
+</details>
+<div class="desc"><p>Main application class for PDF Compactor GUI.</p>
+<p>Initialize the PDF Compactor application.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>root</code></strong></dt>
+<dd>tkinter root window</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pdf.calculateOptimalGrid" href="#pdf.calculateOptimalGrid">calculateOptimalGrid</a></code></li>
+<li><code><a title="pdf.compactPdfs" href="#pdf.compactPdfs">compactPdfs</a></code></li>
+<li><code><a title="pdf.launchGui" href="#pdf.launchGui">launchGui</a></code></li>
+<li><code><a title="pdf.mergePdfPages" href="#pdf.mergePdfPages">mergePdfPages</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pdf.CompactionConfig" href="#pdf.CompactionConfig">CompactionConfig</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pdf.CompactionConfig.addPageNumbers" href="#pdf.CompactionConfig.addPageNumbers">addPageNumbers</a></code></li>
+<li><code><a title="pdf.CompactionConfig.columns" href="#pdf.CompactionConfig.columns">columns</a></code></li>
+<li><code><a title="pdf.CompactionConfig.compression" href="#pdf.CompactionConfig.compression">compression</a></code></li>
+<li><code><a title="pdf.CompactionConfig.gridColor" href="#pdf.CompactionConfig.gridColor">gridColor</a></code></li>
+<li><code><a title="pdf.CompactionConfig.layoutMode" href="#pdf.CompactionConfig.layoutMode">layoutMode</a></code></li>
+<li><code><a title="pdf.CompactionConfig.maintainAspectRatio" href="#pdf.CompactionConfig.maintainAspectRatio">maintainAspectRatio</a></code></li>
+<li><code><a title="pdf.CompactionConfig.outputDir" href="#pdf.CompactionConfig.outputDir">outputDir</a></code></li>
+<li><code><a title="pdf.CompactionConfig.outputFilename" href="#pdf.CompactionConfig.outputFilename">outputFilename</a></code></li>
+<li><code><a title="pdf.CompactionConfig.pageOrder" href="#pdf.CompactionConfig.pageOrder">pageOrder</a></code></li>
+<li><code><a title="pdf.CompactionConfig.rows" href="#pdf.CompactionConfig.rows">rows</a></code></li>
+<li><code><a title="pdf.CompactionConfig.separationPages" href="#pdf.CompactionConfig.separationPages">separationPages</a></code></li>
+<li><code><a title="pdf.CompactionConfig.showGrid" href="#pdf.CompactionConfig.showGrid">showGrid</a></code></li>
+<li><code><a title="pdf.CompactionConfig.targetPages" href="#pdf.CompactionConfig.targetPages">targetPages</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pdf.LayoutMode" href="#pdf.LayoutMode">LayoutMode</a></code></h4>
+<ul class="">
+<li><code><a title="pdf.LayoutMode.GRID" href="#pdf.LayoutMode.GRID">GRID</a></code></li>
+<li><code><a title="pdf.LayoutMode.TARGET_PAGES" href="#pdf.LayoutMode.TARGET_PAGES">TARGET_PAGES</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pdf.PageOrder" href="#pdf.PageOrder">PageOrder</a></code></h4>
+<ul class="">
+<li><code><a title="pdf.PageOrder.HORIZONTAL" href="#pdf.PageOrder.HORIZONTAL">HORIZONTAL</a></code></li>
+<li><code><a title="pdf.PageOrder.VERTICAL" href="#pdf.PageOrder.VERTICAL">VERTICAL</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pdf.PdfCompactorApp" href="#pdf.PdfCompactorApp">PdfCompactorApp</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
