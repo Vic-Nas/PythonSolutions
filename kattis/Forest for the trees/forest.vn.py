@@ -17,7 +17,7 @@ y1, y2 = sorted([y1, y2])
 
 # Iterating on integer intersections
 # y = (yb/xb)x (Simplified by gcd) =>
-# y = (yb'/xb')x => x = k*xb' => y = k*yb'
+# y = (x/xb')yb' => y = k*yb' && x = k*xb', k in |N
 # y<yb => k*yb'<gcd*yb' => k<gcd
 k = 1
 while k<GCD:
