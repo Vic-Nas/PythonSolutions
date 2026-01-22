@@ -167,3 +167,4 @@ class Polygon:
                 return True
         
         return sum(hits) == 4
+    
