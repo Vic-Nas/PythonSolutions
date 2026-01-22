@@ -25,13 +25,12 @@ while k<GCD:
     y = k*yb
     
     k += 1
-    if x>=x1 and x<=x2:
-        if y>=y1 and y<=y2:
-            # We are in the rectangle
-            # We need to get out
-            # We are out when x is out or y is out
-            k = min(x2//xb, y2//yb)+1
-            continue
+    if x1<=x<x2 and y1<=y<=y2:
+        # We are in the rectangle
+        # We need to get out
+        # We are out when x is out or y is out
+        k = min(x2//xb, y2//yb)+1
+        continue
         
     print("No")
     print(x, y)
