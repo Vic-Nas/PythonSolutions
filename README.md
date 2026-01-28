@@ -1,6 +1,6 @@
-# [PythonSolutions](https://victorio-dev.github.io/PythonSolutions/)
+# [PythonSolutions](https://vicnas.me/py)
 
-## [Doc (vicutils)](https://victorio-dev.github.io/PythonSolutions/#vicutils)
+## [Doc (vicutils)](https://vicnas.me/py/#vicutils)
 
 A collection of programming problem solutions and python package.
 
@@ -15,4 +15,5 @@ A collection of programming problem solutions and python package.
 ```bash
 pip install vicutils
 ```
+
 
